@@ -67,7 +67,7 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 pmrem.dispose();
 
-const key = new THREE.DirectionalLight(0xf2ece0, 1.6);
+const key = new THREE.DirectionalLight(0xf2ece0, 2.6);
 key.position.set(3, 5, 4);
 key.castShadow = true;
 key.shadow.mapSize.set(2048, 2048);
@@ -80,31 +80,51 @@ key.shadow.camera.bottom = -4;
 key.shadow.bias = -0.0012;
 scene.add(key);
 
-const rim = new THREE.DirectionalLight(0xcfdcff, 1.9);
+/* A hard cool rim behind. A matte black figure on a near-black stage has
+   almost no tonal separation, so the rim is what draws the silhouette. */
+const rim = new THREE.DirectionalLight(0xbcd4ff, 4.2);
 rim.position.set(-4, 2.5, -4);
 scene.add(rim);
+
+const fill = new THREE.DirectionalLight(0x8f9bb5, 0.7);
+fill.position.set(-2, 1.2, 3);
+scene.add(fill);
 
 /* ---------------- Turntable ---------------- */
 
 const turntable = new THREE.Group();
 scene.add(turntable);
 
+/* The floor is sized to the figure, not to the world. At radius 6 a disc
+   dwarfed a 2.6-unit model and the empty stage read as the subject. */
 const ground = new THREE.Mesh(
-  new THREE.CircleGeometry(6, 64),
+  new THREE.CircleGeometry(2.4, 64),
   new THREE.MeshStandardMaterial({
-    color: 0x0c0c10, roughness: 0.38, metalness: 0.5
+    color: 0x0a0a0e, roughness: 0.42, metalness: 0.55
   })
 );
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
+/* Fade the floor out instead of ending it on a hard rim. */
+const groundFade = new THREE.Mesh(
+  new THREE.RingGeometry(1.5, 3.4, 64),
+  new THREE.MeshBasicMaterial({
+    color: 0x0a0a0e, transparent: true, opacity: 0.85,
+    side: THREE.DoubleSide, depthWrite: false
+  })
+);
+groundFade.rotation.x = -Math.PI / 2;
+groundFade.position.y = 0.002;
+scene.add(groundFade);
+
 const ring = new THREE.Mesh(
-  new THREE.TorusGeometry(2.55, 0.008, 8, 160),
-  new THREE.MeshBasicMaterial({ color: 0x4e4e58 })
+  new THREE.TorusGeometry(0.78, 0.006, 8, 128),
+  new THREE.MeshBasicMaterial({ color: 0x5a5a68 })
 );
 ring.rotation.x = Math.PI / 2;
-ring.position.y = 0.004;
+ring.position.y = 0.006;
 scene.add(ring);
 
 /* ---------------- Loading ---------------- */
@@ -222,10 +242,15 @@ function resize() {
   if (!w || !h) return;
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
-  // Portrait phones need the camera further back or the bag crops.
-  camera.position.z = w < 700 ? 6.4 : 5.2;
-  camera.position.y = w < 700 ? 1.5 : 1.4;
-  camera.lookAt(0, 1.15, 0);
+
+  /* Frame the 2.6-unit figure so it fills the height with a little air.
+     A narrow stage needs the camera further back or the figure crops at
+     the top and the floor edge crowds the bottom. */
+  const portrait = h > w * 0.85;
+  const wide = w > 1500;
+  camera.position.z = portrait ? 5.6 : wide ? 5.3 : 4.9;
+  camera.position.y = portrait ? 1.42 : 1.32;
+  camera.lookAt(0, portrait ? 1.26 : 1.30, 0);
   camera.updateProjectionMatrix();
 }
 window.addEventListener("resize", resize, { passive: true });

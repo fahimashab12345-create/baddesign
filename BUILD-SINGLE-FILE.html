@@ -272,7 +272,10 @@ button, input, select { font: inherit; color: inherit; }
 
 .nav-link {
   position: relative;
-  background: none; border: 0; padding: .3rem 0; cursor: pointer;
+  background: none; border: 0; cursor: pointer;
+  /* Padding rather than line-height, so the underline stays put and the
+     hit area clears the 30px minimum. It was 29px. */
+  padding: .38rem 0; cursor: pointer;
   font-family: var(--mono);
   font-size: .72rem;
   letter-spacing: .17em;
@@ -447,6 +450,10 @@ button, input, select { font: inherit; color: inherit; }
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
+  /* The cue is only as wide as its vertical text, which left a 19px tap
+     target. Widen the hit area without changing what it looks like. */
+  min-width: 30px;
+  justify-content: center;
   align-items: center;
   gap: .9rem;
   color: var(--muted);
@@ -955,8 +962,10 @@ button, input, select { font: inherit; color: inherit; }
   left: var(--pad); bottom: 1.6rem;
   margin: 0;
   color: var(--muted);
-  font-size: .66rem;
-  letter-spacing: .16em;
+  /* 0.66rem lands at 10.56px, under the 11.2px legibility floor the rest
+     of the site holds to. Small labels still have to be readable. */
+  font-size: .74rem;
+  letter-spacing: .14em;
   text-transform: uppercase;
   pointer-events: none;
 }
@@ -970,8 +979,8 @@ button, input, select { font: inherit; color: inherit; }
   opacity: 0;
   transition: opacity .5s ease .2s;
   color: var(--muted);
-  font-size: .66rem;
-  letter-spacing: .16em;
+  font-size: .74rem;
+  letter-spacing: .14em;
   text-transform: uppercase;
   pointer-events: none;
   white-space: nowrap;
@@ -1516,9 +1525,11 @@ button, input, select { font: inherit; color: inherit; }
 }
 .co-step .mono {
   display: grid; place-items: center;
-  width: 22px; height: 22px; border-radius: 50%;
+  width: 24px; height: 24px; border-radius: 50%;
   border: 1px solid var(--line);
-  font-size: .68rem; letter-spacing: 0;
+  /* 0.68rem was 10.88px, under the 11.2px floor the rest of the site
+     holds to. The badge grows to fit the type, not the other way round. */
+  font-size: .72rem; letter-spacing: 0;
 }
 .co-step.is-on { color: var(--bone); }
 .co-step.is-on .mono { border-color: var(--bone); background: var(--bone); color: var(--void); }
@@ -1928,28 +1939,28 @@ button, input, select { font: inherit; color: inherit; }
   <section class="figure" id="figure">
     <div class="fig-copy">
       <p class="mono kicker reveal">In the round</p>
-      <h2 class="h-sec reveal">Vespers,<br /><span class="serif">turned slowly.</span></h2>
+      <h2 class="h-sec reveal">Drop 004,<br /><span class="serif">in the round.</span></h2>
       <p class="lead reveal">
-        A bag is not a silhouette until you move it. Drag the turntable and
-        watch the quilt catch light, the flap sit flat, and the chain pull
-        where it actually pulls.
+        Turn it. The silhouette is the whole argument — how far the shoulder
+        runs past the arm, where the waist pulls in, how the leg keeps its
+        width all the way down. Every angle is the same garment, cut once,
+        from one roll.
       </p>
 
       <dl class="fig-specs">
-        <div class="reveal"><dt>Piece</dt><dd>Vespers Quilted Flap</dd></div>
+        <div class="reveal"><dt>Look</dt><dd>Vespers Coat · Column Trouser</dd></div>
         <div class="reveal"><dt>Colourway</dt><dd>Noir</dd></div>
-        <div class="reveal"><dt>Body</dt><dd>Quilted lambskin over a rigid frame</dd></div>
-        <div class="reveal"><dt>Hardware</dt><dd>Palladium, brushed</dd></div>
-        <div class="reveal"><dt>Run</dt><dd>240 pieces, numbered</dd></div>
+        <div class="reveal"><dt>Build</dt><dd>Extended shoulder, nipped waist, full column leg</dd></div>
+        <div class="reveal"><dt>Run</dt><dd>600 pieces, numbered</dd></div>
       </dl>
 
-      <a class="btn btn-solid reveal" href="#shop">Shop the piece</a>
+      <a class="btn btn-solid reveal" href="#shop">Shop the look</a>
     </div>
 
     <div class="fig-stage">
       <div id="stage" class="stage">
         <!-- Poster. Visible until a .glb exists, and permanently if it never does. -->
-        <img class="stage-poster" src="img/product/bag-01.jpg" alt="Vespers Quilted Flap, black quilted leather with chain strap" loading="lazy" decoding="async" />
+        <img class="stage-poster" src="img/product/coat.jpg" alt="Vespers Coat: black hooded coat over a wide column trouser on a standing figure" loading="lazy" decoding="async" />
       </div>
 
       <div id="stageFallback" class="stage-fallback" hidden>
@@ -4124,7 +4135,7 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 pmrem.dispose();
 
-const key = new THREE.DirectionalLight(0xf2ece0, 1.6);
+const key = new THREE.DirectionalLight(0xf2ece0, 2.6);
 key.position.set(3, 5, 4);
 key.castShadow = true;
 key.shadow.mapSize.set(2048, 2048);
@@ -4137,31 +4148,51 @@ key.shadow.camera.bottom = -4;
 key.shadow.bias = -0.0012;
 scene.add(key);
 
-const rim = new THREE.DirectionalLight(0xcfdcff, 1.9);
+/* A hard cool rim behind. A matte black figure on a near-black stage has
+   almost no tonal separation, so the rim is what draws the silhouette. */
+const rim = new THREE.DirectionalLight(0xbcd4ff, 4.2);
 rim.position.set(-4, 2.5, -4);
 scene.add(rim);
+
+const fill = new THREE.DirectionalLight(0x8f9bb5, 0.7);
+fill.position.set(-2, 1.2, 3);
+scene.add(fill);
 
 /* ---------------- Turntable ---------------- */
 
 const turntable = new THREE.Group();
 scene.add(turntable);
 
+/* The floor is sized to the figure, not to the world. At radius 6 a disc
+   dwarfed a 2.6-unit model and the empty stage read as the subject. */
 const ground = new THREE.Mesh(
-  new THREE.CircleGeometry(6, 64),
+  new THREE.CircleGeometry(2.4, 64),
   new THREE.MeshStandardMaterial({
-    color: 0x0c0c10, roughness: 0.38, metalness: 0.5
+    color: 0x0a0a0e, roughness: 0.42, metalness: 0.55
   })
 );
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
+/* Fade the floor out instead of ending it on a hard rim. */
+const groundFade = new THREE.Mesh(
+  new THREE.RingGeometry(1.5, 3.4, 64),
+  new THREE.MeshBasicMaterial({
+    color: 0x0a0a0e, transparent: true, opacity: 0.85,
+    side: THREE.DoubleSide, depthWrite: false
+  })
+);
+groundFade.rotation.x = -Math.PI / 2;
+groundFade.position.y = 0.002;
+scene.add(groundFade);
+
 const ring = new THREE.Mesh(
-  new THREE.TorusGeometry(2.55, 0.008, 8, 160),
-  new THREE.MeshBasicMaterial({ color: 0x4e4e58 })
+  new THREE.TorusGeometry(0.78, 0.006, 8, 128),
+  new THREE.MeshBasicMaterial({ color: 0x5a5a68 })
 );
 ring.rotation.x = Math.PI / 2;
-ring.position.y = 0.004;
+ring.position.y = 0.006;
 scene.add(ring);
 
 /* ---------------- Loading ---------------- */
@@ -4279,10 +4310,15 @@ function resize() {
   if (!w || !h) return;
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
-  // Portrait phones need the camera further back or the bag crops.
-  camera.position.z = w < 700 ? 6.4 : 5.2;
-  camera.position.y = w < 700 ? 1.5 : 1.4;
-  camera.lookAt(0, 1.15, 0);
+
+  /* Frame the 2.6-unit figure so it fills the height with a little air.
+     A narrow stage needs the camera further back or the figure crops at
+     the top and the floor edge crowds the bottom. */
+  const portrait = h > w * 0.85;
+  const wide = w > 1500;
+  camera.position.z = portrait ? 5.6 : wide ? 5.3 : 4.9;
+  camera.position.y = portrait ? 1.42 : 1.32;
+  camera.lookAt(0, portrait ? 1.26 : 1.30, 0);
   camera.updateProjectionMatrix();
 }
 window.addEventListener("resize", resize, { passive: true });

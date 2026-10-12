@@ -239,7 +239,10 @@ button, input, select { font: inherit; color: inherit; }
 
 .nav-link {
   position: relative;
-  background: none; border: 0; padding: .3rem 0; cursor: pointer;
+  background: none; border: 0; cursor: pointer;
+  /* Padding rather than line-height, so the underline stays put and the
+     hit area clears the 30px minimum. It was 29px. */
+  padding: .38rem 0; cursor: pointer;
   font-family: var(--mono);
   font-size: .72rem;
   letter-spacing: .17em;
@@ -414,6 +417,10 @@ button, input, select { font: inherit; color: inherit; }
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
+  /* The cue is only as wide as its vertical text, which left a 19px tap
+     target. Widen the hit area without changing what it looks like. */
+  min-width: 30px;
+  justify-content: center;
   align-items: center;
   gap: .9rem;
   color: var(--muted);
@@ -922,8 +929,10 @@ button, input, select { font: inherit; color: inherit; }
   left: var(--pad); bottom: 1.6rem;
   margin: 0;
   color: var(--muted);
-  font-size: .66rem;
-  letter-spacing: .16em;
+  /* 0.66rem lands at 10.56px, under the 11.2px legibility floor the rest
+     of the site holds to. Small labels still have to be readable. */
+  font-size: .74rem;
+  letter-spacing: .14em;
   text-transform: uppercase;
   pointer-events: none;
 }
@@ -937,8 +946,8 @@ button, input, select { font: inherit; color: inherit; }
   opacity: 0;
   transition: opacity .5s ease .2s;
   color: var(--muted);
-  font-size: .66rem;
-  letter-spacing: .16em;
+  font-size: .74rem;
+  letter-spacing: .14em;
   text-transform: uppercase;
   pointer-events: none;
   white-space: nowrap;
@@ -1483,9 +1492,11 @@ button, input, select { font: inherit; color: inherit; }
 }
 .co-step .mono {
   display: grid; place-items: center;
-  width: 22px; height: 22px; border-radius: 50%;
+  width: 24px; height: 24px; border-radius: 50%;
   border: 1px solid var(--line);
-  font-size: .68rem; letter-spacing: 0;
+  /* 0.68rem was 10.88px, under the 11.2px floor the rest of the site
+     holds to. The badge grows to fit the type, not the other way round. */
+  font-size: .72rem; letter-spacing: 0;
 }
 .co-step.is-on { color: var(--bone); }
 .co-step.is-on .mono { border-color: var(--bone); background: var(--bone); color: var(--void); }
