@@ -891,6 +891,66 @@ button, input, select { font: inherit; color: inherit; }
 .stage-fallback p { margin: 0; max-width: 42ch; }
 .stage-fallback p + p { color: var(--muted); font-size: .9rem; }
 
+/* ---------------- Product viewer ----------------
+   The stage has two states. Poster-only is the resting state: a
+   photograph sits under the technical grid and nothing is
+   downloaded. is-live means a .glb resolved, the canvas is drawn
+   and the poster has faded out behind it. If the model never
+   arrives, the page stays exactly as it looks now - no spinner,
+   no console error, no broken layout. */
+
+.stage-poster {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: .85;
+  transition: opacity .6s ease;
+  z-index: 0;
+}
+.stage.is-poster-only .stage-poster { opacity: .9; }
+.stage.is-live .stage-poster { opacity: 0; }
+
+.stage canvas { position: relative; z-index: 1; }
+
+/* While the model is loading the poster is still legible, so keep
+   the grid faint rather than stacking it over the photograph. */
+.stage .stage-poster ~ canvas { background: transparent; }
+
+/* Status line sits bottom-left, out of the way of the turntable */
+.viewer-status {
+  position: absolute; z-index: 2;
+  left: var(--pad); bottom: 1.6rem;
+  margin: 0;
+  color: var(--muted);
+  font-size: .66rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* Only meaningful once there is something to rotate */
+.drag-hint {
+  position: absolute; z-index: 2;
+  left: 50%; bottom: 1.6rem;
+  transform: translateX(-50%);
+  margin: 0;
+  opacity: 0;
+  transition: opacity .5s ease .2s;
+  color: var(--muted);
+  font-size: .66rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.drag-hint.is-on { opacity: 1; }
+.drag-hint::before { display: none; }
+
+.stage:focus-visible { outline: 1px solid var(--line); outline-offset: -3px; }
+
+/* Poster mode needs a minimum height even before the GLB lands */
+.stage.is-poster-only { background: var(--void-2); }
+
 @media (min-width: 1000px) {
   .fig-copy { padding-bottom: clamp(2rem, 5vh, 3.5rem); }
 }

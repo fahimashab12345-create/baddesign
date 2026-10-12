@@ -1,0 +1,4 @@
+{
+  "_comment": "Set \"model\" to a filename in this folder to switch the turntable on. Leave it null and the stage keeps its poster photograph and never downloads a 3D engine. Example: { \"model\": \"product.glb\" }",
+  "model": null
+}

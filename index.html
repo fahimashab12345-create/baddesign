@@ -18,11 +18,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
 
-<!-- Three.js for the rotating figure. Loaded as an ES module via import map. -->
+<!-- Three.js for the product viewer. ES module via import map.
+     "three/addons/" resolves the loaders and environments. -->
 <script type="importmap">
 {
   "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
   }
 }
 </script>
@@ -327,6 +329,44 @@
     </div>
   </section>
 
+  <!-- ============ PRODUCT VIEWER — 360° ============ -->
+  <section class="figure" id="figure">
+    <div class="fig-copy">
+      <p class="mono kicker reveal">In the round</p>
+      <h2 class="h-sec reveal">Vespers,<br /><span class="serif">turned slowly.</span></h2>
+      <p class="lead reveal">
+        A bag is not a silhouette until you move it. Drag the turntable and
+        watch the quilt catch light, the flap sit flat, and the chain pull
+        where it actually pulls.
+      </p>
+
+      <dl class="fig-specs">
+        <div class="reveal"><dt>Piece</dt><dd>Vespers Quilted Flap</dd></div>
+        <div class="reveal"><dt>Colourway</dt><dd>Noir</dd></div>
+        <div class="reveal"><dt>Body</dt><dd>Quilted lambskin over a rigid frame</dd></div>
+        <div class="reveal"><dt>Hardware</dt><dd>Palladium, brushed</dd></div>
+        <div class="reveal"><dt>Run</dt><dd>240 pieces, numbered</dd></div>
+      </dl>
+
+      <a class="btn btn-solid reveal" href="#shop">Shop the piece</a>
+    </div>
+
+    <div class="fig-stage">
+      <div id="stage" class="stage">
+        <!-- Poster. Visible until a .glb exists, and permanently if it never does. -->
+        <img class="stage-poster" src="img/product/bag-01.jpg" alt="Vespers Quilted Flap, black quilted leather with chain strap" loading="lazy" decoding="async" />
+      </div>
+
+      <div id="stageFallback" class="stage-fallback" hidden>
+        <p class="mono">3D view unavailable</p>
+        <p>This browser can’t run WebGL, so the turntable is switched off. The photograph above shows the piece.</p>
+      </div>
+
+      <p class="viewer-status mono" id="viewerStatus">Loading model</p>
+      <p class="drag-hint mono" id="dragHint">Drag to rotate · arrow keys work too</p>
+    </div>
+  </section>
+
   <!-- ============ LOOKBOOK ============ -->
   <section class="lookbook" id="lookbook">
     <header class="sec-head">
@@ -370,37 +410,6 @@
       Editorial imagery from Unsplash contributors, used under the Unsplash
       License. Not product photography — the catalogue pieces are technical flats.
     </p>
-  </section>
-
-  <!-- ============ THE FIGURE — 360° ============ -->
-  <section class="figure" id="figure">
-    <div class="fig-copy">
-      <p class="mono kicker reveal">The figure</p>
-      <h2 class="h-sec reveal">Drop 004,<br /><span class="serif">in the round.</span></h2>
-      <p class="lead reveal">
-        Turn it. The silhouette is the whole argument — the shoulder line, the
-        sleeve weight, how far the trouser breaks over the boot. Every angle
-        is the same garment, cut once, from one roll.
-      </p>
-
-      <dl class="fig-specs">
-        <div class="reveal"><dt>Look</dt><dd>Gravity Hoodie · Monolith Cargo · Terminus Boot</dd></div>
-        <div class="reveal"><dt>Colourway</dt><dd>Onyx</dd></div>
-        <div class="reveal"><dt>Build</dt><dd>480 GSM loopback / 40D bonded nylon</dd></div>
-        <div class="reveal"><dt>Run</dt><dd>600 pieces, numbered</dd></div>
-      </dl>
-
-      <a class="btn reveal" href="#shop">Shop the look</a>
-      <p class="drag-hint mono">Drag the figure to rotate</p>
-    </div>
-
-    <div class="fig-stage">
-      <div id="stage" class="stage"></div>
-      <div id="stageFallback" class="stage-fallback" hidden>
-        <p class="mono">3D view unavailable</p>
-        <p>This browser can’t run WebGL, so the rotating figure is switched off. Everything else on the page still works.</p>
-      </div>
-    </div>
   </section>
 
   <!-- ============ FULL-BLEED STATEMENT ============ -->
@@ -652,6 +661,6 @@
 <script src="atmos.js"></script>
 <script src="app.js"></script>
 <script src="optics.js"></script>
-<script type="module" src="lookbook3d.js"></script>
+<script type="module" src="viewer.js"></script>
 </body>
 </html>
