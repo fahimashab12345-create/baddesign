@@ -380,21 +380,30 @@ function start() {
 
   window.addEventListener("resize", resize, { passive: true });
 
-  /* ---- Only animate while it is on screen ---- */
+  /* ---- Only animate while it is on screen ----
+     Same resilience rule as optics.js: a single sync() re-checks every
+     condition, because browsers suspend IntersectionObserver and rAF in
+     background tabs, which would otherwise leave the figure frozen. */
   if ("IntersectionObserver" in window) {
     new IntersectionObserver((entries) => {
       entries.forEach((en) => {
-        if (en.isIntersecting && !visible) {
-          visible = true;
-          clock.getDelta();
-          raf = requestAnimationFrame(frame);
-        } else if (!en.isIntersecting && visible) {
-          visible = false;
-          cancelAnimationFrame(raf);
-        }
+        visible = en.isIntersecting;
+        if (visible && !document.hidden) { clock.getDelta(); raf = requestAnimationFrame(frame); }
+        else { cancelAnimationFrame(raf); raf = 0; }
       });
     }, { threshold: 0.05 }).observe(host);
+  } else {
+    visible = true;
   }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) { cancelAnimationFrame(raf); raf = 0; }
+    else if (visible && !raf) { clock.getDelta(); raf = requestAnimationFrame(frame); }
+  });
+
+  window.addEventListener("pageshow", () => {
+    if (visible && !document.hidden && !raf) { clock.getDelta(); raf = requestAnimationFrame(frame); }
+  });
 
   raf = requestAnimationFrame(frame);
 

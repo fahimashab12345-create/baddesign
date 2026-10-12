@@ -29,6 +29,23 @@
 </head>
 <body>
 
+<!-- Shared gradients for the garment flats. Defined once here because every
+     flat is an inline SVG, and SVG paint servers are document-scoped. -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute;pointer-events:none">
+  <defs>
+    <linearGradient id="bdCloth" x1="0.1" y1="0" x2="0.55" y2="1">
+      <stop offset="0%"   stop-color="#22222b" />
+      <stop offset="42%"  stop-color="#121218" />
+      <stop offset="78%"  stop-color="#0b0b0f" />
+      <stop offset="100%" stop-color="#191921" />
+    </linearGradient>
+    <linearGradient id="bdClothDeep" x1="0.1" y1="0" x2="0.5" y2="1">
+      <stop offset="0%"   stop-color="#15151c" />
+      <stop offset="100%" stop-color="#08080b" />
+    </linearGradient>
+  </defs>
+</svg>
+
 <canvas id="grain" aria-hidden="true"></canvas>
 <div class="vignette" aria-hidden="true"></div>
 <div class="cursor" id="cursor" aria-hidden="true"></div>
@@ -266,6 +283,53 @@
     </div>
   </section>
 
+  <!-- ============ SPECIMEN — optical study ============ -->
+  <section class="specimen" id="specimen">
+    <div class="spec-inner">
+      <p class="mono kicker reveal">Specimen 01 — Optical study</p>
+      <h2 class="h-sec reveal">One surface,<br /><span class="serif">folded until it repeats.</span></h2>
+      <p class="lead reveal">
+        We put every fabric under the same raking light before it is signed off.
+        This is that study, rebuilt in a shader: one height field, mirror-folded,
+        lit from a single source, and filmed at a thickness that varies with the
+        surface itself. The dials are real — they drive the uniform. Nothing here
+        is a video.
+      </p>
+    </div>
+
+    <div class="spec-stage">
+      <canvas id="optics"></canvas>
+
+      <div id="opticsFallback" class="spec-fallback" hidden>
+        <p class="mono">Specimen unavailable</p>
+        <p>This browser can’t run WebGL, so the study is switched off. Everything else on the page still works.</p>
+      </div>
+
+      <div class="instrument">
+        <div class="inst-row">
+          <label class="mono" for="foldRange">Fold</label>
+          <input type="range" id="foldRange" min="4" max="12" step="1" value="8" />
+          <output class="mono val" id="foldVal" for="foldRange">8</output>
+        </div>
+        <div class="inst-row">
+          <label class="mono" for="warpRange">Warp</label>
+          <input type="range" id="warpRange" min="0.4" max="5" step="0.01" value="2.6" />
+          <output class="mono val" id="warpVal" for="warpRange">2.60</output>
+        </div>
+        <div class="inst-row">
+          <span class="mono">Film</span>
+          <output class="mono val"><span id="filmVal">—</span>&nbsp;nm</output>
+        </div>
+        <div class="inst-row">
+          <span class="mono">Rate</span>
+          <output class="mono val"><span id="fpsVal">—</span>&nbsp;fps</output>
+        </div>
+      </div>
+
+      <p class="spec-caption mono">Live GLSL · drag a dial · move the cursor</p>
+    </div>
+  </section>
+
   <!-- ============ LOOKBOOK ============ -->
   <section class="lookbook" id="lookbook">
     <header class="sec-head">
@@ -276,22 +340,39 @@
 
     <div class="look-grid">
       <figure class="look look-tall reveal">
-        <div class="look-img" data-macro></div>
-        <figcaption class="mono">01 — Gravity Hoodie, Onyx</figcaption>
+        <div class="look-img">
+          <img src="img/campaign/look-01.jpg" loading="lazy" decoding="async"
+               alt="Model in an oversized dark cape, photographed in a dim interior" />
+        </div>
+        <figcaption class="mono">01 — Void Series, full look</figcaption>
       </figure>
       <figure class="look reveal">
-        <div class="look-img" data-macro></div>
-        <figcaption class="mono">02 — Monolith Cargo, Onyx</figcaption>
+        <div class="look-img">
+          <img src="img/campaign/look-03.jpg" loading="lazy" decoding="async"
+               alt="Detail of a black roll-neck, raking light across the shoulder" />
+        </div>
+        <figcaption class="mono">02 — Gravity Hoodie, Onyx</figcaption>
       </figure>
       <figure class="look reveal">
-        <div class="look-img" data-macro></div>
-        <figcaption class="mono">03 — Obsidian Track, Chalk</figcaption>
+        <div class="look-img">
+          <img src="img/campaign/look-04.jpg" loading="lazy" decoding="async"
+               alt="Model seated in a dark room, knitwear under low light" />
+        </div>
+        <figcaption class="mono">03 — Abyss Knit, Onyx</figcaption>
       </figure>
       <figure class="look look-wide reveal">
-        <div class="look-img" data-macro></div>
-        <figcaption class="mono">04 — Full look, Void Series</figcaption>
+        <div class="look-img">
+          <img src="img/campaign/look-02.jpg" loading="lazy" decoding="async"
+               alt="Portrait of a model in black against a dark ground" />
+        </div>
+        <figcaption class="mono">04 — Campaign 004, Rotterdam</figcaption>
       </figure>
     </div>
+
+    <p class="credit mono reveal">
+      Editorial imagery from Unsplash contributors, used under the Unsplash
+      License. Not product photography — the catalogue pieces are technical flats.
+    </p>
   </section>
 
   <!-- ============ THE FIGURE — 360° ============ -->
@@ -500,6 +581,7 @@
 <script src="garments.js"></script>
 <script src="atmos.js"></script>
 <script src="app.js"></script>
+<script src="optics.js"></script>
 <script type="module" src="lookbook3d.js"></script>
 </body>
 </html>

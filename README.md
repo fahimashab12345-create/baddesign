@@ -17,8 +17,45 @@ served straight from the repo.
 | `garments.js` | Technical-flat SVGs for the catalogue, plus the woven-fabric macro. |
 | `app.js` | Catalogue data, cart, filters, search, menus, countdown, size guide. |
 | `atmos.js` | Film grain and a slow light sweep on a fixed canvas. |
+| `optics.js` | The kaleidoscopic thin-film shader and its instrument panel. |
 | `lookbook3d.js` | Three.js turntable figure. ES module. |
+| `img/campaign/` | Four editorial photographs (see Images). |
 | `favicon.svg` | The `A` mark. |
+
+## Images
+
+Two different kinds of imagery, deliberately kept apart:
+
+**Editorial (Campaign section) — real photographs.** `img/campaign/*.jpg`,
+four dark fashion images from [Unsplash](https://unsplash.com), used under
+the [Unsplash License](https://unsplash.com/license) — free for commercial
+use, no attribution required (credited anyway, in the page footer). Pulled
+down at `w=1400 q=72` so they total ~557 KB rather than several megabytes.
+
+**Catalogue products — technical flats, not photos.** A stock photo of a
+random person in a green sweater captioned *"Gravity Oversized Hoodie,
+Onyx"* would be a lie about the product. The flats are the honest option,
+they match the brand's spec-sheet language, and they cost zero bytes.
+
+To use real product shots, see "Swapping in real photography" below.
+
+## The optical study
+
+`optics.js` is a single fullscreen fragment shader. It polar-folds the
+plane into N mirrors, domain-warps it with fractal noise, reads a height
+field, derives a normal from finite differences, then shades it — diffuse,
+a tight specular, and thin-film interference whose "thickness" is mapped
+from height the way real optics works, so the colour bands follow the
+contours.
+
+The **Fold** and **Warp** dials are real uniforms, and the readouts are
+real values — including a measured frame rate, not a decorative one.
+
+Both this and `lookbook3d.js` gate their render loop through one `sync()`
+function re-checked by `visibilitychange`, `pageshow`, `focus` and the
+`IntersectionObserver`. Browsers suspend both rAF and IntersectionObserver
+in background tabs, so a per-handler assumption would leave the canvas
+permanently frozen when the page is opened in a background tab.
 
 ## Atmosphere, and why it sits behind the page
 
@@ -101,6 +138,19 @@ weight and carries no licensing. To use real product shots, in
 
 `.media-b` is the hover state — put the second angle there. Give the
 images an `aspect-ratio: 4 / 5` object-fit cover and they drop straight in.
+
+## Mobile
+
+Measured in real viewports by loading the page in an iframe at 390×844,
+360×740 and 768×1024:
+
+- **0px horizontal overflow** at all three widths
+- **0 tap targets under 30px** — footer links, cart quantity steppers,
+  remove links, size-guide link and the optics dials were all flagged in
+  an earlier pass and now carry a `min-height`. The dials get a full 44px
+  target and a 20px handle under `(hover: none) and (pointer: coarse)`
+- Single-column product grid and lookbook below 620px
+- Burger nav replaces the desktop nav below 900px
 
 ## Deploying an update
 

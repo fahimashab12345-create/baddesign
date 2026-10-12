@@ -176,6 +176,7 @@ button, input, select { font: inherit; color: inherit; }
 
 .link-btn {
   background: none; border: 0; padding: 0; cursor: pointer;
+  display: inline-flex; align-items: center; min-height: 34px;
   text-decoration: underline; text-underline-offset: 4px;
   text-decoration-color: var(--line);
   transition: text-decoration-color .25s;
@@ -222,7 +223,7 @@ button, input, select { font: inherit; color: inherit; }
 .hdr.is-stuck { background: rgba(8, 8, 10, .92); border-bottom-color: var(--line-2); }
 .hdr.is-hidden { transform: translateY(-100%); }
 
-.logo { display: inline-flex; align-items: center; gap: .6rem; }
+.logo { display: inline-flex; align-items: center; gap: .6rem; min-height: 40px; }
 .logo-mark { width: 22px; height: 22px; color: var(--bone); }
 .logo-mark svg { width: 100%; height: 100%; }
 .logo-word {
@@ -685,6 +686,121 @@ button, input, select { font: inherit; color: inherit; }
 .tech-card:hover .tech-img svg { transform: scale(1.08); }
 .tech-card p { margin: .6rem 0 0; }
 
+/* ---------------- Specimen — optical study ---------------- */
+
+.specimen { border-top: 1px solid var(--line-2); background: var(--void); }
+
+.spec-inner {
+  max-width: var(--maxw); margin: 0 auto;
+  padding: clamp(3.5rem, 9vh, 6rem) var(--pad) clamp(2rem, 5vh, 3.5rem);
+}
+.spec-inner .lead { max-width: 52ch; }
+
+.spec-stage {
+  position: relative;
+  border-top: 1px solid var(--line-2);
+  background: #050507;
+}
+
+#optics {
+  display: block;
+  width: 100%;
+  height: clamp(480px, 82vh, 880px);
+}
+
+.spec-fallback {
+  display: grid; place-content: center; gap: .8rem;
+  text-align: center;
+  height: clamp(480px, 82vh, 880px);
+  padding: 2rem var(--pad);
+}
+.spec-fallback p { margin: 0; max-width: 44ch; }
+.spec-fallback p + p { color: var(--muted); font-size: .92rem; }
+
+/* Instrument panel — reads like a bench readout, sits over the render */
+.instrument {
+  position: absolute; left: var(--pad); bottom: clamp(1.25rem, 4vh, 2.5rem);
+  z-index: 2;
+  min-width: 232px;
+  padding: 1rem 1.1rem;
+  background: rgba(10, 10, 13, .72);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.inst-row {
+  display: grid;
+  grid-template-columns: 3.4rem 1fr auto;
+  align-items: center;
+  gap: .7rem;
+  padding: .4rem 0;
+}
+.inst-row + .inst-row { border-top: 1px solid var(--line-2); }
+
+/* Read-only rows don't need the slider column */
+.inst-row:not(.inst-control) { grid-template-columns: 3.4rem 1fr; }
+
+.inst-row .val {
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  min-width: 4.2rem;
+}
+
+/* Range inputs, restyled to match. The track is thin on purpose, but the
+   control itself is sized for a thumb — it measured 18px tall, which is
+   not draggable on a phone. */
+.inst-row input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 30px;
+  background: transparent;
+  cursor: pointer;
+}
+.inst-row input[type="range"]::-webkit-slider-runnable-track {
+  height: 1px; background: var(--line);
+}
+.inst-row input[type="range"]::-moz-range-track {
+  height: 1px; background: var(--line);
+}
+.inst-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; margin-top: -6.5px;
+  border-radius: 50%;
+  background: var(--bone);
+  transition: transform .18s var(--ease), background .18s;
+}
+.inst-row input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px; border: 0;
+  border-radius: 50%;
+  background: var(--bone);
+}
+.inst-row input[type="range"]:hover::-webkit-slider-thumb { transform: scale(1.25); }
+.inst-row input[type="range"]:focus-visible::-webkit-slider-thumb { background: var(--accent); }
+
+/* Touch devices get a full-size target and a bigger handle */
+@media (hover: none) and (pointer: coarse) {
+  .inst-row { padding: .55rem 0; }
+  .inst-row input[type="range"] { height: 44px; }
+  .inst-row input[type="range"]::-webkit-slider-thumb {
+    width: 20px; height: 20px; margin-top: -9.5px;
+  }
+  .inst-row input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; }
+  .inst-row .val { font-size: .85rem; }
+}
+
+.spec-caption {
+  position: absolute; right: var(--pad); bottom: clamp(1.25rem, 4vh, 2.5rem);
+  z-index: 2;
+  margin: 0;
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  .instrument { position: static; margin: 0 var(--pad) 1.5rem; min-width: 0; }
+  .spec-caption { position: static; margin: 0 var(--pad) 1.5rem; text-align: left; }
+}
+
 /* ---------------- Lookbook ---------------- */
 
 .lookbook { max-width: var(--maxw); margin: 0 auto; padding: clamp(4rem, 11vh, 8rem) var(--pad); }
@@ -695,9 +811,25 @@ button, input, select { font: inherit; color: inherit; }
 .look-img { aspect-ratio: 4 / 5; overflow: hidden; background: var(--void-3); }
 .look-tall .look-img { aspect-ratio: 3 / 5; }
 .look-wide .look-img { aspect-ratio: 16 / 9; }
-.look-img svg { width: 100%; height: 100%; object-fit: cover; transition: transform 1.3s var(--ease), filter .6s; filter: brightness(.85); }
-.look:hover .look-img svg { transform: scale(1.05); filter: brightness(1.1); }
+
+/* Both the procedural macro (svg) and real photography (img) fill the
+   frame the same way, so a tile can hold either without restyling. */
+.look-img svg, .look-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 1.3s var(--ease), filter .6s;
+  filter: brightness(.82) saturate(.8);
+}
+.look:hover .look-img svg, .look:hover .look-img img { transform: scale(1.05); filter: brightness(1.05) saturate(.95); }
 .look figcaption { padding: .9rem .2rem; }
+
+.credit {
+  max-width: var(--maxw);
+  margin: 2rem auto 0;
+  padding: 0 var(--pad);
+  color: var(--muted);
+  line-height: 1.9;
+}
 
 /* ---------------- The figure (360) ---------------- */
 
@@ -848,11 +980,15 @@ button, input, select { font: inherit; color: inherit; }
   padding: clamp(2rem, 5vh, 3.5rem) 0;
 }
 @media (min-width: 760px) { .ftr-cols { grid-template-columns: repeat(4, 1fr); } }
-.ftr-cols > div { display: flex; flex-direction: column; gap: .6rem; align-items: flex-start; }
-.ftr-h { margin: 0 0 .3rem; }
+.ftr-cols > div { display: flex; flex-direction: column; gap: .1rem; align-items: flex-start; }
+.ftr-h { margin: 0 0 .4rem; }
+/* min-height keeps these at a thumb-sized target — they measured 24px on
+   a 390px viewport, well under the 44px guideline. */
 .ftr-cols a, .ftr-cols button {
   background: none; border: 0; padding: 0; cursor: pointer;
-  font-size: .92rem; color: var(--bone-dim);
+  display: inline-flex; align-items: center;
+  min-height: 38px;
+  font-size: .95rem; color: var(--bone-dim);
   transition: color .2s;
 }
 .ftr-cols a:hover, .ftr-cols button:hover { color: var(--bone); }
@@ -866,7 +1002,8 @@ button, input, select { font: inherit; color: inherit; }
 }
 .ftr-bottom p { margin: 0; }
 .demo-warn { color: var(--muted); }
-.ftr-legal { display: flex; gap: 1.2rem; }
+.ftr-legal { display: flex; gap: .4rem; }
+.ftr-legal a { display: inline-flex; align-items: center; min-height: 34px; padding: 0 .5rem; }
 .ftr-legal a:hover { color: var(--bone); }
 
 /* ---------------- Overlays ---------------- */
@@ -953,13 +1090,13 @@ button, input, select { font: inherit; color: inherit; }
 .line-name { margin: 0 0 .2rem; font-size: .9rem; font-weight: 500; }
 .line-info .mono { margin: 0; font-size: .72rem; }
 .qty { display: inline-flex; align-items: center; gap: .6rem; margin-top: .6rem; border: 1px solid var(--line-2); padding: .15rem .4rem; }
-.qty button { width: 22px; height: 22px; background: none; border: 0; cursor: pointer; color: var(--bone-dim); line-height: 1; }
+.qty button { width: 32px; height: 32px; background: none; border: 0; cursor: pointer; color: var(--bone-dim); line-height: 1; font-size: 1rem; }
 .qty button:hover { color: var(--bone); }
 .qty span { font-family: var(--mono); font-size: .7rem; min-width: 14px; text-align: center; }
 
 .line-end { text-align: right; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; }
 .line-price { margin: 0; font-family: var(--mono); font-size: .8rem; }
-.line-rm { background: none; border: 0; padding: 0; cursor: pointer; font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.line-rm { background: none; border: 0; padding: 0; cursor: pointer; display: inline-flex; align-items: center; min-height: 32px; font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
 .line-rm:hover { color: var(--bone); }
 
 .totals { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: .5rem; font-family: var(--mono); font-size: .78rem; }
@@ -1045,8 +1182,10 @@ button, input, select { font: inherit; color: inherit; }
 
 .flat { width: 100%; height: 100%; }
 
+/* Cloth fill is a shared gradient defined once in index.html, which gives
+   every flat real dimension instead of a flat outline. */
 .flat .g-body {
-  fill: var(--flat-fill);
+  fill: url(#bdCloth);
   stroke: var(--flat-stroke);
   stroke-width: 1.6;
   stroke-linejoin: round;
@@ -1058,7 +1197,7 @@ button, input, select { font: inherit; color: inherit; }
   opacity: .8;
 }
 .flat .g-d {
-  fill: rgba(233, 229, 219, .06);
+  fill: url(#bdClothDeep);
   stroke: var(--flat-stroke);
   stroke-width: 1.2;
 }
@@ -1067,6 +1206,22 @@ button, input, select { font: inherit; color: inherit; }
   stroke: var(--flat-stroke);
   stroke-width: .9;
   opacity: .55;
+}
+/* Topstitching — dashed, sits just inside a seam */
+.flat .g-stitch {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: .7;
+  stroke-dasharray: 3 3.5;
+  opacity: .5;
+}
+/* Bar tacks at stress points */
+.flat .g-tack {
+  fill: none;
+  stroke: var(--flat-stroke);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: .9;
 }
 .flat .g-hi {
   fill: none;
