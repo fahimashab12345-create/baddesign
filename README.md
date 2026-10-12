@@ -216,8 +216,28 @@ git commit -m "update"
 git push
 ```
 
-The GitHub push triggers a rebuild on SnapDeploy; changes are live in
-about two minutes.
+The GitHub push triggers a GitHub Pages build; changes are live in about
+a minute.
+
+Live: <https://fahimashab12345-create.github.io/baddesign/>
+
+### Why not SnapDeploy
+
+It was the host until 12 October 2026, when the container hit its **5/5
+daily deploy limit** and stopped rebuilding. The failure mode was unusual:
+the GitHub webhook kept delivering and SnapDeploy kept answering
+`200 Accepted`, but nothing was built. The last successful deploy was
+05:25 UTC and the site served a stale build for hours with no error
+surfaced anywhere.
+
+That is worse than a hard error, because the integration still looks
+healthy from both sides. GitHub Pages has no daily deploy cap, publishes
+from the same repository with no second account to connect, and shows its
+build status where you can actually see it.
+
+`.nojekyll` in the repository root is required. Without it Pages runs
+Jekyll over the tree, which tries to render `README.md` and rewrites asset
+paths, breaking the ES module imports and the 3D manifest fetch.
 
 ## Previewing before you push
 
