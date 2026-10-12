@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fahim — Builder of Strange, Fast Things</title>
+<meta name="description" content="Fahim — building local-first software: a browser desktop OS, a private ComfyUI batch engine, security tooling, and a novel." />
+<meta property="og:title" content="Fahim — Builder of Strange, Fast Things" />
+<meta property="og:description" content="Local-first software: a browser desktop OS, a private ComfyUI batch engine, security tooling, and a novel." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Space+Grotesk:wght@400;500&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!--
+  ============================================================
+  EDIT ME — built from Fahim's real projects.
+  Things still to fill in:
+  1. [YOUR CITY]        — hero status line
+  2. [YOUR GITHUB]      — section 04
+  3. you@example.com    — section 04
+  Delete any link you don't want. Add more the same way.
+  Save, push to GitHub, live in about 2 minutes.
+  ============================================================
+-->
+
+<canvas id="cosmos" aria-hidden="true"></canvas>
+<canvas id="motes" aria-hidden="true"></canvas>
+<div class="scrim" aria-hidden="true"></div>
+<div class="scanlines" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+
+<a class="skip" href="#work">Skip to content</a>
+
+<header class="nav">
+  <a class="wordmark" href="#top">
+    <span class="orb" aria-hidden="true"></span>baddesign
+  </a>
+  <nav class="navlinks">
+    <a href="#work">Signals</a>
+    <a href="#about">Origin</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <p class="eyebrow reveal">
+      <span class="pip" aria-hidden="true"></span>
+      Transmission incoming — [YOUR CITY]
+    </p>
+
+    <h1 class="hero-title">
+      <span class="line reveal">FAHIM</span>
+      <span class="line glitch reveal" data-text="HERE.">HERE.</span>
+    </h1>
+
+    <p class="hero-sub reveal">
+      I build <em>strange, fast things</em> that run on my own machine —
+      and I edit phonk until the transition lands right.
+    </p>
+
+    <div class="hero-cta reveal">
+      <a class="btn btn-solid" href="#work">See the builds</a>
+      <a class="btn" href="#contact">Transmit a message</a>
+    </div>
+
+    <dl class="status reveal">
+      <div><dt>Mission clock</dt><dd id="clock">--:--:--</dd></div>
+      <div><dt>Operating</dt><dd>Local-first</dd></div>
+      <div><dt>Signal</dt><dd>Open to work</dd></div>
+    </dl>
+  </section>
+
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>Zero dependencies</span><b>✦</b>
+      <span>Nothing leaves the machine</span><b>✦</b>
+      <span>Built at 2am, kept for years</span><b>✦</b>
+      <span>Zero dependencies</span><b>✦</b>
+      <span>Nothing leaves the machine</span><b>✦</b>
+      <span>Built at 2am, kept for years</span><b>✦</b>
+    </div>
+  </div>
+
+  <!-- ============ 01 ORIGIN ============ -->
+  <section class="section" id="about">
+    <p class="marker reveal"><span>01</span> // Origin</p>
+    <div class="about-grid">
+      <h2 class="reveal">Everything runs<br />on my hardware.</h2>
+      <div class="prose reveal">
+        <p>
+          I'm Fahim. Most of what I build starts as a tool I needed at 2am and
+          ends up outliving the problem: a desktop environment that lives in a
+          browser tab, a ComfyUI batch engine that never sends a prompt
+          anywhere, a Discord bot structurally forbidden from sending a message
+          on its own.
+        </p>
+        <p>
+          The through-line is <strong>local-first</strong>. If it needs a server
+          to work, it probably didn't need to exist. The machine already has a
+          GPU in it — that's usually enough. The other half of the work needs no
+          GPU at all: cutting phonk edits by ear until the drop hits.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 02 SIGNALS ============ -->
+  <section class="section" id="work">
+    <p class="marker reveal"><span>02</span> // Signals</p>
+    <h2 class="section-head reveal">What I've built</h2>
+
+    <div class="cards">
+      <article class="card reveal">
+        <p class="card-no">SIGNAL 01</p>
+        <h3>PZ // die lit</h3>
+        <p class="card-desc">
+          A desktop operating system in 145&nbsp;KB of HTML, CSS and JavaScript.
+          Ten apps, a draggable window manager that snaps to edges, eight theme
+          presets, live FPS telemetry — and a full CRT stack: film grain,
+          drifting scanlines, chromatic aberration, jitter, cursor trail, star
+          rain. Zero dependencies, zero build step, zero network calls.
+        </p>
+        <ul class="tags"><li>JavaScript</li><li>Canvas</li><li>UI</li></ul>
+        <a class="card-link" href="#" aria-label="View PZ die lit">Open <span aria-hidden="true">↗</span></a>
+      </article>
+
+      <article class="card reveal">
+        <p class="card-no">SIGNAL 02</p>
+        <h3>Visualizer Edits</h3>
+        <p class="card-desc">
+          A channel of phonk edits — slowed tracks, hard transition cuts, and
+          reactive visuals that move with the bass. Fifteen uploads;
+          <em>Jaydes — Pixxa</em> has pulled 6.6K views and
+          <em>Subiibabii — 2x</em> 6.1K. Timed by ear, then fixed in the
+          timeline until it lands.
+        </p>
+        <ul class="tags"><li>Video</li><li>Motion</li><li>Sound</li></ul>
+        <a class="card-link" href="https://www.youtube.com/@fyeonxans" target="_blank" rel="noopener">Watch <span aria-hidden="true">↗</span></a>
+      </article>
+
+      <article class="card reveal">
+        <p class="card-no">SIGNAL 03</p>
+        <h3>ComfyBatch</h3>
+        <p class="card-desc">
+          Continuous private ComfyUI batch generation. Swap the prompt, press
+          Start, walk away — every image carries embedded metadata, a JSON
+          sidecar with the exact workflow, and a row in the generation log.
+          Ships as one self-contained <code>.exe</code>, and an orphan-engine
+          reaper guarantees images only run when you press the button. Under it
+          sits roughly 100&nbsp;GB of weights — IllustriousXL, PonyXL, SDXL,
+          Krea&nbsp;2, FLUX, Wan&nbsp;2.2 — and about a hundred trained LoRAs,
+          one of which is me.
+        </p>
+        <ul class="tags"><li>Python</li><li>ComfyUI</li><li>SDXL</li></ul>
+        <a class="card-link" href="#" aria-label="View ComfyBatch">Open <span aria-hidden="true">↗</span></a>
+      </article>
+
+      <article class="card reveal">
+        <p class="card-no">SIGNAL 04</p>
+        <h3>Love Language Model</h3>
+        <p class="card-desc">
+          Learns how one specific person actually communicates from their own
+          messages, keeps the evidence behind every score, and drafts replies
+          written for that person. Bipolar traits are signed and evidence decays,
+          so it models who someone <em>is now</em>, not their historical
+          average. Consent is structural: a consent record with no provenance is
+          not a record.
+        </p>
+        <ul class="tags"><li>Python</li><li>NLP</li><li>Discord</li></ul>
+        <a class="card-link" href="#" aria-label="View Love Language Model">Open <span aria-hidden="true">↗</span></a>
+      </article>
+
+      <article class="card reveal">
+        <p class="card-no">SIGNAL 05</p>
+        <h3>Roblox Security Audit</h3>
+        <p class="card-desc">
+          <code>RemoteEvent:FireServer</code> is a public, unauthenticated call
+          — any client can invoke it with any arguments. NetGuard wraps every
+          handler in typed validation and rate limits. Audit watches for writes
+          only the server should make. HostileProbe fires escalation and fuzz
+          payloads from a legitimate seat and reports exactly which ones the
+          server accepted.
+        </p>
+        <ul class="tags"><li>Lua</li><li>Security</li><li>Roblox</li></ul>
+        <a class="card-link" href="#" aria-label="View Roblox Security Audit">Open <span aria-hidden="true">↗</span></a>
+      </article>
+
+      <article class="card reveal">
+        <p class="card-no">SIGNAL 06</p>
+        <h3>Honey and Ash</h3>
+        <p class="card-desc">
+          A novel. Rivka, a Brooklyn archival photographer, comes to Warsaw to
+          conserve pre-war photographs and falls in love with the building's
+          architect — then learns they are first cousins, the children of a
+          woman the Holocaust tried to erase twice. Fifteen chapters, built on
+          real history, with every character invented.
+        </p>
+        <ul class="tags"><li>Writing</li><li>Fiction</li><li>Poland</li></ul>
+        <a class="card-link" href="#" aria-label="Read Honey and Ash">Read <span aria-hidden="true">↗</span></a>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ 03 ARSENAL ============ -->
+  <section class="section" id="skills">
+    <p class="marker reveal"><span>03</span> // Arsenal</p>
+    <h2 class="section-head reveal">What I build with</h2>
+    <ul class="skills reveal">
+      <li>Python</li><li>JavaScript</li><li>Lua</li>
+      <li>HTML / CSS</li><li>Canvas</li><li>WebGL</li>
+      <li>ComfyUI</li><li>Stable Diffusion</li><li>LoRA training</li>
+      <li>PyInstaller</li><li>Git</li><li>Docker</li>
+    </ul>
+  </section>
+
+  <!-- ============ 04 CONTACT ============ -->
+  <section class="section contact" id="contact">
+    <p class="marker reveal"><span>04</span> // Contact</p>
+    <h2 class="contact-head reveal">
+      Let's establish<br /><span class="accent">contact.</span>
+    </h2>
+
+    <!-- EDIT ME: GitHub and email still need your details. -->
+    <div class="links reveal">
+      <a href="https://www.youtube.com/@fyeonxans" target="_blank" rel="noopener">YouTube <span aria-hidden="true">↗</span></a>
+      <a href="https://www.instagram.com/fye.on.xanss" target="_blank" rel="noopener">Instagram <span aria-hidden="true">↗</span></a>
+      <a href="https://github.com/YOURGITHUB" target="_blank" rel="noopener">GitHub <span aria-hidden="true">↗</span></a>
+      <a href="mailto:you@example.com">you@example.com <span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <span>© <span id="year">2026</span> FAHIM</span>
+  <span class="built">Hand-built · Rendered in GLSL</span>
+</footer>
+
+<script src="space.js"></script>
+<script src="motes.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
