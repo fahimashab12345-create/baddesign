@@ -448,12 +448,13 @@
     if (empty) empty.hidden = list.length > 0;
     var count = document.getElementById("resultCount");
     if (count) count.textContent = list.length + (list.length === 1 ? " piece" : " pieces");
-    /* Fresh cards carry .reveal, which sits at opacity 0 until the scroll
-       observer reveals them. Without this call the observer still holds
-       references to the cards that were just replaced, so filtering to
-       Bags leaves five cards present and full height but at opacity 0 --
-       invisible, and taking their Add buttons with them. */
+    /* Fresh cards carry .reveal, which sits at opacity 0 until it is
+       revealed. Without these calls the observer still holds references to
+       the cards that were just replaced, so filtering to Bags leaves five
+       cards present and full height but at opacity 0 -- invisible, and
+       taking their Add buttons with them. */
     initReveals();
+    sweepReveals();
   }
 
   /* ============================================================
@@ -995,6 +996,38 @@
     });
   }
 
+  /* The observer is an optimisation, never the guarantee. It has been seen to
+     never deliver a callback at all -- not even the initial one for an
+     element already on screen -- which leaves every re-rendered product card
+     sitting at opacity 0 with its Add button unreachable. This sweep is the
+     guarantee: cheap, and it only ever touches elements not yet revealed. */
+  function sweepReveals() {
+    var els = document.querySelectorAll(".reveal:not(.in)");
+    if (!els.length) return;
+    var limit = window.innerHeight * 0.94;
+    for (var i = 0; i < els.length; i++) {
+      var r = els[i].getBoundingClientRect();
+      if (r.top < limit && r.bottom > 0) els[i].classList.add("in");
+    }
+  }
+
+  /* Scroll and resize are the only two moments a reveal can fall due without
+     the observer firing, so those two events close the gap. */
+  function initRevealSweep() {
+    var queued = false;
+    var run = function () {
+      queued = false;
+      sweepReveals();
+    };
+    var schedule = function () {
+      if (queued) return;
+      queued = true;
+      window.requestAnimationFrame(run);
+    };
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+  }
+
   /* Section links. The browser's own scroll-to-fragment never fires on this
      page: scroll-behavior: smooth on <html> swallows it, so Shop, Materials,
      Lookbook and Stockists all changed the hash and left the viewport exactly
@@ -1233,6 +1266,7 @@
     initMega();
     initCursor();
     initReveals();
+    initRevealSweep();
     initEvents();
     routeFromHash();
 
