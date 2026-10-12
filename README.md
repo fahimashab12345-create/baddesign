@@ -152,6 +152,62 @@ Measured in real viewports by loading the page in an iframe at 390×844,
 - Single-column product grid and lookbook below 620px
 - Burger nav replaces the desktop nav below 900px
 
+## Catalogue, product view and checkout
+
+Sixteen pieces across five categories. Bags lead the range, which is what
+the photography supports best.
+
+**Product view** — a full-screen detail sheet, opened from any card or
+search result. Gallery, size, quantity, spec table, and four accordions
+(fabric, origin, care, colours). It is addressable: opening
+`#product/bd-101` deep-links straight to it, and the hash updates as you
+browse.
+
+**Checkout** — four steps (Bag, Shipping, Payment, Review) with a sticky
+order summary. Three delivery tiers, live recalculation of shipping and
+20% tax, and per-step validation that blocks progress and says which field
+is missing. Placing an order generates a reference and clears the bag.
+
+The payment step is **explicitly labelled as a demo** and instructs the
+visitor not to enter real card details. Nothing is transmitted, stored or
+sent anywhere — there is no backend. A real deployment would swap that
+step for Stripe Elements or similar; never a raw card form.
+
+## Imagery
+
+All photography is from [Unsplash](https://unsplash.com) under the
+[Unsplash License](https://unsplash.com/license) — free for commercial
+use. Pulled at `w=1400 q=72` so 28 images total roughly 4 MB rather than
+several times that.
+
+- `img/campaign/` — editorial and campaign photography
+- `img/product/` — catalogue imagery
+
+No brand photography is used or imitated by name. The bags follow the
+quilted-flap, chain-strap language but are original designs with original
+names, because copying Chanel's product shots or trademark would be
+infringement.
+
+Every product image has an SVG technical flat behind it as an `onerror`
+fallback, so a missing file degrades to the flat rather than a broken
+icon.
+
+## The figure
+
+`lookbook3d.js` builds the mannequin from `LatheGeometry` — hand-authored
+profiles spun around the vertical axis — rather than stacked cylinders.
+That is why it reads as a display mannequin instead of a robot: each form
+is one continuous surface of revolution with continuous normals, so there
+is no seam where two primitives met. Proportions are 8.5 heads, the
+fashion-illustration canon, with a slight contrapposto because a
+perfectly symmetric figure reads as a prop.
+
+Cloth carries a procedurally generated woven bump map so raking light
+breaks across the surface instead of sliding over it.
+
+To use a sculpted or scanned model instead, drop a `.glb` next to
+`index.html` and follow the commented notes at the bottom of the file.
+
 ## Deploying an update
 
 ```bash

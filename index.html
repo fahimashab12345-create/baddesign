@@ -84,10 +84,7 @@
         <div class="mega-grid">
           <div class="mega-col">
             <p class="mega-h mono">Categories</p>
-            <a href="#shop" data-filter="tops">Tops</a>
-            <a href="#shop" data-filter="bottoms">Bottoms</a>
-            <a href="#shop" data-filter="outerwear">Outerwear</a>
-            <a href="#shop" data-filter="footwear">Footwear</a>
+            <div id="megaCats"></div>
           </div>
           <div class="mega-col">
             <p class="mega-h mono">Series</p>
@@ -180,7 +177,7 @@
   <!-- ============ FEATURED SERIES ============ -->
   <section class="series" id="series">
     <a class="tile tile-wide reveal" href="#shop">
-      <div class="tile-img" data-macro></div>
+      <div class="tile-img"><img src="img/campaign/void-01.jpg" alt="Figure in dark layered clothing on a street at night" loading="lazy" decoding="async" /></div>
       <div class="tile-body">
         <p class="mono">Series 004</p>
         <h2>The Void Series</h2>
@@ -190,7 +187,7 @@
     </a>
 
     <a class="tile reveal" href="#shop">
-      <div class="tile-img" data-macro></div>
+      <div class="tile-img"><img src="img/campaign/void-03.jpg" alt="Figure in long dark tailoring framed by a stone archway" loading="lazy" decoding="async" /></div>
       <div class="tile-body">
         <p class="mono">Series 003</p>
         <h2>Monolith</h2>
@@ -199,7 +196,7 @@
     </a>
 
     <a class="tile reveal" href="#lookbook">
-      <div class="tile-img tile-img-photo" data-macro></div>
+      <div class="tile-img"><img src="img/campaign/void-02.jpg" alt="Figure in red and black against a night sky" loading="lazy" decoding="async" /></div>
       <div class="tile-body">
         <p class="mono">Editorial</p>
         <h2>Campaign 004</h2>
@@ -268,15 +265,15 @@
 
       <div class="tech-visuals">
         <div class="tech-card reveal">
-          <div class="tech-img" data-macro></div>
+          <div class="tech-img"><img src="img/campaign/look-03.jpg" alt="Close view of black jersey fabric under raking light" loading="lazy" decoding="async" /></div>
           <p class="mono">480 GSM loopback</p>
         </div>
         <div class="tech-card tech-card-tall reveal">
-          <div class="tech-img" data-macro></div>
+          <div class="tech-img"><img src="img/campaign/void-08.jpg" alt="Dark figure casting a long shadow across a wall" loading="lazy" decoding="async" /></div>
           <p class="mono">Bonded shell</p>
         </div>
         <div class="tech-card reveal">
-          <div class="tech-img" data-macro></div>
+          <div class="tech-img"><img src="img/campaign/look-04.jpg" alt="Knitwear texture photographed in low light" loading="lazy" decoding="async" /></div>
           <p class="mono">12gg merino knit</p>
         </div>
       </div>
@@ -573,6 +570,79 @@
     <a href="#lookbook" data-close>Lookbook</a>
     <a href="#stores" data-close>Stockists</a>
     <a href="#footer" data-close>Contact</a>
+  </div>
+</aside>
+
+<!-- Product detail -->
+<aside class="drawer drawer-full" id="product" hidden aria-label="Product detail">
+  <button class="icon-btn pv-close" data-close aria-label="Close product">
+    <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6"/></svg>
+  </button>
+
+  <div class="pv">
+    <div class="pv-media" id="pvMedia"></div>
+
+    <div class="pv-info">
+      <p class="mono kicker" id="pvCat"></p>
+      <div class="pv-head">
+        <h2 id="pvName"></h2>
+        <span class="badge pv-badge" id="pvBadge" hidden></span>
+      </div>
+      <p class="pv-price" id="pvPrice"></p>
+      <p class="pv-blurb" id="pvBlurb"></p>
+
+      <div class="pv-block">
+        <p class="mono">Select size</p>
+        <div class="sizes" id="pvSizes"></div>
+      </div>
+
+      <div class="pv-block">
+        <p class="mono">Quantity</p>
+        <div class="qty qty-lg">
+          <button data-pv-qty="-" aria-label="Decrease quantity">−</button>
+          <span id="pvQty">1</span>
+          <button data-pv-qty="+" aria-label="Increase quantity">+</button>
+        </div>
+      </div>
+
+      <button class="btn btn-solid btn-block pv-add" data-pv-add>Add to bag</button>
+
+      <dl class="pv-specs" id="pvSpecs"></dl>
+
+      <details class="pv-acc"><summary class="mono">Fabric</summary><p id="pvFabric"></p></details>
+      <details class="pv-acc"><summary class="mono">Origin</summary><p id="pvOrigin"></p></details>
+      <details class="pv-acc"><summary class="mono">Care</summary><p id="pvCare"></p></details>
+      <details class="pv-acc"><summary class="mono">Colours</summary><p id="pvColor"></p></details>
+
+      <p class="pv-note mono">Concept piece. No stock is held and no order can be placed.</p>
+    </div>
+  </div>
+</aside>
+
+<!-- Checkout -->
+<aside class="drawer drawer-full" id="checkout" hidden aria-label="Checkout">
+  <header class="drawer-head">
+    <h2 class="mono">Checkout</h2>
+    <button class="icon-btn" data-close aria-label="Close checkout">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+  </header>
+
+  <ol class="co-steps" id="coSteps"></ol>
+
+  <div class="co-wrap">
+    <div class="co-main">
+      <div class="co-body" id="coBody"></div>
+      <div class="co-nav">
+        <button class="btn" id="coBack" hidden>Back</button>
+        <button class="btn btn-solid" id="coNext">Continue</button>
+      </div>
+    </div>
+
+    <aside class="co-side">
+      <p class="mono kicker">Order summary</p>
+      <div id="coSummary"></div>
+    </aside>
   </div>
 </aside>
 
