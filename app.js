@@ -28,6 +28,102 @@
     outerwear: "Outerwear", footwear: "Footwear"
   };
 
+  /* ============================================================
+     INFO SHEETS
+     Copy for every footer and menu topic. Written to be true of
+     this thing rather than merely plausible: it is a demo, it
+     sells nothing, and it stores nothing. Inventing a plausible
+     returns policy for a fictional company is the same error as
+     inventing a stockist list.
+     ============================================================ */
+
+  var INFO = {
+    shipping: {
+      title: "Shipping",
+      body: [
+        "Nothing here ships. This is a concept storefront built to show a design, not to take orders.",
+        "There is no basket server, no payment processor and no fulfilment step anywhere behind the checkout. Entering a card number completes a scripted flow entirely in your browser and sends nothing anywhere.",
+        "The checkout exists so the interaction could be judged as an interaction — validation, review, confirmation — not so a garment could be bought."
+      ]
+    },
+    returns: {
+      title: "Returns",
+      body: [
+        "There is nothing to return. No order is ever placed and no payment is ever taken.",
+        "If this were a real label the policy would be the boring one: thirty days unworn and unwashed, return postage covered, refund issued to the original method within five working days of the parcel being scanned."
+      ]
+    },
+    care: {
+      title: "Care",
+      body: [
+        "Every product carries a care line written for the piece it belongs to — cold wash, no tumble, brush the mesh, shoe trees for the boots.",
+        "Those instructions describe real garments made of real cloth. They are written as a specification for a product that does not exist yet."
+      ]
+    },
+    about: {
+      title: "About",
+      body: [
+        "BAD DESIGN is an invented label. The name, the pieces, the prices, the drop numbers and the editorial are all constructed for this storefront.",
+        "The aim was a single idea carried consistently: clothing that reads as oversized and deliberate rather than as a size you have grown into. Everything on the page is in service of that — the extended shoulder, the nipped waist, the column leg, the absence of a visible brand mark anywhere.",
+        "No photographs of the label exist, because the label does not."
+      ]
+    },
+    sustainability: {
+      title: "Sustainability",
+      body: [
+        "No claim can honestly be made here, so none is made.",
+        "Sustainability is measured against a real supply chain, and this has none: no mill, no factory, no garment was cut, and no material was consumed to produce this page.",
+        "The one measurable thing that can be said: the page ships no third-party JavaScript beyond one version of three.js, which is loaded only when the turntable is actually wanted."
+      ]
+    },
+    careers: {
+      title: "Careers",
+      body: [
+        "There are no roles and no company. Nobody is hiring, because there is no employer.",
+        "Written here so the label does not exist in a state of permanent, unexplained vacancy."
+      ]
+    },
+    press: {
+      title: "Press",
+      body: [
+        "No coverage exists. There has been no launch, no runway, no review and no mention.",
+        "Images on this site are editorial photography from Unsplash contributors, used under the Unsplash License and captioned as such. They are not photographs of the label's clothing, and the site never claims they are."
+      ]
+    },
+    privacy: {
+      title: "Privacy",
+      body: [
+        "Nothing is collected. There is no analytics, no tracking pixel, no advertising network, no cookie set by this site and no server to receive one.",
+        "The bag, the checkout and the newsletter field all read and write in the page's own memory. Close the tab and they are gone. No network request carries anything you typed.",
+        "If you do enter a card number — you should not need to, and it is not stored or transmitted — it exists only in JavaScript variables in that tab."
+      ]
+    },
+    terms: {
+      title: "Terms",
+      body: [
+        "This is a design demonstration. It is not a business, it sells nothing, and no contract of any kind arises from using it.",
+        "Product names, prices, materials, origins, care instructions and stockist cities are invented for the purpose of the design and describe nothing real. Where the site names a place of make or a textile specification, that is narrative writing, not a factual claim.",
+        "No warranty, no service level and no liability of any kind is offered or implied."
+      ]
+    },
+    cookies: {
+      title: "Cookies",
+      body: [
+        "None are set. Not one, not for preferences, not for the bag, not for anything.",
+        "Your bag and your checkout progress live in the page's memory and are gone when you close the tab. Reopening the page starts from an empty bag."
+      ]
+    }
+  };
+
+  function openInfo(topic) {
+    var entry = INFO[topic];
+    if (!entry) return;
+    document.getElementById("infoTitle").textContent = entry.title;
+    document.getElementById("infoBody").innerHTML =
+      entry.body.map(function (p) { return "<p>" + p + "</p>"; }).join("");
+    openDrawer("info");
+  }
+
   var CLOTH_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
   var ONE_SIZE    = ["One size"];
 
@@ -125,7 +221,7 @@
     },
     {
       id: "bd-204", name: "Bloodline Rib Tank", cat: "tops", price: 95,
-      img: "tank", alt: "Figure in a dark ribbed tank top",
+      img: "tank", alt: "Figure in a black tank top and leather trousers",
       badge: "New", colorways: 2, color: "Onyx / Oxblood",
       sizes: CLOTH_SIZES,
       fabric: "220 GSM compact rib, cotton-modal, high elastane content",
@@ -136,7 +232,7 @@
     },
     {
       id: "bd-205", name: "Nocturne Sheer Long-Sleeve", cat: "tops", price: 180,
-      img: "sheer", alt: "Figure in a sheer black long-sleeve top",
+      img: "sheer", alt: "Figure in a sheer black mesh top",
       badge: null, colorways: 1, color: "Onyx",
       sizes: CLOTH_SIZES,
       fabric: "95% viscose modal, 5% elastane, single jersey",
@@ -160,7 +256,7 @@
     },
     {
       id: "bd-302", name: "Vigil Wide Wool Trouser", cat: "bottoms", price: 460,
-      img: "trouser", alt: "Figure in wide tailored wool trousers",
+      img: "trouser", alt: "Figure in a black top and wide trousers, seated on a studio chair",
       badge: null, colorways: 2, color: "Onyx / Charcoal",
       sizes: CLOTH_SIZES,
       fabric: "Super 120s virgin wool, 340 GSM, unfinished",
@@ -171,7 +267,7 @@
     },
     {
       id: "bd-303", name: "Mass Heavyweight Short", cat: "bottoms", price: 110,
-      img: "short", alt: "Figure in dark heavyweight shorts",
+      img: "short", alt: "Figure in a black sleeveless top and shorts",
       badge: null, colorways: 3, color: "Onyx / Bone / Slate",
       sizes: CLOTH_SIZES,
       fabric: "420 GSM loopback cotton, double-stitched inseam",
@@ -184,7 +280,7 @@
     /* ---------------- OUTERWEAR ---------------- */
     {
       id: "bd-401", name: "Obsidian Track Jacket", cat: "outerwear", price: 420,
-      img: "jacket", alt: "Figure in a dark track jacket and boots in a forest",
+      img: "jacket", alt: "Figure in all-black tailoring, shot against a pale wall",
       badge: "Limited", colorways: 2, color: "Onyx / Chalk",
       sizes: CLOTH_SIZES,
       fabric: "Bonded polyester shell, matte face, fully taped seams",
@@ -195,7 +291,7 @@
     },
     {
       id: "bd-402", name: "Penance Belted Coat", cat: "outerwear", price: 1290,
-      img: "coat", alt: "Figure in a belted dark coat",
+      img: "coat", alt: "Figure in a long black coat against a dark ground",
       badge: "New", colorways: 2, color: "Onyx / Oxblood",
       sizes: CLOTH_SIZES,
       fabric: "Double-faced wool-cashmere, bonded seams, horn hardware",
@@ -214,7 +310,7 @@
       fabric: "Full-grain leather upper, engineered mesh cage, EVA midsole",
       origin: "Made in Italy",
       blurb: "A panelled cage over a leather chassis on a cupsole — not a wedge. The profile holds through the whole season instead of collapsing in week six.",
-      specs: [["Upper", "Full-grain leather plus mesh"], ["Midsole", "Compression-moulded EVA"], ["Outsole", "Vibram rubber"], ["Last", "Terminus, wide toe box"]],
+      specs: [["Upper", "Full-grain leather plus mesh"], ["Midsole", "Compression-moulded EVA"], ["Outsole", "Moulded rubber, 6mm lug"], ["Last", "Terminus, wide toe box"]],
       care: "Brush the mesh. Use shoe trees. Never a washing machine."
     }
   ];
@@ -474,21 +570,44 @@
      8 · OVERLAYS
      ============================================================ */
 
+  /* Each overlay carries a pending "now hide me" timer so a close can
+     animate out. The bug this replaces: openDrawer called closeDrawers,
+     which armed that timer on every overlay including the one about to be
+     opened. 340ms later the timer fired and hid the drawer that had just
+     opened, so every overlay in the site shut itself shortly after it
+     appeared. Tracking the timer per element lets an open cancel its own
+     pending hide, and lets a close cancel a stale one. */
+  var hideTimers = new WeakMap();
+
+  function scheduleHide(el) {
+    clearTimeout(hideTimers.get(el));
+    hideTimers.set(el, setTimeout(function () {
+      el.hidden = true;
+      hideTimers.delete(el);
+    }, 340));
+  }
+
+  function cancelHide(el) {
+    clearTimeout(hideTimers.get(el));
+    hideTimers.delete(el);
+  }
+
   function openDrawer(which) {
-    closeDrawers(true);
     var d = document.getElementById(which);
     if (!d) return;
+    closeDrawers(true, d);
+    cancelHide(d);
     d.hidden = false;
     requestAnimationFrame(function () { d.classList.add("is-open"); });
     document.body.classList.add("no-scroll");
     document.getElementById("scrim").classList.add("is-on");
   }
 
-  function closeDrawers(keepHash) {
+  function closeDrawers(keepHash, except) {
     document.querySelectorAll(".drawer, .sheet").forEach(function (d) {
       d.classList.remove("is-open");
-      var el = d;
-      setTimeout(function () { el.hidden = true; }, 340);
+      if (except && d === except) return;
+      scheduleHide(d);
     });
     document.body.classList.remove("no-scroll");
     var sc = document.getElementById("scrim");
@@ -590,7 +709,10 @@
   function shipCost() {
     var sub = cartSubtotal();
     var base = sub >= FREE_SHIP ? 0 : 20;
-    return base + SHIP_METHODS[co.shipMethod].price;
+    // Guarded: shipCost runs during render, so a co.shipMethod that is not
+    // a key of SHIP_METHODS throws inside a draw rather than being ignored.
+    var m = SHIP_METHODS[co.shipMethod] || SHIP_METHODS.standard;
+    return base + m.price;
   }
 
   function orderTotals() {
@@ -671,7 +793,10 @@
             (co.ship.country || "—") + "</p>" +
             '<button class="link-btn mono" data-co-goto="2">Edit</button></div>' +
           '<div class="co-block"><p class="mono">Delivery</p>' +
-            '<p>' + SHIP_METHODS[co.shipMethod].name + ' — ' + SHIP_METHODS[co.shipMethod].note + '</p>' +
+            (function () {
+              var m = SHIP_METHODS[co.shipMethod] || SHIP_METHODS.standard;
+              return '<p>' + m.name + ' — ' + m.note + '</p>';
+            })() +
             '<button class="link-btn mono" data-co-goto="2">Edit</button></div>' +
           '<div class="co-block"><p class="mono">Payment</p>' +
             '<p>' + (co.pay.name || "—") + '<br />Card ending ' +
@@ -900,6 +1025,12 @@
 
       var open = e.target.closest("[data-open]");
       if (open) { openDrawer(open.getAttribute("data-open")); return; }
+
+      /* Footer and menu topics. These used to be <a href="#footer">, which
+         put ten labels on screen that went nowhere. One sheet now serves
+         every topic and actually says something. */
+      var info = e.target.closest("[data-info]");
+      if (info) { openInfo(info.getAttribute("data-info")); return; }
 
       var close = e.target.closest("[data-close]");
       if (close) { checkoutOpen = false; closeDrawers(); return; }

@@ -1,0 +1,79 @@
+﻿[
+    {
+        "slot":  "tank",
+        "photo_id":  "1564929371827-74bd89f99825",
+        "bytes":  319737,
+        "page":  "https://unsplash.com/photos/1564929371827-74bd89f99825",
+        "licence":  "Unsplash License (free for commercial use, no attribution required)"
+    },
+    {
+        "slot":  "trouser",
+        "photo_id":  "1768696081732-0a6dbfcef379",
+        "bytes":  532030,
+        "page":  "https://unsplash.com/photos/1768696081732-0a6dbfcef379",
+        "licence":  "Unsplash License (free for commercial use, no attribution required)"
+    },
+    {
+        "slot":  "sheer",
+        "photo_id":  "1759933546779-bf77458d9b72",
+        "bytes":  189299,
+        "page":  "https://unsplash.com/photos/1759933546779-bf77458d9b72",
+        "licence":  "Unsplash License (free for commercial use, no attribution required)"
+    },
+    {
+        "slot":  "coat",
+        "photo_id":  "1774804819565-1e85030af128",
+        "bytes":  281777,
+        "page":  "https://unsplash.com/photos/1774804819565-1e85030af128",
+        "licence":  "Unsplash License (free for commercial use, no attribution required)"
+    },
+    {
+        "slot":  "jacket",
+        "photo_id":  "1761637316697-c7f4e4d7b49f",
+        "bytes":  446770,
+        "page":  "https://unsplash.com/photos/1761637316697-c7f4e4d7b49f",
+        "licence":  "Unsplash License (free for commercial use, no attribution required)"
+    },
+    {
+        "slot":  "short",
+        "photo_id":  "1785355146214-271c6b6eba58",
+        "bytes":  160144,
+        "page":  "https://unsplash.com/photos/1785355146214-271c6b6eba58",
+        "licence":  "Unsplash License (free for commercial use, no attribution required)"
+    },
+    {
+        "slot":  "void-01",
+        "photo_id":  "1770909792040-ccfac330491d",
+        "bytes":  116562,
+        "page":  "https://unsplash.com/photos/1770909792040-ccfac330491d",
+        "licence":  "Unsplash License (free for commercial use, no attribution required)"
+    },
+    {
+        "slot":  "void-02",
+        "photo_id":  "1658889809679-42bf8de82d8d",
+        "bytes":  225137,
+        "page":  "https://unsplash.com/photos/1658889809679-42bf8de82d8d",
+        "licence":  "Unsplash License (free for commercial use, no attribution required)"
+    },
+    {
+        "slot":  "void-03",
+        "photo_id":  "1783361709322-e77998906df5",
+        "bytes":  301302,
+        "page":  "https://unsplash.com/photos/1783361709322-e77998906df5",
+        "licence":  "Unsplash License (free for commercial use, no attribution required)"
+    },
+    {
+        "slot":  "void-08",
+        "photo_id":  "1763750581767-b367bcd6c117",
+        "bytes":  102270,
+        "page":  "https://unsplash.com/photos/1763750581767-b367bcd6c117",
+        "licence":  "Unsplash License (free for commercial use, no attribution required)"
+    },
+    {
+        "slot":  "shoe",
+        "photo_id":  "1604163546180-039a1781c0d2",
+        "bytes":  162583,
+        "page":  "https://unsplash.com/photos/1604163546180-039a1781c0d2",
+        "licence":  "Unsplash License (free for commercial use, no attribution required)"
+    }
+]

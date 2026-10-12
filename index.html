@@ -100,7 +100,7 @@
             <a href="#tech">Materials</a>
             <a href="#tech">Construction</a>
             <a href="#stores">Stockists</a>
-            <a href="#footer">Contact</a>
+            <button type="button" data-info="about">About</button>
           </div>
           <div class="mega-feature">
             <div class="mega-feature-img" data-macro></div>
@@ -179,7 +179,7 @@
   <!-- ============ FEATURED SERIES ============ -->
   <section class="series" id="series">
     <a class="tile tile-wide reveal" href="#shop">
-      <div class="tile-img"><img src="img/campaign/void-01.jpg" alt="Figure in dark layered clothing on a street at night" loading="lazy" decoding="async" /></div>
+      <div class="tile-img"><img src="img/campaign/void-01.jpg" alt="Figure in an all-black outfit standing in shadow" loading="lazy" decoding="async" /></div>
       <div class="tile-body">
         <p class="mono">Series 004</p>
         <h2>The Void Series</h2>
@@ -189,7 +189,7 @@
     </a>
 
     <a class="tile reveal" href="#shop">
-      <div class="tile-img"><img src="img/campaign/void-03.jpg" alt="Figure in long dark tailoring framed by a stone archway" loading="lazy" decoding="async" /></div>
+      <div class="tile-img"><img src="img/campaign/void-03.jpg" alt="Figure in a black coat outside a minimal concrete building" loading="lazy" decoding="async" /></div>
       <div class="tile-body">
         <p class="mono">Series 003</p>
         <h2>Monolith</h2>
@@ -198,7 +198,7 @@
     </a>
 
     <a class="tile reveal" href="#lookbook">
-      <div class="tile-img"><img src="img/campaign/void-02.jpg" alt="Figure in red and black against a night sky" loading="lazy" decoding="async" /></div>
+      <div class="tile-img"><img src="img/campaign/void-02.jpg" alt="Black and white figure in a long coat and hat" loading="lazy" decoding="async" /></div>
       <div class="tile-body">
         <p class="mono">Editorial</p>
         <h2>Campaign 004</h2>
@@ -271,7 +271,7 @@
           <p class="mono">480 GSM loopback</p>
         </div>
         <div class="tech-card tech-card-tall reveal">
-          <div class="tech-img"><img src="img/campaign/void-08.jpg" alt="Dark figure casting a long shadow across a wall" loading="lazy" decoding="async" /></div>
+          <div class="tech-img"><img src="img/campaign/void-08.jpg" alt="Figure in a black outfit photographed against a white ground" loading="lazy" decoding="async" /></div>
           <p class="mono">Bonded shell</p>
         </div>
         <div class="tech-card reveal">
@@ -354,7 +354,7 @@
     <div class="fig-stage">
       <div id="stage" class="stage">
         <!-- Poster. Visible until a .glb exists, and permanently if it never does. -->
-        <img class="stage-poster" src="img/product/coat.jpg" alt="Vespers Coat: black hooded coat over a wide column trouser on a standing figure" loading="lazy" decoding="async" />
+        <img class="stage-poster" src="img/product/coat.jpg" alt="Vespers Coat: figure in a long black coat against a dark ground" loading="lazy" decoding="async" />
       </div>
 
       <div id="stageFallback" class="stage-fallback" hidden>
@@ -427,11 +427,17 @@
   <section class="stores" id="stores">
     <p class="mono kicker reveal">Availability</p>
     <h2 class="h-sec reveal">Stockists</h2>
-    <div class="stores-row mono" aria-label="Stockist cities">
+    <div class="stores-row mono" aria-label="Cities the drop was designed for">
       <span>Tokyo</span><span>Seoul</span><span>Berlin</span><span>London</span>
       <span>New York</span><span>Paris</span><span>Toronto</span><span>Sydney</span>
     </div>
-    <p class="stores-note mono reveal">Online exclusive. Shipping worldwide from Rotterdam.</p>
+    <!-- These are illustrative names for a fictional label, not a claim of
+         real stockists. The previous copy asserted a worldwide shipping
+         origin, which was an invented fact with nothing behind it. -->
+    <p class="stores-note mono reveal">
+      Concept storefront. No stock is held in any of these cities, and
+      nothing ships from anywhere.
+    </p>
   </section>
 
   <!-- ============ NEWSLETTER ============ -->
@@ -465,7 +471,8 @@
     <div>
       <p class="mono ftr-h">Shop</p>
       <a href="#shop">Tops</a><a href="#shop">Bottoms</a>
-      <a href="#shop">Outerwear</a><a href="#shop">Footwear</a>
+      <a href="#shop">Outerwear</a><a href="#shop">Bags</a>
+      <a href="#shop">Footwear</a>
     </div>
     <div>
       <p class="mono ftr-h">Brand</p>
@@ -475,12 +482,13 @@
     <div>
       <p class="mono ftr-h">Support</p>
       <button data-open="sizeguide">Size guide</button>
-      <a href="#footer">Shipping</a><a href="#footer">Returns</a><a href="#footer">Care</a>
+      <button data-info="shipping">Shipping</button><button data-info="returns">Returns</button>
+      <button data-info="care">Care</button>
     </div>
     <div>
       <p class="mono ftr-h">Company</p>
-      <a href="#footer">About</a><a href="#footer">Sustainability</a>
-      <a href="#footer">Careers</a><a href="#footer">Press</a>
+      <button data-info="about">About</button><button data-info="sustainability">Sustainability</button>
+      <button data-info="careers">Careers</button><button data-info="press">Press</button>
     </div>
   </div>
 
@@ -488,7 +496,7 @@
     <p class="mono">© <span id="year">2026</span> BAD DESIGN — Concept storefront</p>
     <p class="mono demo-warn">Demo only. Not a real business. No orders are taken and no data is collected.</p>
     <div class="ftr-legal mono">
-      <a href="#footer">Privacy</a><a href="#footer">Terms</a><a href="#footer">Cookies</a>
+      <button data-info="privacy">Privacy</button><button data-info="terms">Terms</button><button data-info="cookies">Cookies</button>
     </div>
   </div>
 </footer>
@@ -565,6 +573,18 @@
   </div>
 </aside>
 
+<!-- Policy / company info. One sheet serves every footer and menu link, so
+     no label in the site points at a dead #footer anchor. -->
+<aside class="sheet sheet-lg" id="info" hidden aria-label="Information">
+  <header class="drawer-head">
+    <h2 class="mono" id="infoTitle">Information</h2>
+    <button class="icon-btn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+  </header>
+  <div class="sheet-body" id="infoBody"></div>
+</aside>
+
 <!-- Mobile menu -->
 <aside class="drawer drawer-left" id="menu" hidden aria-label="Menu">
   <div class="mobile-menu">
@@ -573,12 +593,19 @@
     <a href="#shop" data-filter="tops" data-close>Tops</a>
     <a href="#shop" data-filter="bottoms" data-close>Bottoms</a>
     <a href="#shop" data-filter="outerwear" data-close>Outerwear</a>
+    <!-- Bags were missing from both menus while four of the sixteen
+         products were bags. -->
+    <a href="#shop" data-filter="bags" data-close>Bags</a>
     <a href="#shop" data-filter="footwear" data-close>Footwear</a>
     <hr />
     <a href="#tech" data-close>Materials</a>
     <a href="#lookbook" data-close>Lookbook</a>
     <a href="#stores" data-close>Stockists</a>
-    <a href="#footer" data-close>Contact</a>
+    <hr />
+    <button data-open="sizeguide" data-close>Size guide</button>
+    <button data-info="shipping" data-close>Shipping</button>
+    <button data-info="returns" data-close>Returns</button>
+    <button data-info="privacy" data-close>Privacy</button>
   </div>
 </aside>
 

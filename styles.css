@@ -307,12 +307,13 @@ button, input, select { font: inherit; color: inherit; }
 .mega-grid { display: grid; grid-template-columns: repeat(3, 1fr) 1.25fr; gap: 2rem; }
 .mega-col { display: flex; flex-direction: column; gap: .7rem; }
 .mega-h { margin: 0 0 .4rem; color: var(--muted); }
-.mega-col a {
+.mega-col a, .mega-col button {
   font-size: .92rem; color: var(--bone-dim);
   width: fit-content;
+  background: none; border: 0; padding: 0; text-align: left; cursor: pointer;
   transition: color .2s, transform .2s var(--ease);
 }
-.mega-col a:hover { color: var(--bone); transform: translateX(4px); }
+.mega-col a:hover, .mega-col button:hover { color: var(--bone); transform: translateX(4px); }
 
 .mega-feature { border-left: 1px solid var(--line); padding-left: 2rem; }
 .mega-feature-img {
@@ -594,6 +595,27 @@ button, input, select { font: inherit; color: inherit; }
 }
 .media-b { opacity: 0; }
 .media-b svg { width: 100%; height: 100%; }
+
+/* Ties the photography together into one set.
+   Unsplash returns wildly uneven exposure: a black sneaker on wet tarmac
+   sits beside sportswear on a blown-out white wall. Grayscale makes them
+   one palette but not one exposure, so the top and bottom of every frame
+   are sunk here. That shares a value range across the grid, and doubles as
+   the scrim that keeps a product name legible over any photograph. */
+.card-media::after,
+.tile-img::after,
+.pv-media::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background:
+    linear-gradient(180deg,
+      rgba(6,6,9,.42) 0%, rgba(6,6,9,0) 28%,
+      rgba(6,6,9,.20) 60%, rgba(6,6,9,.74) 100%);
+}
+.card-media:hover::after,
+.tile:hover .tile-img::after { opacity: .55; transition: opacity .5s var(--ease); }
 .card-media:hover .media-a { opacity: 0; transform: scale(1.05); }
 .card-media:hover .media-b { opacity: .85; }
 
@@ -825,9 +847,9 @@ button, input, select { font: inherit; color: inherit; }
   width: 100%; height: 100%;
   object-fit: cover;
   transition: transform 1.3s var(--ease), filter .6s;
-  filter: brightness(.82) saturate(.8);
+  filter: grayscale(1) brightness(.86) contrast(1.06);
 }
-.look:hover .look-img svg, .look:hover .look-img img { transform: scale(1.05); filter: brightness(1.05) saturate(.95); }
+.look:hover .look-img svg, .look:hover .look-img img { transform: scale(1.05); filter: grayscale(1) brightness(1.06) contrast(1.10); }
 .look figcaption { padding: .9rem .2rem; }
 
 .credit {
@@ -918,6 +940,16 @@ button, input, select { font: inherit; color: inherit; }
 .stage.is-live .stage-poster { opacity: 0; }
 
 .stage canvas { position: relative; z-index: 1; }
+
+/* The product-view hero and the turntable poster are the two places the
+   card filter does not reach, so they get the monochrome treatment here.
+   Keeping the palette enforced in CSS is deliberate: the source
+   photography stays colour and editable, and the look can be reversed by
+   deleting one declaration rather than re-sourcing twenty images. */
+.pv-media img,
+.stage-poster {
+  filter: grayscale(1) brightness(.92) contrast(1.06);
+}
 
 /* While the model is loading the poster is still legible, so keep
    the grid faint rather than stacking it over the photograph. */
@@ -1072,8 +1104,15 @@ button, input, select { font: inherit; color: inherit; }
 .ftr-bottom p { margin: 0; }
 .demo-warn { color: var(--muted); }
 .ftr-legal { display: flex; gap: .4rem; }
-.ftr-legal a { display: inline-flex; align-items: center; min-height: 34px; padding: 0 .5rem; }
-.ftr-legal a:hover { color: var(--bone); }
+/* Topics are buttons now, not dead #footer anchors, so the legal row and
+   the mobile menu have to style buttons the same as links. */
+.ftr-legal a, .ftr-legal button {
+  display: inline-flex; align-items: center; min-height: 34px; padding: 0 .5rem;
+  background: none; border: 0; cursor: pointer;
+  font-family: var(--mono); font-size: .72rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted);
+}
+.ftr-legal a:hover, .ftr-legal button:hover { color: var(--bone); }
 
 /* ---------------- Overlays ---------------- */
 
@@ -1218,13 +1257,14 @@ button, input, select { font: inherit; color: inherit; }
 
 /* Mobile menu */
 .mobile-menu { padding: 5rem 1.6rem 2rem; display: flex; flex-direction: column; gap: .2rem; }
-.mobile-menu a {
+.mobile-menu a, .mobile-menu button {
   font-family: var(--display); font-size: 1.6rem; font-weight: 500;
   text-transform: uppercase; letter-spacing: -.02em;
   padding: .45rem 0;
+  background: none; border: 0; text-align: left; cursor: pointer;
   transition: color .2s, padding-left .2s var(--ease);
 }
-.mobile-menu a:hover { color: var(--accent); padding-left: .5rem; }
+.mobile-menu a:hover, .mobile-menu button:hover { color: var(--accent); padding-left: .5rem; }
 .mobile-menu hr { width: 100%; border: 0; border-top: 1px solid var(--line-2); margin: 1.2rem 0; }
 
 /* Toasts */
@@ -1359,7 +1399,7 @@ button, input, select { font: inherit; color: inherit; }
 .chip.is-on { background: var(--bone); border-color: var(--bone); color: var(--void); }
 .btn-solid:hover { background: #fff; border-color: #fff; box-shadow: 0 0 34px rgba(194,24,31,.42); }
 .add:hover { background: var(--blood-lit); color: #fff; border-color: var(--blood-lit); }
-.s-lens .s-thumb, .look:hover .look-img img { filter: brightness(1) saturate(.95); }
+.s-lens .s-thumb, .look:hover .look-img img { filter: grayscale(1) brightness(1.03) contrast(1.08); }
 .tech-n::after { content: ""; }
 
 .contact-head .accent {
@@ -1383,10 +1423,10 @@ button, input, select { font: inherit; color: inherit; }
 
 .card-media .card-img {
   position: absolute; inset: 0;
-  filter: brightness(.84) saturate(.82) contrast(1.05);
+  filter: grayscale(1) brightness(.88) contrast(1.09);
   transition: transform 1s var(--ease), filter .5s;
 }
-.card-media:hover .card-img { transform: scale(1.05); filter: brightness(1.04) saturate(1); }
+.card-media:hover .card-img { transform: scale(1.05); filter: grayscale(1) brightness(1.05) contrast(1.12); }
 
 .img-fallback {
   position: absolute; inset: 0;
@@ -1396,17 +1436,17 @@ button, input, select { font: inherit; color: inherit; }
 }
 .img-fallback .flat { width: 100%; height: 100%; }
 
-.line-media .line-img, .s-thumb .s-img, .sheet-media .size-img { filter: brightness(.92); }
+.line-media .line-img, .s-thumb .s-img, .sheet-media .size-img { filter: grayscale(1) brightness(.92); }
 
 .card-cat { margin: 0 0 .9rem; color: var(--muted); }
 
 .tile-img img, .tech-img img {
   width: 100%; height: 100%; object-fit: cover;
   transition: transform 1.2s var(--ease), filter .6s;
-  filter: brightness(.8) saturate(.8) contrast(1.06);
+  filter: grayscale(1) brightness(.84) contrast(1.10);
 }
-.tile:hover .tile-img img { transform: scale(1.06); filter: brightness(1) saturate(.95); }
-.tech-card:hover .tech-img img { transform: scale(1.07); filter: brightness(1) saturate(.95); }
+.tile:hover .tile-img img { transform: scale(1.06); filter: grayscale(1) brightness(1.03) contrast(1.08); }
+.tech-card:hover .tech-img img { transform: scale(1.07); filter: grayscale(1) brightness(1.03) contrast(1.08); }
 
 /* ---------------- Product detail ---------------- */
 

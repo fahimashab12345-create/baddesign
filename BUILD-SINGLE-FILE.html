@@ -340,12 +340,13 @@ button, input, select { font: inherit; color: inherit; }
 .mega-grid { display: grid; grid-template-columns: repeat(3, 1fr) 1.25fr; gap: 2rem; }
 .mega-col { display: flex; flex-direction: column; gap: .7rem; }
 .mega-h { margin: 0 0 .4rem; color: var(--muted); }
-.mega-col a {
+.mega-col a, .mega-col button {
   font-size: .92rem; color: var(--bone-dim);
   width: fit-content;
+  background: none; border: 0; padding: 0; text-align: left; cursor: pointer;
   transition: color .2s, transform .2s var(--ease);
 }
-.mega-col a:hover { color: var(--bone); transform: translateX(4px); }
+.mega-col a:hover, .mega-col button:hover { color: var(--bone); transform: translateX(4px); }
 
 .mega-feature { border-left: 1px solid var(--line); padding-left: 2rem; }
 .mega-feature-img {
@@ -627,6 +628,27 @@ button, input, select { font: inherit; color: inherit; }
 }
 .media-b { opacity: 0; }
 .media-b svg { width: 100%; height: 100%; }
+
+/* Ties the photography together into one set.
+   Unsplash returns wildly uneven exposure: a black sneaker on wet tarmac
+   sits beside sportswear on a blown-out white wall. Grayscale makes them
+   one palette but not one exposure, so the top and bottom of every frame
+   are sunk here. That shares a value range across the grid, and doubles as
+   the scrim that keeps a product name legible over any photograph. */
+.card-media::after,
+.tile-img::after,
+.pv-media::after {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  z-index: 3;
+  background:
+    linear-gradient(180deg,
+      rgba(6,6,9,.42) 0%, rgba(6,6,9,0) 28%,
+      rgba(6,6,9,.20) 60%, rgba(6,6,9,.74) 100%);
+}
+.card-media:hover::after,
+.tile:hover .tile-img::after { opacity: .55; transition: opacity .5s var(--ease); }
 .card-media:hover .media-a { opacity: 0; transform: scale(1.05); }
 .card-media:hover .media-b { opacity: .85; }
 
@@ -858,9 +880,9 @@ button, input, select { font: inherit; color: inherit; }
   width: 100%; height: 100%;
   object-fit: cover;
   transition: transform 1.3s var(--ease), filter .6s;
-  filter: brightness(.82) saturate(.8);
+  filter: grayscale(1) brightness(.86) contrast(1.06);
 }
-.look:hover .look-img svg, .look:hover .look-img img { transform: scale(1.05); filter: brightness(1.05) saturate(.95); }
+.look:hover .look-img svg, .look:hover .look-img img { transform: scale(1.05); filter: grayscale(1) brightness(1.06) contrast(1.10); }
 .look figcaption { padding: .9rem .2rem; }
 
 .credit {
@@ -951,6 +973,16 @@ button, input, select { font: inherit; color: inherit; }
 .stage.is-live .stage-poster { opacity: 0; }
 
 .stage canvas { position: relative; z-index: 1; }
+
+/* The product-view hero and the turntable poster are the two places the
+   card filter does not reach, so they get the monochrome treatment here.
+   Keeping the palette enforced in CSS is deliberate: the source
+   photography stays colour and editable, and the look can be reversed by
+   deleting one declaration rather than re-sourcing twenty images. */
+.pv-media img,
+.stage-poster {
+  filter: grayscale(1) brightness(.92) contrast(1.06);
+}
 
 /* While the model is loading the poster is still legible, so keep
    the grid faint rather than stacking it over the photograph. */
@@ -1105,8 +1137,15 @@ button, input, select { font: inherit; color: inherit; }
 .ftr-bottom p { margin: 0; }
 .demo-warn { color: var(--muted); }
 .ftr-legal { display: flex; gap: .4rem; }
-.ftr-legal a { display: inline-flex; align-items: center; min-height: 34px; padding: 0 .5rem; }
-.ftr-legal a:hover { color: var(--bone); }
+/* Topics are buttons now, not dead #footer anchors, so the legal row and
+   the mobile menu have to style buttons the same as links. */
+.ftr-legal a, .ftr-legal button {
+  display: inline-flex; align-items: center; min-height: 34px; padding: 0 .5rem;
+  background: none; border: 0; cursor: pointer;
+  font-family: var(--mono); font-size: .72rem; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted);
+}
+.ftr-legal a:hover, .ftr-legal button:hover { color: var(--bone); }
 
 /* ---------------- Overlays ---------------- */
 
@@ -1251,13 +1290,14 @@ button, input, select { font: inherit; color: inherit; }
 
 /* Mobile menu */
 .mobile-menu { padding: 5rem 1.6rem 2rem; display: flex; flex-direction: column; gap: .2rem; }
-.mobile-menu a {
+.mobile-menu a, .mobile-menu button {
   font-family: var(--display); font-size: 1.6rem; font-weight: 500;
   text-transform: uppercase; letter-spacing: -.02em;
   padding: .45rem 0;
+  background: none; border: 0; text-align: left; cursor: pointer;
   transition: color .2s, padding-left .2s var(--ease);
 }
-.mobile-menu a:hover { color: var(--accent); padding-left: .5rem; }
+.mobile-menu a:hover, .mobile-menu button:hover { color: var(--accent); padding-left: .5rem; }
 .mobile-menu hr { width: 100%; border: 0; border-top: 1px solid var(--line-2); margin: 1.2rem 0; }
 
 /* Toasts */
@@ -1392,7 +1432,7 @@ button, input, select { font: inherit; color: inherit; }
 .chip.is-on { background: var(--bone); border-color: var(--bone); color: var(--void); }
 .btn-solid:hover { background: #fff; border-color: #fff; box-shadow: 0 0 34px rgba(194,24,31,.42); }
 .add:hover { background: var(--blood-lit); color: #fff; border-color: var(--blood-lit); }
-.s-lens .s-thumb, .look:hover .look-img img { filter: brightness(1) saturate(.95); }
+.s-lens .s-thumb, .look:hover .look-img img { filter: grayscale(1) brightness(1.03) contrast(1.08); }
 .tech-n::after { content: ""; }
 
 .contact-head .accent {
@@ -1416,10 +1456,10 @@ button, input, select { font: inherit; color: inherit; }
 
 .card-media .card-img {
   position: absolute; inset: 0;
-  filter: brightness(.84) saturate(.82) contrast(1.05);
+  filter: grayscale(1) brightness(.88) contrast(1.09);
   transition: transform 1s var(--ease), filter .5s;
 }
-.card-media:hover .card-img { transform: scale(1.05); filter: brightness(1.04) saturate(1); }
+.card-media:hover .card-img { transform: scale(1.05); filter: grayscale(1) brightness(1.05) contrast(1.12); }
 
 .img-fallback {
   position: absolute; inset: 0;
@@ -1429,17 +1469,17 @@ button, input, select { font: inherit; color: inherit; }
 }
 .img-fallback .flat { width: 100%; height: 100%; }
 
-.line-media .line-img, .s-thumb .s-img, .sheet-media .size-img { filter: brightness(.92); }
+.line-media .line-img, .s-thumb .s-img, .sheet-media .size-img { filter: grayscale(1) brightness(.92); }
 
 .card-cat { margin: 0 0 .9rem; color: var(--muted); }
 
 .tile-img img, .tech-img img {
   width: 100%; height: 100%; object-fit: cover;
   transition: transform 1.2s var(--ease), filter .6s;
-  filter: brightness(.8) saturate(.8) contrast(1.06);
+  filter: grayscale(1) brightness(.84) contrast(1.10);
 }
-.tile:hover .tile-img img { transform: scale(1.06); filter: brightness(1) saturate(.95); }
-.tech-card:hover .tech-img img { transform: scale(1.07); filter: brightness(1) saturate(.95); }
+.tile:hover .tile-img img { transform: scale(1.06); filter: grayscale(1) brightness(1.03) contrast(1.08); }
+.tech-card:hover .tech-img img { transform: scale(1.07); filter: grayscale(1) brightness(1.03) contrast(1.08); }
 
 /* ---------------- Product detail ---------------- */
 
@@ -1706,7 +1746,7 @@ button, input, select { font: inherit; color: inherit; }
             <a href="#tech">Materials</a>
             <a href="#tech">Construction</a>
             <a href="#stores">Stockists</a>
-            <a href="#footer">Contact</a>
+            <button type="button" data-info="about">About</button>
           </div>
           <div class="mega-feature">
             <div class="mega-feature-img" data-macro></div>
@@ -1785,7 +1825,7 @@ button, input, select { font: inherit; color: inherit; }
   <!-- ============ FEATURED SERIES ============ -->
   <section class="series" id="series">
     <a class="tile tile-wide reveal" href="#shop">
-      <div class="tile-img"><img src="img/campaign/void-01.jpg" alt="Figure in dark layered clothing on a street at night" loading="lazy" decoding="async" /></div>
+      <div class="tile-img"><img src="img/campaign/void-01.jpg" alt="Figure in an all-black outfit standing in shadow" loading="lazy" decoding="async" /></div>
       <div class="tile-body">
         <p class="mono">Series 004</p>
         <h2>The Void Series</h2>
@@ -1795,7 +1835,7 @@ button, input, select { font: inherit; color: inherit; }
     </a>
 
     <a class="tile reveal" href="#shop">
-      <div class="tile-img"><img src="img/campaign/void-03.jpg" alt="Figure in long dark tailoring framed by a stone archway" loading="lazy" decoding="async" /></div>
+      <div class="tile-img"><img src="img/campaign/void-03.jpg" alt="Figure in a black coat outside a minimal concrete building" loading="lazy" decoding="async" /></div>
       <div class="tile-body">
         <p class="mono">Series 003</p>
         <h2>Monolith</h2>
@@ -1804,7 +1844,7 @@ button, input, select { font: inherit; color: inherit; }
     </a>
 
     <a class="tile reveal" href="#lookbook">
-      <div class="tile-img"><img src="img/campaign/void-02.jpg" alt="Figure in red and black against a night sky" loading="lazy" decoding="async" /></div>
+      <div class="tile-img"><img src="img/campaign/void-02.jpg" alt="Black and white figure in a long coat and hat" loading="lazy" decoding="async" /></div>
       <div class="tile-body">
         <p class="mono">Editorial</p>
         <h2>Campaign 004</h2>
@@ -1877,7 +1917,7 @@ button, input, select { font: inherit; color: inherit; }
           <p class="mono">480 GSM loopback</p>
         </div>
         <div class="tech-card tech-card-tall reveal">
-          <div class="tech-img"><img src="img/campaign/void-08.jpg" alt="Dark figure casting a long shadow across a wall" loading="lazy" decoding="async" /></div>
+          <div class="tech-img"><img src="img/campaign/void-08.jpg" alt="Figure in a black outfit photographed against a white ground" loading="lazy" decoding="async" /></div>
           <p class="mono">Bonded shell</p>
         </div>
         <div class="tech-card reveal">
@@ -1960,7 +2000,7 @@ button, input, select { font: inherit; color: inherit; }
     <div class="fig-stage">
       <div id="stage" class="stage">
         <!-- Poster. Visible until a .glb exists, and permanently if it never does. -->
-        <img class="stage-poster" src="img/product/coat.jpg" alt="Vespers Coat: black hooded coat over a wide column trouser on a standing figure" loading="lazy" decoding="async" />
+        <img class="stage-poster" src="img/product/coat.jpg" alt="Vespers Coat: figure in a long black coat against a dark ground" loading="lazy" decoding="async" />
       </div>
 
       <div id="stageFallback" class="stage-fallback" hidden>
@@ -2033,11 +2073,17 @@ button, input, select { font: inherit; color: inherit; }
   <section class="stores" id="stores">
     <p class="mono kicker reveal">Availability</p>
     <h2 class="h-sec reveal">Stockists</h2>
-    <div class="stores-row mono" aria-label="Stockist cities">
+    <div class="stores-row mono" aria-label="Cities the drop was designed for">
       <span>Tokyo</span><span>Seoul</span><span>Berlin</span><span>London</span>
       <span>New York</span><span>Paris</span><span>Toronto</span><span>Sydney</span>
     </div>
-    <p class="stores-note mono reveal">Online exclusive. Shipping worldwide from Rotterdam.</p>
+    <!-- These are illustrative names for a fictional label, not a claim of
+         real stockists. The previous copy asserted a worldwide shipping
+         origin, which was an invented fact with nothing behind it. -->
+    <p class="stores-note mono reveal">
+      Concept storefront. No stock is held in any of these cities, and
+      nothing ships from anywhere.
+    </p>
   </section>
 
   <!-- ============ NEWSLETTER ============ -->
@@ -2071,7 +2117,8 @@ button, input, select { font: inherit; color: inherit; }
     <div>
       <p class="mono ftr-h">Shop</p>
       <a href="#shop">Tops</a><a href="#shop">Bottoms</a>
-      <a href="#shop">Outerwear</a><a href="#shop">Footwear</a>
+      <a href="#shop">Outerwear</a><a href="#shop">Bags</a>
+      <a href="#shop">Footwear</a>
     </div>
     <div>
       <p class="mono ftr-h">Brand</p>
@@ -2081,12 +2128,13 @@ button, input, select { font: inherit; color: inherit; }
     <div>
       <p class="mono ftr-h">Support</p>
       <button data-open="sizeguide">Size guide</button>
-      <a href="#footer">Shipping</a><a href="#footer">Returns</a><a href="#footer">Care</a>
+      <button data-info="shipping">Shipping</button><button data-info="returns">Returns</button>
+      <button data-info="care">Care</button>
     </div>
     <div>
       <p class="mono ftr-h">Company</p>
-      <a href="#footer">About</a><a href="#footer">Sustainability</a>
-      <a href="#footer">Careers</a><a href="#footer">Press</a>
+      <button data-info="about">About</button><button data-info="sustainability">Sustainability</button>
+      <button data-info="careers">Careers</button><button data-info="press">Press</button>
     </div>
   </div>
 
@@ -2094,7 +2142,7 @@ button, input, select { font: inherit; color: inherit; }
     <p class="mono">© <span id="year">2026</span> BAD DESIGN — Concept storefront</p>
     <p class="mono demo-warn">Demo only. Not a real business. No orders are taken and no data is collected.</p>
     <div class="ftr-legal mono">
-      <a href="#footer">Privacy</a><a href="#footer">Terms</a><a href="#footer">Cookies</a>
+      <button data-info="privacy">Privacy</button><button data-info="terms">Terms</button><button data-info="cookies">Cookies</button>
     </div>
   </div>
 </footer>
@@ -2171,6 +2219,18 @@ button, input, select { font: inherit; color: inherit; }
   </div>
 </aside>
 
+<!-- Policy / company info. One sheet serves every footer and menu link, so
+     no label in the site points at a dead #footer anchor. -->
+<aside class="sheet sheet-lg" id="info" hidden aria-label="Information">
+  <header class="drawer-head">
+    <h2 class="mono" id="infoTitle">Information</h2>
+    <button class="icon-btn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+  </header>
+  <div class="sheet-body" id="infoBody"></div>
+</aside>
+
 <!-- Mobile menu -->
 <aside class="drawer drawer-left" id="menu" hidden aria-label="Menu">
   <div class="mobile-menu">
@@ -2179,12 +2239,19 @@ button, input, select { font: inherit; color: inherit; }
     <a href="#shop" data-filter="tops" data-close>Tops</a>
     <a href="#shop" data-filter="bottoms" data-close>Bottoms</a>
     <a href="#shop" data-filter="outerwear" data-close>Outerwear</a>
+    <!-- Bags were missing from both menus while four of the sixteen
+         products were bags. -->
+    <a href="#shop" data-filter="bags" data-close>Bags</a>
     <a href="#shop" data-filter="footwear" data-close>Footwear</a>
     <hr />
     <a href="#tech" data-close>Materials</a>
     <a href="#lookbook" data-close>Lookbook</a>
     <a href="#stores" data-close>Stockists</a>
-    <a href="#footer" data-close>Contact</a>
+    <hr />
+    <button data-open="sizeguide" data-close>Size guide</button>
+    <button data-info="shipping" data-close>Shipping</button>
+    <button data-info="returns" data-close>Returns</button>
+    <button data-info="privacy" data-close>Privacy</button>
   </div>
 </aside>
 
@@ -2674,6 +2741,102 @@ button, input, select { font: inherit; color: inherit; }
     outerwear: "Outerwear", footwear: "Footwear"
   };
 
+  /* ============================================================
+     INFO SHEETS
+     Copy for every footer and menu topic. Written to be true of
+     this thing rather than merely plausible: it is a demo, it
+     sells nothing, and it stores nothing. Inventing a plausible
+     returns policy for a fictional company is the same error as
+     inventing a stockist list.
+     ============================================================ */
+
+  var INFO = {
+    shipping: {
+      title: "Shipping",
+      body: [
+        "Nothing here ships. This is a concept storefront built to show a design, not to take orders.",
+        "There is no basket server, no payment processor and no fulfilment step anywhere behind the checkout. Entering a card number completes a scripted flow entirely in your browser and sends nothing anywhere.",
+        "The checkout exists so the interaction could be judged as an interaction — validation, review, confirmation — not so a garment could be bought."
+      ]
+    },
+    returns: {
+      title: "Returns",
+      body: [
+        "There is nothing to return. No order is ever placed and no payment is ever taken.",
+        "If this were a real label the policy would be the boring one: thirty days unworn and unwashed, return postage covered, refund issued to the original method within five working days of the parcel being scanned."
+      ]
+    },
+    care: {
+      title: "Care",
+      body: [
+        "Every product carries a care line written for the piece it belongs to — cold wash, no tumble, brush the mesh, shoe trees for the boots.",
+        "Those instructions describe real garments made of real cloth. They are written as a specification for a product that does not exist yet."
+      ]
+    },
+    about: {
+      title: "About",
+      body: [
+        "BAD DESIGN is an invented label. The name, the pieces, the prices, the drop numbers and the editorial are all constructed for this storefront.",
+        "The aim was a single idea carried consistently: clothing that reads as oversized and deliberate rather than as a size you have grown into. Everything on the page is in service of that — the extended shoulder, the nipped waist, the column leg, the absence of a visible brand mark anywhere.",
+        "No photographs of the label exist, because the label does not."
+      ]
+    },
+    sustainability: {
+      title: "Sustainability",
+      body: [
+        "No claim can honestly be made here, so none is made.",
+        "Sustainability is measured against a real supply chain, and this has none: no mill, no factory, no garment was cut, and no material was consumed to produce this page.",
+        "The one measurable thing that can be said: the page ships no third-party JavaScript beyond one version of three.js, which is loaded only when the turntable is actually wanted."
+      ]
+    },
+    careers: {
+      title: "Careers",
+      body: [
+        "There are no roles and no company. Nobody is hiring, because there is no employer.",
+        "Written here so the label does not exist in a state of permanent, unexplained vacancy."
+      ]
+    },
+    press: {
+      title: "Press",
+      body: [
+        "No coverage exists. There has been no launch, no runway, no review and no mention.",
+        "Images on this site are editorial photography from Unsplash contributors, used under the Unsplash License and captioned as such. They are not photographs of the label's clothing, and the site never claims they are."
+      ]
+    },
+    privacy: {
+      title: "Privacy",
+      body: [
+        "Nothing is collected. There is no analytics, no tracking pixel, no advertising network, no cookie set by this site and no server to receive one.",
+        "The bag, the checkout and the newsletter field all read and write in the page's own memory. Close the tab and they are gone. No network request carries anything you typed.",
+        "If you do enter a card number — you should not need to, and it is not stored or transmitted — it exists only in JavaScript variables in that tab."
+      ]
+    },
+    terms: {
+      title: "Terms",
+      body: [
+        "This is a design demonstration. It is not a business, it sells nothing, and no contract of any kind arises from using it.",
+        "Product names, prices, materials, origins, care instructions and stockist cities are invented for the purpose of the design and describe nothing real. Where the site names a place of make or a textile specification, that is narrative writing, not a factual claim.",
+        "No warranty, no service level and no liability of any kind is offered or implied."
+      ]
+    },
+    cookies: {
+      title: "Cookies",
+      body: [
+        "None are set. Not one, not for preferences, not for the bag, not for anything.",
+        "Your bag and your checkout progress live in the page's memory and are gone when you close the tab. Reopening the page starts from an empty bag."
+      ]
+    }
+  };
+
+  function openInfo(topic) {
+    var entry = INFO[topic];
+    if (!entry) return;
+    document.getElementById("infoTitle").textContent = entry.title;
+    document.getElementById("infoBody").innerHTML =
+      entry.body.map(function (p) { return "<p>" + p + "</p>"; }).join("");
+    openDrawer("info");
+  }
+
   var CLOTH_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
   var ONE_SIZE    = ["One size"];
 
@@ -2771,7 +2934,7 @@ button, input, select { font: inherit; color: inherit; }
     },
     {
       id: "bd-204", name: "Bloodline Rib Tank", cat: "tops", price: 95,
-      img: "tank", alt: "Figure in a dark ribbed tank top",
+      img: "tank", alt: "Figure in a black tank top and leather trousers",
       badge: "New", colorways: 2, color: "Onyx / Oxblood",
       sizes: CLOTH_SIZES,
       fabric: "220 GSM compact rib, cotton-modal, high elastane content",
@@ -2782,7 +2945,7 @@ button, input, select { font: inherit; color: inherit; }
     },
     {
       id: "bd-205", name: "Nocturne Sheer Long-Sleeve", cat: "tops", price: 180,
-      img: "sheer", alt: "Figure in a sheer black long-sleeve top",
+      img: "sheer", alt: "Figure in a sheer black mesh top",
       badge: null, colorways: 1, color: "Onyx",
       sizes: CLOTH_SIZES,
       fabric: "95% viscose modal, 5% elastane, single jersey",
@@ -2806,7 +2969,7 @@ button, input, select { font: inherit; color: inherit; }
     },
     {
       id: "bd-302", name: "Vigil Wide Wool Trouser", cat: "bottoms", price: 460,
-      img: "trouser", alt: "Figure in wide tailored wool trousers",
+      img: "trouser", alt: "Figure in a black top and wide trousers, seated on a studio chair",
       badge: null, colorways: 2, color: "Onyx / Charcoal",
       sizes: CLOTH_SIZES,
       fabric: "Super 120s virgin wool, 340 GSM, unfinished",
@@ -2817,7 +2980,7 @@ button, input, select { font: inherit; color: inherit; }
     },
     {
       id: "bd-303", name: "Mass Heavyweight Short", cat: "bottoms", price: 110,
-      img: "short", alt: "Figure in dark heavyweight shorts",
+      img: "short", alt: "Figure in a black sleeveless top and shorts",
       badge: null, colorways: 3, color: "Onyx / Bone / Slate",
       sizes: CLOTH_SIZES,
       fabric: "420 GSM loopback cotton, double-stitched inseam",
@@ -2830,7 +2993,7 @@ button, input, select { font: inherit; color: inherit; }
     /* ---------------- OUTERWEAR ---------------- */
     {
       id: "bd-401", name: "Obsidian Track Jacket", cat: "outerwear", price: 420,
-      img: "jacket", alt: "Figure in a dark track jacket and boots in a forest",
+      img: "jacket", alt: "Figure in all-black tailoring, shot against a pale wall",
       badge: "Limited", colorways: 2, color: "Onyx / Chalk",
       sizes: CLOTH_SIZES,
       fabric: "Bonded polyester shell, matte face, fully taped seams",
@@ -2841,7 +3004,7 @@ button, input, select { font: inherit; color: inherit; }
     },
     {
       id: "bd-402", name: "Penance Belted Coat", cat: "outerwear", price: 1290,
-      img: "coat", alt: "Figure in a belted dark coat",
+      img: "coat", alt: "Figure in a long black coat against a dark ground",
       badge: "New", colorways: 2, color: "Onyx / Oxblood",
       sizes: CLOTH_SIZES,
       fabric: "Double-faced wool-cashmere, bonded seams, horn hardware",
@@ -2860,7 +3023,7 @@ button, input, select { font: inherit; color: inherit; }
       fabric: "Full-grain leather upper, engineered mesh cage, EVA midsole",
       origin: "Made in Italy",
       blurb: "A panelled cage over a leather chassis on a cupsole — not a wedge. The profile holds through the whole season instead of collapsing in week six.",
-      specs: [["Upper", "Full-grain leather plus mesh"], ["Midsole", "Compression-moulded EVA"], ["Outsole", "Vibram rubber"], ["Last", "Terminus, wide toe box"]],
+      specs: [["Upper", "Full-grain leather plus mesh"], ["Midsole", "Compression-moulded EVA"], ["Outsole", "Moulded rubber, 6mm lug"], ["Last", "Terminus, wide toe box"]],
       care: "Brush the mesh. Use shoe trees. Never a washing machine."
     }
   ];
@@ -3120,21 +3283,44 @@ button, input, select { font: inherit; color: inherit; }
      8 · OVERLAYS
      ============================================================ */
 
+  /* Each overlay carries a pending "now hide me" timer so a close can
+     animate out. The bug this replaces: openDrawer called closeDrawers,
+     which armed that timer on every overlay including the one about to be
+     opened. 340ms later the timer fired and hid the drawer that had just
+     opened, so every overlay in the site shut itself shortly after it
+     appeared. Tracking the timer per element lets an open cancel its own
+     pending hide, and lets a close cancel a stale one. */
+  var hideTimers = new WeakMap();
+
+  function scheduleHide(el) {
+    clearTimeout(hideTimers.get(el));
+    hideTimers.set(el, setTimeout(function () {
+      el.hidden = true;
+      hideTimers.delete(el);
+    }, 340));
+  }
+
+  function cancelHide(el) {
+    clearTimeout(hideTimers.get(el));
+    hideTimers.delete(el);
+  }
+
   function openDrawer(which) {
-    closeDrawers(true);
     var d = document.getElementById(which);
     if (!d) return;
+    closeDrawers(true, d);
+    cancelHide(d);
     d.hidden = false;
     requestAnimationFrame(function () { d.classList.add("is-open"); });
     document.body.classList.add("no-scroll");
     document.getElementById("scrim").classList.add("is-on");
   }
 
-  function closeDrawers(keepHash) {
+  function closeDrawers(keepHash, except) {
     document.querySelectorAll(".drawer, .sheet").forEach(function (d) {
       d.classList.remove("is-open");
-      var el = d;
-      setTimeout(function () { el.hidden = true; }, 340);
+      if (except && d === except) return;
+      scheduleHide(d);
     });
     document.body.classList.remove("no-scroll");
     var sc = document.getElementById("scrim");
@@ -3236,7 +3422,10 @@ button, input, select { font: inherit; color: inherit; }
   function shipCost() {
     var sub = cartSubtotal();
     var base = sub >= FREE_SHIP ? 0 : 20;
-    return base + SHIP_METHODS[co.shipMethod].price;
+    // Guarded: shipCost runs during render, so a co.shipMethod that is not
+    // a key of SHIP_METHODS throws inside a draw rather than being ignored.
+    var m = SHIP_METHODS[co.shipMethod] || SHIP_METHODS.standard;
+    return base + m.price;
   }
 
   function orderTotals() {
@@ -3317,7 +3506,10 @@ button, input, select { font: inherit; color: inherit; }
             (co.ship.country || "—") + "</p>" +
             '<button class="link-btn mono" data-co-goto="2">Edit</button></div>' +
           '<div class="co-block"><p class="mono">Delivery</p>' +
-            '<p>' + SHIP_METHODS[co.shipMethod].name + ' — ' + SHIP_METHODS[co.shipMethod].note + '</p>' +
+            (function () {
+              var m = SHIP_METHODS[co.shipMethod] || SHIP_METHODS.standard;
+              return '<p>' + m.name + ' — ' + m.note + '</p>';
+            })() +
             '<button class="link-btn mono" data-co-goto="2">Edit</button></div>' +
           '<div class="co-block"><p class="mono">Payment</p>' +
             '<p>' + (co.pay.name || "—") + '<br />Card ending ' +
@@ -3546,6 +3738,12 @@ button, input, select { font: inherit; color: inherit; }
 
       var open = e.target.closest("[data-open]");
       if (open) { openDrawer(open.getAttribute("data-open")); return; }
+
+      /* Footer and menu topics. These used to be <a href="#footer">, which
+         put ten labels on screen that went nowhere. One sheet now serves
+         every topic and actually says something. */
+      var info = e.target.closest("[data-info]");
+      if (info) { openInfo(info.getAttribute("data-info")); return; }
 
       var close = e.target.closest("[data-close]");
       if (close) { checkoutOpen = false; closeDrawers(); return; }
