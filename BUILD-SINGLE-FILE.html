@@ -1,0 +1,4524 @@
+﻿<!--
+  BAD DESIGN - single-file build.
+  Everything except the CDN assets below is inlined in this one file.
+  Still external:  Three.js r160 (unpkg, via import map)
+                  Clash Display + Satoshi (Fontshare)
+                  Instrument Serif + JetBrains Mono (Google Fonts)
+  Images are referenced relative to ./img/ - that folder must travel with
+  this file. Serve over HTTP; ES modules do not load from file://
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BAD DESIGN — Drop 004 / The Void Series</title>
+<meta name="description" content="BAD DESIGN. Oversized tailoring and technical outerwear, made in limited runs. Drop 004 — The Void Series." />
+<meta property="og:title" content="BAD DESIGN — Drop 004 / The Void Series" />
+<meta property="og:description" content="Oversized tailoring and technical outerwear, made in limited runs." />
+<meta property="og:type" content="website" />
+<meta name="theme-color" content="#08080a" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+
+<link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=satoshi@300,400,500,700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+/* ===== styles.css (inlined) ===== */
+/* ============================================================
+   BAD DESIGN — storefront styles
+
+   Palette is deliberately near-monochrome: void black, bone, and a
+   single warm accent. Type is Clash Display for the voice, Satoshi
+   for reading, Instrument Serif italic for editorial contrast, and
+   JetBrains Mono for the technical labelling.
+   ============================================================ */
+
+/* ---------------- Tokens ---------------- */
+
+:root {
+  --void:      #08080a;
+  --void-2:    #0d0d10;
+  --void-3:    #141418;
+  --void-4:    #1c1c21;
+
+  --line:      rgba(233, 229, 219, 0.16);
+  --line-2:    rgba(233, 229, 219, 0.11);   /* was 0.07 — panels had no visible edge */
+
+  --bone:      #f2efe7;   /* 18:1 on void */
+  --bone-dim:  #cdc9bf;   /* 12:1 on void */
+  --muted:     #a8a49b;   /* 7.8:1 on void - passes AA for body text */
+  --accent:    #e0d8c6;
+
+  --flat-fill:   #0a0a0c;
+  --flat-stroke: rgba(233, 229, 219, 0.66);
+
+  --display: "Clash Display", "Satoshi", system-ui, sans-serif;
+  --sans:    "Satoshi", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif:   "Instrument Serif", Georgia, serif;
+  --mono:    "JetBrains Mono", ui-monospace, Consolas, monospace;
+
+  --pad:  clamp(1.25rem, 4.5vw, 4.5rem);
+  --maxw: 1560px;
+  --ease: cubic-bezier(0.22, 0.7, 0.24, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* The void colour lives on <html>, not <body>. That lets the grain and
+   vignette sit at negative z-index — above the page background but BELOW
+   all content. Previously they were pinned at z-index 900/899, spraying
+   noise across every glyph on the site. */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  background: var(--void);
+}
+
+body {
+  margin: 0;
+  background: transparent;
+  color: var(--bone);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.65;
+  font-weight: 400;   /* was 300 — a light weight is too thin on near-black */
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body.no-scroll { overflow: hidden; }
+
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button, input, select { font: inherit; color: inherit; }
+
+::selection { background: var(--bone); color: var(--void); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar { width: 9px; }
+::-webkit-scrollbar-track { background: var(--void); }
+::-webkit-scrollbar-thumb { background: var(--void-4); border-radius: 9px; }
+::-webkit-scrollbar-thumb:hover { background: #2a2a30; }
+
+/* ---------------- Utilities ---------------- */
+
+/* Mono labels carry a lot of this design. They have to stay readable:
+   nothing here goes below .68rem, and tracking is kept modest because
+   wide tracking on a small face is what actually kills legibility. */
+.mono {
+  font-family: var(--mono);
+  font-size: .72rem;
+  font-weight: 400;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.muted { color: var(--muted); }
+.serif { font-family: var(--serif); font-weight: 400; font-style: italic; }
+
+.kicker { margin: 0 0 .9rem; }
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+.skip {
+  position: absolute; top: -100px; left: 1rem; z-index: 1000;
+  padding: .7rem 1.1rem; background: var(--bone); color: var(--void);
+  font-family: var(--mono); font-size: .7rem; letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.skip:focus { top: 1rem; }
+
+/* ---------------- Atmosphere ---------------- */
+
+/* Atmosphere now renders BEHIND the content (see the html/body note
+   above). It can be as strong as it likes without touching legibility. */
+.vignette {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: -2;
+  background: radial-gradient(130% 95% at 50% 40%, transparent 38%, rgba(0,0,0,.6) 100%);
+}
+
+#grain {
+  position: fixed; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: .75;
+}
+
+.cursor {
+  position: fixed; top: 0; left: 0;
+  width: 30px; height: 30px;
+  margin: -15px 0 0 -15px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 950;
+  opacity: 0;
+  /* No mix-blend-mode. "difference" inverted every colour the ring passed
+     over, which is exactly the kind of overlay that wrecks a layout. */
+  transition: width .28s var(--ease), height .28s var(--ease),
+              margin .28s var(--ease), opacity .3s, background .28s;
+}
+.cursor.on { opacity: 1; }
+.cursor.hot { width: 64px; height: 64px; margin: -32px 0 0 -32px; background: rgba(255,255,255,.1); }
+@media (hover: none) { .cursor { display: none; } }
+
+/* ---------------- Buttons ---------------- */
+
+.btn {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: .5rem;
+  padding: 1rem 2.1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--mono);
+  font-size: .7rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  cursor: pointer;
+  overflow: hidden;
+  transition: color .3s var(--ease), border-color .3s var(--ease), transform .25s var(--ease);
+}
+.btn:hover { border-color: var(--bone); transform: translateY(-2px); }
+
+.btn-solid { background: var(--bone); color: var(--void); border-color: var(--bone); }
+.btn-solid:hover { background: #fff; border-color: #fff; }
+
+.btn-block { width: 100%; }
+
+.link-btn {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  display: inline-flex; align-items: center; min-height: 34px;
+  text-decoration: underline; text-underline-offset: 4px;
+  text-decoration-color: var(--line);
+  transition: text-decoration-color .25s;
+}
+.link-btn:hover { text-decoration-color: var(--bone); }
+
+/* ---------------- Announce bar ---------------- */
+
+.announce {
+  position: relative; z-index: 120;
+  border-bottom: 1px solid var(--line-2);
+  background: var(--void);
+  overflow: hidden;
+  padding: .7rem 0;
+}
+.announce-track {
+  display: flex; align-items: center; gap: 2rem;
+  width: max-content; white-space: nowrap;
+  animation: slide 38s linear infinite;
+  font-family: var(--mono);
+  font-size: .70rem;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+.announce-track b { color: var(--muted); font-weight: 400; }
+@keyframes slide { to { transform: translateX(-50%); } }
+
+/* ---------------- Header ---------------- */
+
+.hdr {
+  position: sticky; top: 0; z-index: 110;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.1rem var(--pad);
+  background: rgba(8, 8, 10, .6);
+  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+  border-bottom: 1px solid transparent;
+  transition: transform .4s var(--ease), background .3s, border-color .3s;
+}
+.hdr.is-stuck { background: rgba(8, 8, 10, .92); border-bottom-color: var(--line-2); }
+.hdr.is-hidden { transform: translateY(-100%); }
+
+.logo { display: inline-flex; align-items: center; gap: .6rem; min-height: 40px; }
+.logo-mark { width: 22px; height: 22px; color: var(--bone); }
+.logo-mark svg { width: 100%; height: 100%; }
+.logo-word {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.02rem;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+}
+.logo-word em { font-style: normal; font-weight: 300; margin-left: .28em; color: var(--bone-dim); }
+
+.nav { display: flex; align-items: center; justify-content: center; gap: clamp(1rem, 2.5vw, 2.4rem); }
+
+.nav-link {
+  position: relative;
+  background: none; border: 0; padding: .3rem 0; cursor: pointer;
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .17em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  transition: color .25s;
+}
+.nav-link::after {
+  content: ""; position: absolute; left: 0; bottom: 0;
+  width: 100%; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: right;
+  transition: transform .32s var(--ease);
+}
+.nav-link:hover { color: var(--bone); }
+.nav-link:hover::after { transform: scaleX(1); transform-origin: left; }
+
+.hdr-end { display: flex; align-items: center; justify-content: flex-end; gap: .4rem; }
+
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  position: relative;
+  width: 40px; height: 40px;
+  background: none; border: 0; cursor: pointer;
+  color: var(--bone-dim);
+  border-radius: 50%;
+  transition: color .25s, background .25s;
+}
+.icon-btn:hover { color: var(--bone); background: rgba(255,255,255,.05); }
+.icon-btn svg { width: 19px; height: 19px; }
+
+.bag-count {
+  position: absolute; top: 2px; right: 0;
+  min-width: 19px; height: 19px;
+  display: grid; place-items: center;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: var(--bone); color: var(--void);
+  font-size: .72rem; letter-spacing: 0;
+  font-weight: 700;
+  opacity: 0; transform: scale(.5);
+  transition: opacity .25s, transform .25s var(--ease);
+}
+.bag-count.is-live { opacity: 1; transform: scale(1); }
+
+.burger { display: none; flex-direction: column; gap: 5px; }
+.burger span { display: block; width: 19px; height: 1px; background: currentColor; }
+
+/* Mega menu */
+.has-mega { position: relative; }
+.mega {
+  position: absolute; top: calc(100% + 14px); left: 50%;
+  transform: translate(-50%, -8px);
+  width: min(980px, 90vw);
+  padding: 2.2rem;
+  background: var(--void-2);
+  border: 1px solid var(--line);
+  opacity: 0; visibility: hidden;
+  transition: opacity .3s var(--ease), transform .3s var(--ease), visibility .3s;
+}
+.mega.is-open { opacity: 1; visibility: visible; transform: translate(-50%, 0); }
+
+.mega-grid { display: grid; grid-template-columns: repeat(3, 1fr) 1.25fr; gap: 2rem; }
+.mega-col { display: flex; flex-direction: column; gap: .7rem; }
+.mega-h { margin: 0 0 .4rem; color: var(--muted); }
+.mega-col a {
+  font-size: .92rem; color: var(--bone-dim);
+  width: fit-content;
+  transition: color .2s, transform .2s var(--ease);
+}
+.mega-col a:hover { color: var(--bone); transform: translateX(4px); }
+
+.mega-feature { border-left: 1px solid var(--line); padding-left: 2rem; }
+.mega-feature-img {
+  height: 130px; margin-bottom: .9rem;
+  overflow: hidden; background: var(--void-3);
+}
+.mega-feature-img svg { width: 100%; height: 100%; object-fit: cover; }
+.mega-feature-title {
+  font-family: var(--sans); font-size: 1.3rem; font-weight: 600;
+  margin: .3rem 0 .6rem;
+}
+.mega-feature a { font-family: var(--mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; }
+.mega-feature a:hover { color: var(--accent); }
+
+/* ---------------- Hero ---------------- */
+
+.hero {
+  position: relative;
+  min-height: calc(100vh - 92px);
+  min-height: calc(100svh - 92px);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(3rem, 8vh, 6rem) var(--pad) clamp(6rem, 12vh, 9rem);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.hero-bg { position: absolute; inset: 0; z-index: -2; }
+.hero-bg svg { width: 100%; height: 100%; object-fit: cover; }
+
+.hero-vig {
+  position: absolute; inset: 0; z-index: -1;
+  background:
+    linear-gradient(to bottom, rgba(8,8,10,.85) 0%, rgba(8,8,10,.3) 40%, rgba(8,8,10,.9) 92%),
+    radial-gradient(80% 60% at 20% 40%, rgba(8,8,10,.7), transparent 70%);
+}
+
+.hero-inner { max-width: var(--maxw); margin: 0 auto; width: 100%; }
+
+.hero-kicker { display: inline-flex; align-items: center; gap: .6rem; color: var(--bone-dim); margin-bottom: clamp(1.5rem, 4vh, 3rem); }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: var(--bone); animation: blink 2.2s ease-in-out infinite; }
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+.hero-title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: clamp(3.6rem, 15.5vw, 15rem);
+  line-height: .84;
+  letter-spacing: -.045em;
+  text-transform: uppercase;
+}
+.hero-title .line { display: block; }
+
+/* "DESIGN" rendered as outline type — the classic streetwear move */
+.line-2 {
+  color: transparent;
+  -webkit-text-stroke: 2px var(--bone);
+  padding-right: .08em;
+}
+@supports not (-webkit-text-stroke: 2px black) {
+  .line-2 { color: var(--bone-dim); }
+}
+
+.hero-sub {
+  margin: clamp(1.6rem, 4vh, 2.6rem) 0 0;
+  font-size: clamp(1rem, 1.6vw, 1.22rem);
+  line-height: 1.55;
+  color: var(--bone-dim);
+  max-width: 38ch;
+}
+
+.hero-cta { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: clamp(2rem, 5vh, 3rem); }
+
+.hero-drop {
+  position: absolute; right: var(--pad); bottom: clamp(1.5rem, 5vh, 3rem);
+  text-align: right;
+}
+.drop-label { margin: 0 0 .7rem; }
+.countdown { display: flex; gap: .5rem; }
+.countdown > div {
+  min-width: 62px;
+  padding: .6rem .5rem;
+  background: rgba(20,20,24,.6);
+  border: 1px solid var(--line-2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.countdown b {
+  display: block;
+  font-family: var(--sans); font-size: 1.55rem; font-weight: 500;
+  line-height: 1; font-variant-numeric: tabular-nums;
+  letter-spacing: -.01em;
+}
+.countdown span { display: block; margin-top: .35rem; font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+/* Vertical rail on the left edge so it never collides with the hero CTA */
+.scroll-cue {
+  position: absolute;
+  left: 1.5rem;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .9rem;
+  color: var(--muted);
+}
+.scroll-cue .mono { writing-mode: vertical-rl; letter-spacing: .32em; }
+.cue-line { width: 1px; height: 64px; background: linear-gradient(var(--line), transparent); animation: cue 2.4s ease-in-out infinite; }
+@keyframes cue { 0%,100% { transform: scaleY(.4); opacity: .4; transform-origin: top; } 50% { transform: scaleY(1); opacity: 1; transform-origin: top; } }
+
+/* ---------------- Marquee ---------------- */
+
+.marquee {
+  border-top: 1px solid var(--line-2);
+  border-bottom: 1px solid var(--line-2);
+  background: var(--void-2);
+  overflow: hidden;
+  padding: 1.4rem 0;
+}
+.marquee-track {
+  display: flex; align-items: center; gap: 2.4rem;
+  width: max-content; white-space: nowrap;
+  animation: slide 44s linear infinite;
+}
+.mq {
+  font-family: var(--display);
+  font-size: clamp(1.4rem, 3.6vw, 2.9rem);
+  font-weight: 600;
+  letter-spacing: -.02em;
+  text-transform: uppercase;
+}
+.mq.serif {
+  font-family: var(--serif); font-style: italic; font-weight: 400;
+  text-transform: none; letter-spacing: -.01em;
+  color: var(--accent);
+}
+.mq-mark { color: var(--muted); font-size: clamp(.8rem, 1.6vw, 1.1rem); }
+
+/* ---------------- Section headers ---------------- */
+
+.h-sec {
+  font-family: var(--display);
+  font-size: clamp(2rem, 6.2vw, 4.6rem);
+  font-weight: 600;
+  line-height: .98;
+  letter-spacing: -.035em;
+  text-transform: uppercase;
+  margin: 0;
+}
+.h-sec .serif { text-transform: none; color: var(--accent); }
+
+.sec-head { max-width: var(--maxw); margin: 0 auto clamp(2.5rem, 7vh, 4.5rem); padding: 0 var(--pad); }
+.sec-note { margin-top: .9rem; color: var(--muted); }
+
+/* ---------------- Series tiles ---------------- */
+
+.series {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line-2);
+  border-block: 1px solid var(--line-2);
+}
+.tile {
+  position: relative;
+  display: flex; align-items: flex-end;
+  min-height: clamp(380px, 52vw, 620px);
+  padding: clamp(1.5rem, 3vw, 2.6rem);
+  overflow: hidden;
+  background: var(--void);
+  isolation: isolate;
+}
+.tile-wide { grid-column: span 2; min-height: clamp(420px, 62vw, 760px); }
+
+.tile-img { position: absolute; inset: 0; z-index: -1; }
+.tile-img svg { width: 100%; height: 100%; object-fit: cover; transition: transform 1.2s var(--ease); }
+.tile::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(to top, rgba(8,8,10,.92) 0%, rgba(8,8,10,.35) 45%, rgba(8,8,10,.1) 100%);
+  transition: background .5s;
+}
+.tile:hover .tile-img svg { transform: scale(1.06); }
+.tile:hover::after { background: linear-gradient(to top, rgba(8,8,10,.96) 0%, rgba(8,8,10,.5) 50%, rgba(8,8,10,.2) 100%); }
+
+.tile-body { position: relative; }
+.tile-body h2 {
+  font-family: var(--display);
+  font-size: clamp(1.8rem, 4.4vw, 3.6rem);
+  font-weight: 600; line-height: 1; letter-spacing: -.03em;
+  text-transform: uppercase; margin: .5rem 0 .7rem;
+}
+.tile-body > p:not(.mono) { color: var(--bone-dim); max-width: 42ch; margin: 0 0 1.2rem; font-size: .95rem; }
+.tile-cta {
+  display: inline-block;
+  font-family: var(--mono); font-size: .72rem;
+  letter-spacing: .16em; text-transform: uppercase;
+  padding-bottom: .3rem;
+  border-bottom: 1px solid var(--line);
+  transition: border-color .3s, color .3s;
+}
+.tile:hover .tile-cta { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ---------------- Shop ---------------- */
+
+.shop { max-width: var(--maxw); margin: 0 auto; padding: clamp(4rem, 11vh, 8rem) var(--pad); }
+
+.shop-head {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+  gap: 1.5rem;
+  padding-bottom: 1.8rem;
+  border-bottom: 1px solid var(--line-2);
+  margin-bottom: 1.2rem;
+}
+.shop-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5rem; }
+
+.filters { display: flex; flex-wrap: wrap; gap: .4rem; }
+.chip {
+  padding: .5rem 1rem;
+  background: none;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  font-family: var(--mono); font-size: .70rem;
+  letter-spacing: .15em; text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color .25s, border-color .25s, background .25s;
+}
+.chip:hover { color: var(--bone); border-color: var(--line); }
+.chip.is-on { color: var(--void); background: var(--bone); border-color: var(--bone); }
+
+.sort { display: inline-flex; align-items: center; gap: .6rem; }
+.sort select {
+  background: var(--void-2); color: var(--bone);
+  border: 1px solid var(--line-2); border-radius: 999px;
+  padding: .5rem 1.9rem .5rem .9rem;
+  font-family: var(--mono); font-size: .70rem; letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%236d6b67' stroke-width='1.2' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .8rem center;
+}
+
+.result-count { margin: 0 0 2rem; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+  gap: clamp(1.5rem, 2.5vw, 2.6rem) clamp(1rem, 1.8vw, 1.8rem);
+}
+.empty { padding: 4rem 0; text-align: center; }
+
+/* ---------------- Product card ---------------- */
+
+.card { position: relative; }
+
+.card-media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, #101014 0%, #0a0a0c 100%);
+  border: 1px solid var(--line-2);
+  margin-bottom: 1.1rem;
+}
+.media-a, .media-b {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  padding: 11%;
+  transition: opacity .6s var(--ease), transform .8s var(--ease);
+}
+.media-b { opacity: 0; }
+.media-b svg { width: 100%; height: 100%; }
+.card-media:hover .media-a { opacity: 0; transform: scale(1.05); }
+.card-media:hover .media-b { opacity: .85; }
+
+.badge {
+  position: absolute; top: .8rem; left: .8rem; z-index: 2;
+  padding: .3rem .65rem;
+  background: var(--bone); color: var(--void);
+  font-family: var(--mono); font-size: .72rem;
+  letter-spacing: .14em; text-transform: uppercase;
+}
+.peek {
+  position: absolute; left: 50%; bottom: 1rem; z-index: 2;
+  transform: translate(-50%, 8px);
+  padding: .5rem 1rem;
+  border: 1px solid var(--line);
+  background: rgba(8,8,10,.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-family: var(--mono); font-size: .72rem;
+  letter-spacing: .15em; text-transform: uppercase;
+  opacity: 0;
+  transition: opacity .35s var(--ease), transform .35s var(--ease);
+  white-space: nowrap;
+}
+.card-media:hover .peek { opacity: 1; transform: translate(-50%, 0); }
+
+.card-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 1rem;
+}
+/* Product names get read, not displayed. Clash Display is a display
+   face — wide, heavy, unusual letterforms — and it turns to mush at
+   1rem. Satoshi in sentence case is what SSENSE and Net-a-Porter use
+   for product titles, and for the same reason. */
+.card h3 {
+  font-family: var(--sans);
+  font-size: 1.05rem; font-weight: 500;
+  letter-spacing: 0;
+  margin: 0;
+}
+.price { margin: 0; font-family: var(--mono); font-size: .82rem; color: var(--bone-dim); white-space: nowrap; }
+
+.card-blurb { margin: .6rem 0 .9rem; font-size: .94rem; color: var(--muted); line-height: 1.6; }
+
+.card-spec { display: flex; flex-wrap: wrap; gap: .3rem 1.4rem; margin: 0 0 1rem; }
+.card-spec dt { font-family: var(--mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.card-spec dd { margin: .15rem 0 0; font-size: .90rem; color: var(--bone-dim); }
+
+.card-foot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem;
+  padding-top: .9rem;
+  border-top: 1px solid var(--line-2);
+}
+.swatches { display: inline-flex; gap: .35rem; }
+.swatches i { width: 11px; height: 11px; border-radius: 50%; border: 1px solid var(--line); background: #17171b; }
+
+.add {
+  padding: .55rem 1.1rem;
+  background: none; border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: var(--mono); font-size: .70rem;
+  letter-spacing: .14em; text-transform: uppercase;
+  cursor: pointer;
+  transition: background .25s, color .25s, border-color .25s;
+}
+.add:hover { background: var(--bone); color: var(--void); border-color: var(--bone); }
+
+/* ---------------- Materials ---------------- */
+
+.tech { border-top: 1px solid var(--line-2); background: var(--void-2); }
+.tech-grid {
+  max-width: var(--maxw); margin: 0 auto;
+  display: grid; grid-template-columns: 1fr; gap: clamp(2.5rem, 6vw, 5rem);
+  padding: clamp(4rem, 11vh, 8rem) var(--pad);
+}
+@media (min-width: 1000px) { .tech-grid { grid-template-columns: 1.05fr .95fr; } }
+
+.lead { margin: 1.4rem 0 0; max-width: 46ch; color: var(--bone-dim); font-size: 1.02rem; }
+
+.tech-list { list-style: none; margin: 3rem 0 0; padding: 0; }
+.tech-list li {
+  display: flex; gap: 1.4rem;
+  padding: 1.5rem 0;
+  border-top: 1px solid var(--line-2);
+}
+.tech-list li:last-child { border-bottom: 1px solid var(--line-2); }
+.tech-n { padding-top: .25rem; }
+.tech-list h3 { font-family: var(--sans); font-size: 1.02rem; font-weight: 600; margin: 0 0 .4rem; letter-spacing: 0; }
+.tech-list p { margin: 0; color: var(--muted); font-size: .93rem; max-width: 46ch; }
+
+.tech-visuals { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.tech-card-tall { grid-row: span 2; }
+.tech-img { aspect-ratio: 3 / 4; overflow: hidden; background: var(--void-3); }
+.tech-card:not(.tech-card-tall) .tech-img { aspect-ratio: 1 / 1; }
+.tech-img svg { width: 100%; height: 100%; object-fit: cover; transition: transform 1.1s var(--ease); }
+.tech-card:hover .tech-img svg { transform: scale(1.08); }
+.tech-card p { margin: .6rem 0 0; }
+
+/* ---------------- Specimen — optical study ---------------- */
+
+.specimen { border-top: 1px solid var(--line-2); background: var(--void); }
+
+.spec-inner {
+  max-width: var(--maxw); margin: 0 auto;
+  padding: clamp(3.5rem, 9vh, 6rem) var(--pad) clamp(2rem, 5vh, 3.5rem);
+}
+.spec-inner .lead { max-width: 52ch; }
+
+.spec-stage {
+  position: relative;
+  border-top: 1px solid var(--line-2);
+  background: #050507;
+}
+
+#optics {
+  display: block;
+  width: 100%;
+  height: clamp(480px, 82vh, 880px);
+}
+
+.spec-fallback {
+  display: grid; place-content: center; gap: .8rem;
+  text-align: center;
+  height: clamp(480px, 82vh, 880px);
+  padding: 2rem var(--pad);
+}
+.spec-fallback p { margin: 0; max-width: 44ch; }
+.spec-fallback p + p { color: var(--muted); font-size: .92rem; }
+
+/* Instrument panel — reads like a bench readout, sits over the render */
+.instrument {
+  position: absolute; left: var(--pad); bottom: clamp(1.25rem, 4vh, 2.5rem);
+  z-index: 2;
+  min-width: 232px;
+  padding: 1rem 1.1rem;
+  background: rgba(10, 10, 13, .72);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.inst-row {
+  display: grid;
+  grid-template-columns: 3.4rem 1fr auto;
+  align-items: center;
+  gap: .7rem;
+  padding: .4rem 0;
+}
+.inst-row + .inst-row { border-top: 1px solid var(--line-2); }
+
+/* Read-only rows don't need the slider column */
+.inst-row:not(.inst-control) { grid-template-columns: 3.4rem 1fr; }
+
+.inst-row .val {
+  color: var(--bone);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  min-width: 4.2rem;
+}
+
+/* Range inputs, restyled to match. The track is thin on purpose, but the
+   control itself is sized for a thumb — it measured 18px tall, which is
+   not draggable on a phone. */
+.inst-row input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 30px;
+  background: transparent;
+  cursor: pointer;
+}
+.inst-row input[type="range"]::-webkit-slider-runnable-track {
+  height: 1px; background: var(--line);
+}
+.inst-row input[type="range"]::-moz-range-track {
+  height: 1px; background: var(--line);
+}
+.inst-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 14px; height: 14px; margin-top: -6.5px;
+  border-radius: 50%;
+  background: var(--bone);
+  transition: transform .18s var(--ease), background .18s;
+}
+.inst-row input[type="range"]::-moz-range-thumb {
+  width: 14px; height: 14px; border: 0;
+  border-radius: 50%;
+  background: var(--bone);
+}
+.inst-row input[type="range"]:hover::-webkit-slider-thumb { transform: scale(1.25); }
+.inst-row input[type="range"]:focus-visible::-webkit-slider-thumb { background: var(--accent); }
+
+/* Touch devices get a full-size target and a bigger handle */
+@media (hover: none) and (pointer: coarse) {
+  .inst-row { padding: .55rem 0; }
+  .inst-row input[type="range"] { height: 44px; }
+  .inst-row input[type="range"]::-webkit-slider-thumb {
+    width: 20px; height: 20px; margin-top: -9.5px;
+  }
+  .inst-row input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; }
+  .inst-row .val { font-size: .85rem; }
+}
+
+.spec-caption {
+  position: absolute; right: var(--pad); bottom: clamp(1.25rem, 4vh, 2.5rem);
+  z-index: 2;
+  margin: 0;
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  .instrument { position: static; margin: 0 var(--pad) 1.5rem; min-width: 0; }
+  .spec-caption { position: static; margin: 0 var(--pad) 1.5rem; text-align: left; }
+}
+
+/* ---------------- Lookbook ---------------- */
+
+.lookbook { max-width: var(--maxw); margin: 0 auto; padding: clamp(4rem, 11vh, 8rem) var(--pad); }
+.look-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line-2); }
+.look { margin: 0; background: var(--void); }
+.look-tall { grid-row: span 2; }
+.look-wide { grid-column: span 2; }
+.look-img { aspect-ratio: 4 / 5; overflow: hidden; background: var(--void-3); }
+.look-tall .look-img { aspect-ratio: 3 / 5; }
+.look-wide .look-img { aspect-ratio: 16 / 9; }
+
+/* Both the procedural macro (svg) and real photography (img) fill the
+   frame the same way, so a tile can hold either without restyling. */
+.look-img svg, .look-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 1.3s var(--ease), filter .6s;
+  filter: brightness(.82) saturate(.8);
+}
+.look:hover .look-img svg, .look:hover .look-img img { transform: scale(1.05); filter: brightness(1.05) saturate(.95); }
+.look figcaption { padding: .9rem .2rem; }
+
+.credit {
+  max-width: var(--maxw);
+  margin: 2rem auto 0;
+  padding: 0 var(--pad);
+  color: var(--muted);
+  line-height: 1.9;
+}
+
+/* ---------------- The figure (360) ---------------- */
+
+.figure {
+  border-top: 1px solid var(--line-2);
+  background: var(--void-2);
+}
+.fig-copy { padding: clamp(3.5rem, 9vh, 6rem) var(--pad); max-width: var(--maxw); margin: 0 auto; }
+
+.fig-specs { margin: 2.4rem 0; }
+.fig-specs > div {
+  display: flex; flex-wrap: wrap; gap: .4rem 1.5rem;
+  padding: .9rem 0;
+  border-top: 1px solid var(--line-2);
+}
+.fig-specs > div:last-child { border-bottom: 1px solid var(--line-2); }
+.fig-specs dt { font-family: var(--mono); font-size: .70rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); min-width: 110px; }
+.fig-specs dd { margin: 0; font-size: .92rem; color: var(--bone-dim); }
+
+.drag-hint { margin: 1.8rem 0 0; display: flex; align-items: center; gap: .7rem; }
+.drag-hint::before {
+  content: ""; width: 26px; height: 1px; background: var(--line);
+}
+
+.fig-stage { position: relative; }
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: clamp(460px, 78vh, 820px);
+  background:
+    radial-gradient(90% 70% at 50% 45%, #14141a 0%, #0a0a0d 70%, #08080a 100%);
+  border-top: 1px solid var(--line-2);
+  overflow: hidden;
+}
+.stage canvas { display: block; width: 100%; height: 100%; }
+
+/* Faint technical grid behind the figure */
+.stage::before {
+  content: "";
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--line-2) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-2) 1px, transparent 1px);
+  background-size: 88px 88px;
+  opacity: .5;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 50%, #000 20%, transparent 80%);
+  mask-image: radial-gradient(70% 60% at 50% 50%, #000 20%, transparent 80%);
+}
+
+.stage-fallback {
+  display: grid; place-content: center; gap: .8rem;
+  text-align: center;
+  height: clamp(460px, 78vh, 820px);
+  padding: 2rem var(--pad);
+  border-top: 1px solid var(--line-2);
+}
+.stage-fallback p { margin: 0; max-width: 42ch; }
+.stage-fallback p + p { color: var(--muted); font-size: .9rem; }
+
+@media (min-width: 1000px) {
+  .fig-copy { padding-bottom: clamp(2rem, 5vh, 3.5rem); }
+}
+
+/* ---------------- Statement ---------------- */
+
+.statement {
+  position: relative; isolation: isolate;
+  min-height: clamp(420px, 70vh, 720px);
+  display: grid; place-items: center;
+  overflow: hidden;
+  text-align: center;
+  padding: 4rem var(--pad);
+  border-block: 1px solid var(--line-2);
+}
+.statement-bg { position: absolute; inset: 0; z-index: -2; }
+.statement-bg svg { width: 100%; height: 100%; object-fit: cover; }
+.statement::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: rgba(8,8,10,.68);
+}
+.serif-lg {
+  font-family: var(--serif); font-style: italic; font-weight: 400;
+  font-size: clamp(2.1rem, 6.4vw, 5.4rem);
+  line-height: 1.08; letter-spacing: -.02em;
+  margin: 0;
+}
+.serif-lg em { color: var(--accent); }
+.statement-inner > .mono { margin-top: 2rem; display: block; }
+
+/* ---------------- Stores ---------------- */
+
+.stores { max-width: var(--maxw); margin: 0 auto; padding: clamp(4rem, 11vh, 7rem) var(--pad); text-align: center; }
+.stores-row {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  margin: clamp(2rem, 5vh, 3.5rem) 0 1.5rem;
+  font-size: clamp(1rem, 2.4vw, 1.7rem);
+  letter-spacing: .22em;
+  color: var(--bone-dim);
+}
+.stores-note { color: var(--muted); }
+
+/* ---------------- Newsletter ---------------- */
+
+.news { border-top: 1px solid var(--line-2); background: var(--void-2); }
+.news-inner {
+  max-width: 820px; margin: 0 auto; text-align: center;
+  padding: clamp(4rem, 11vh, 7rem) var(--pad);
+}
+.news-inner > p { margin: 1.1rem 0 0; color: var(--muted); }
+.news-form {
+  display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap;
+  margin-top: 2.4rem;
+}
+.news-form input {
+  flex: 1 1 280px; max-width: 380px;
+  padding: 1rem 1.3rem;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--bone);
+  font-size: .92rem;
+  transition: border-color .25s;
+}
+.news-form input::placeholder { color: var(--muted); }
+.news-form input:focus { border-color: var(--bone); outline: none; }
+
+/* ---------------- Footer ---------------- */
+
+.ftr { border-top: 1px solid var(--line-2); padding: clamp(3rem, 8vh, 5rem) var(--pad) 2rem; }
+
+.ftr-top {
+  max-width: var(--maxw); margin: 0 auto;
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+  gap: 2rem;
+  padding-bottom: clamp(2rem, 5vh, 3.5rem);
+  border-bottom: 1px solid var(--line-2);
+}
+.logo-lg .logo-mark { width: 34px; height: 34px; }
+.logo-lg .logo-word { font-size: clamp(1.6rem, 4vw, 2.8rem); }
+.ftr-statement { font-size: clamp(1.5rem, 4.5vw, 3.2rem); color: var(--bone-dim); margin: 0; }
+
+.ftr-cols {
+  max-width: var(--maxw); margin: 0 auto;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem 1.5rem;
+  padding: clamp(2rem, 5vh, 3.5rem) 0;
+}
+@media (min-width: 760px) { .ftr-cols { grid-template-columns: repeat(4, 1fr); } }
+.ftr-cols > div { display: flex; flex-direction: column; gap: .1rem; align-items: flex-start; }
+.ftr-h { margin: 0 0 .4rem; }
+/* min-height keeps these at a thumb-sized target — they measured 24px on
+   a 390px viewport, well under the 44px guideline. */
+.ftr-cols a, .ftr-cols button {
+  background: none; border: 0; padding: 0; cursor: pointer;
+  display: inline-flex; align-items: center;
+  min-height: 38px;
+  font-size: .95rem; color: var(--bone-dim);
+  transition: color .2s;
+}
+.ftr-cols a:hover, .ftr-cols button:hover { color: var(--bone); }
+
+.ftr-bottom {
+  max-width: var(--maxw); margin: 0 auto;
+  display: flex; flex-wrap: wrap; gap: .6rem 1.5rem;
+  align-items: center; justify-content: space-between;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--line-2);
+}
+.ftr-bottom p { margin: 0; }
+.demo-warn { color: var(--muted); }
+.ftr-legal { display: flex; gap: .4rem; }
+.ftr-legal a { display: inline-flex; align-items: center; min-height: 34px; padding: 0 .5rem; }
+.ftr-legal a:hover { color: var(--bone); }
+
+/* ---------------- Overlays ---------------- */
+
+.scrim {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(4, 4, 6, .74);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  opacity: 0; visibility: hidden;
+  transition: opacity .35s var(--ease), visibility .35s;
+}
+.scrim.is-on { opacity: 1; visibility: visible; }
+
+.drawer, .sheet {
+  position: fixed; z-index: 310;
+  background: var(--void-2);
+  border: 1px solid var(--line);
+  display: flex; flex-direction: column;
+  transition: transform .38s var(--ease);
+}
+
+.drawer-right {
+  top: 0; right: 0; bottom: 0;
+  width: min(460px, 100vw);
+  border-right: 0;
+  transform: translateX(100%);
+}
+.drawer-left {
+  top: 0; left: 0; bottom: 0;
+  width: min(340px, 88vw);
+  border-left: 0;
+  transform: translateX(-100%);
+}
+.drawer-top {
+  top: 0; left: 0; right: 0;
+  max-height: 84vh;
+  border-left: 0; border-right: 0; border-top: 0;
+  transform: translateY(-100%);
+}
+
+.drawer.is-open, .sheet.is-open { transform: translate(0, 0); }
+
+.sheet {
+  top: 50%; left: 50%;
+  transform: translate(-50%, -46%) scale(.97);
+  width: min(560px, 92vw);
+  max-height: 90vh;
+  opacity: 0;
+  border-radius: 4px;
+}
+.sheet-lg { width: min(720px, 94vw); }
+.sheet.is-open { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+
+.drawer-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 1.3rem;
+  border-bottom: 1px solid var(--line-2);
+  flex-shrink: 0;
+}
+.drawer-head h2 { margin: 0; font-size: .72rem; color: var(--bone); }
+
+.drawer-body { flex: 1; overflow-y: auto; padding: 1.3rem; }
+.drawer-foot { padding: 1.3rem; border-top: 1px solid var(--line-2); flex-shrink: 0; }
+.sheet-body { padding: 1.6rem; overflow-y: auto; }
+
+/* Cart */
+.cart-empty { text-align: center; padding: 4rem 1rem; display: grid; gap: 1rem; justify-items: center; }
+.cart-empty p { margin: 0; }
+
+.ship-bar { margin-bottom: 1.4rem; }
+.ship-bar p { margin: 0 0 .5rem; }
+.ship-track { height: 2px; background: var(--void-4); overflow: hidden; }
+.ship-track span { display: block; height: 100%; background: var(--bone); transition: width .5s var(--ease); }
+
+.line {
+  display: grid; grid-template-columns: 74px 1fr auto;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  border-bottom: 1px solid var(--line-2);
+}
+.line-media { background: var(--void-3); border: 1px solid var(--line-2); aspect-ratio: 4/5; padding: 8%; }
+.line-name { margin: 0 0 .2rem; font-size: .9rem; font-weight: 500; }
+.line-info .mono { margin: 0; font-size: .72rem; }
+.qty { display: inline-flex; align-items: center; gap: .6rem; margin-top: .6rem; border: 1px solid var(--line-2); padding: .15rem .4rem; }
+.qty button { width: 32px; height: 32px; background: none; border: 0; cursor: pointer; color: var(--bone-dim); line-height: 1; font-size: 1rem; }
+.qty button:hover { color: var(--bone); }
+.qty span { font-family: var(--mono); font-size: .7rem; min-width: 14px; text-align: center; }
+
+.line-end { text-align: right; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; }
+.line-price { margin: 0; font-family: var(--mono); font-size: .8rem; }
+.line-rm { background: none; border: 0; padding: 0; cursor: pointer; display: inline-flex; align-items: center; min-height: 32px; font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.line-rm:hover { color: var(--bone); }
+
+.totals { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: .5rem; font-family: var(--mono); font-size: .78rem; }
+.totals strong { font-family: var(--sans); font-size: 1.35rem; font-weight: 600; }
+.drawer-foot .mono { margin: 0 0 1rem; display: block; }
+.drawer-foot .btn { margin-bottom: .8rem; }
+.demo-note { margin: 0; font-size: .72rem; color: var(--muted); text-align: center; }
+
+/* Search */
+.search-inner { padding: 1.6rem var(--pad) 2.2rem; }
+.search-bar { display: flex; align-items: center; gap: .8rem; border-bottom: 1px solid var(--line); padding-bottom: .8rem; }
+.search-bar input {
+  flex: 1; background: none; border: 0; outline: none;
+  font-family: var(--sans); font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  font-weight: 400; letter-spacing: 0;
+}
+.search-bar input::placeholder { color: var(--muted); text-transform: none; letter-spacing: 0; }
+.search-results { display: grid; gap: 0; margin-top: 1.2rem; max-height: 54vh; overflow-y: auto; }
+.s-result {
+  display: grid; grid-template-columns: 52px 1fr auto;
+  align-items: center; gap: 1rem;
+  padding: .8rem 0;
+  background: none; border: 0; border-bottom: 1px solid var(--line-2);
+  cursor: pointer; text-align: left;
+  transition: padding-left .25s var(--ease), color .25s;
+}
+.s-result:hover { padding-left: .6rem; color: var(--accent); }
+.s-thumb { background: var(--void-3); border: 1px solid var(--line-2); aspect-ratio: 4/5; padding: 7%; }
+.s-name { font-size: .92rem; font-weight: 500; }
+.s-price { font-family: var(--mono); font-size: .75rem; color: var(--muted); }
+
+/* Size sheet */
+.sheet-media { background: var(--void-3); border: 1px solid var(--line-2); padding: 8%; margin-bottom: 1.3rem; }
+.sheet-title { font-family: var(--sans); font-size: 1.25rem; font-weight: 500; margin: 0 0 .4rem; }
+.sheet-body .mono { margin: 0 0 1.4rem; display: block; }
+.sizes { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin-bottom: 1.4rem; }
+.size-btn {
+  padding: .9rem; background: none;
+  border: 1px solid var(--line-2); border-radius: 2px;
+  font-family: var(--mono); font-size: .75rem; letter-spacing: .1em;
+  cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.size-btn:hover { background: var(--bone); color: var(--void); border-color: var(--bone); }
+
+.size-table { width: 100%; border-collapse: collapse; margin-bottom: 1.4rem; font-size: .9rem; }
+.size-table th, .size-table td { padding: .7rem .5rem; text-align: left; border-bottom: 1px solid var(--line-2); }
+.size-table th { font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+.size-table td:first-child { font-family: var(--mono); }
+
+/* Mobile menu */
+.mobile-menu { padding: 5rem 1.6rem 2rem; display: flex; flex-direction: column; gap: .2rem; }
+.mobile-menu a {
+  font-family: var(--display); font-size: 1.6rem; font-weight: 500;
+  text-transform: uppercase; letter-spacing: -.02em;
+  padding: .45rem 0;
+  transition: color .2s, padding-left .2s var(--ease);
+}
+.mobile-menu a:hover { color: var(--accent); padding-left: .5rem; }
+.mobile-menu hr { width: 100%; border: 0; border-top: 1px solid var(--line-2); margin: 1.2rem 0; }
+
+/* Toasts */
+.toasts {
+  position: fixed; right: 1.2rem; bottom: 1.2rem; z-index: 950;
+  display: flex; flex-direction: column; gap: .5rem;
+  pointer-events: none;
+}
+.toast {
+  min-width: 230px;
+  padding: .9rem 1.1rem;
+  background: var(--void-3);
+  border: 1px solid var(--line);
+  box-shadow: 0 18px 50px -20px rgba(0,0,0,.9);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
+}
+.toast.in { opacity: 1; transform: none; }
+.toast p { margin: 0; }
+.toast p + p { margin-top: .25rem; font-size: .82rem; }
+.toast .mono { color: var(--bone); }
+
+/* ---------------- Technical flats ---------------- */
+
+.flat { width: 100%; height: 100%; }
+
+/* Cloth fill is a shared gradient defined once in index.html, which gives
+   every flat real dimension instead of a flat outline. */
+.flat .g-body {
+  fill: url(#bdCloth);
+  stroke: var(--flat-stroke);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+.flat .g-seam {
+  fill: none;
+  stroke: var(--flat-stroke);
+  stroke-width: 1.2;
+  opacity: .8;
+}
+.flat .g-d {
+  fill: url(#bdClothDeep);
+  stroke: var(--flat-stroke);
+  stroke-width: 1.2;
+}
+.flat .g-hem {
+  fill: none;
+  stroke: var(--flat-stroke);
+  stroke-width: .9;
+  opacity: .55;
+}
+/* Topstitching — dashed, sits just inside a seam */
+.flat .g-stitch {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: .7;
+  stroke-dasharray: 3 3.5;
+  opacity: .5;
+}
+/* Bar tacks at stress points */
+.flat .g-tack {
+  fill: none;
+  stroke: var(--flat-stroke);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: .9;
+}
+.flat .g-hi {
+  fill: none;
+  stroke: rgba(233, 229, 219, .9);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+}
+.flat .g-acc {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.flat .g-acc circle { fill: var(--accent); stroke: none; }
+
+.macro-svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* ---------------- Reveal ---------------- */
+
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity .85s var(--ease), transform .85s var(--ease); }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ---------------- Responsive ---------------- */
+
+@media (max-width: 1080px) {
+  .mega-grid { grid-template-columns: repeat(2, 1fr); }
+  .mega-feature { grid-column: span 2; border-left: 0; border-top: 1px solid var(--line); padding-left: 0; padding-top: 1.4rem; }
+}
+
+@media (max-width: 900px) {
+  .hdr { grid-template-columns: auto 1fr auto; }
+  .burger { display: inline-flex; }
+  .nav { display: none; }
+  .logo { justify-content: center; }
+  .series { grid-template-columns: 1fr; }
+  .tile-wide { grid-column: span 1; }
+  .look-grid { grid-template-columns: repeat(2, 1fr); }
+  .look-wide { grid-column: span 2; }
+  .hero-drop { position: static; margin-top: 2.5rem; text-align: left; }
+  .scroll-cue { display: none; }
+}
+
+@media (max-width: 620px) {
+  .look-grid { grid-template-columns: 1fr; }
+  .look-wide, .look-tall { grid-column: span 1; grid-row: auto; }
+  .tech-visuals { grid-template-columns: 1fr; }
+  .tech-card-tall { grid-row: auto; }
+  .sizes { grid-template-columns: repeat(3, 1fr); }
+  .line { grid-template-columns: 62px 1fr auto; }
+  .toasts { left: 1rem; right: 1rem; }
+}
+
+/* ---------------- Vampire accents ----------------
+   Oxblood and bone. Used sparingly — markers, active states, the
+   contact gradient — so it reads as a colour in the palette rather
+   than a repaint. */
+
+:root {
+  --blood:     #7a0f16;
+  --blood-lit: #c2181f;
+}
+
+.marker span { color: var(--blood-lit); text-shadow: 0 0 16px rgba(194,24,31,.75); }
+.badge { background: var(--bone); }
+.badge.is-hot { background: var(--blood-lit); color: #fff; }
+.chip.is-on { background: var(--bone); border-color: var(--bone); color: var(--void); }
+.btn-solid:hover { background: #fff; border-color: #fff; box-shadow: 0 0 34px rgba(194,24,31,.42); }
+.add:hover { background: var(--blood-lit); color: #fff; border-color: var(--blood-lit); }
+.s-lens .s-thumb, .look:hover .look-img img { filter: brightness(1) saturate(.95); }
+.tech-n::after { content: ""; }
+
+.contact-head .accent {
+  background: linear-gradient(100deg, var(--blood-lit), #e0d8c6 55%, #8a1420);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 26px rgba(194,24,31,.5));
+}
+.line-rm:hover { color: var(--blood-lit); }
+.card-media:hover { border-color: rgba(194,24,31,.5); }
+
+/* ---------------- Product photography ----------------
+   Cards, lines, search thumbs and the product view all take a
+   photograph now. The SVG flat sits behind it as a fallback and
+   only shows if the image 404s, via the onerror in app.js. */
+
+.card-img, .line-img, .s-img, .pv-img, .size-img, .co-img {
+  display: block;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+.card-media .card-img {
+  position: absolute; inset: 0;
+  filter: brightness(.84) saturate(.82) contrast(1.05);
+  transition: transform 1s var(--ease), filter .5s;
+}
+.card-media:hover .card-img { transform: scale(1.05); filter: brightness(1.04) saturate(1); }
+
+.img-fallback {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  padding: 14%;
+  background: #0d0d11;
+}
+.img-fallback .flat { width: 100%; height: 100%; }
+
+.line-media .line-img, .s-thumb .s-img, .sheet-media .size-img { filter: brightness(.92); }
+
+.card-cat { margin: 0 0 .9rem; color: var(--muted); }
+
+.tile-img img, .tech-img img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 1.2s var(--ease), filter .6s;
+  filter: brightness(.8) saturate(.8) contrast(1.06);
+}
+.tile:hover .tile-img img { transform: scale(1.06); filter: brightness(1) saturate(.95); }
+.tech-card:hover .tech-img img { transform: scale(1.07); filter: brightness(1) saturate(.95); }
+
+/* ---------------- Product detail ---------------- */
+
+.drawer-full {
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; max-width: 100%;
+  border: 0;
+  transform: translateY(-100%);
+  overflow-y: auto;
+  background: var(--void);
+}
+
+.pv-close { position: fixed; top: 1rem; right: 1rem; z-index: 5; background: rgba(8,8,10,.6); backdrop-filter: blur(10px); }
+
+.pv { display: grid; grid-template-columns: 1fr; align-items: start; }
+@media (min-width: 900px) { .pv { grid-template-columns: 1.05fr .95fr; } }
+
+.pv-media {
+  position: relative;
+  min-height: 58vh;
+  background: #0a0a0c;
+  overflow: hidden;
+}
+@media (min-width: 900px) { .pv-media { min-height: 100vh; position: sticky; top: 0; } }
+.pv-media .pv-img { position: absolute; inset: 0; }
+
+.pv-info { padding: clamp(1.5rem, 4vw, 3.5rem); }
+
+.pv-head { display: flex; align-items: flex-start; gap: 1rem; flex-wrap: wrap; }
+.pv-info h2 {
+  font-family: var(--sans); font-weight: 500;
+  font-size: clamp(1.5rem, 3.4vw, 2.3rem);
+  line-height: 1.08; letter-spacing: -.015em;
+  margin: 0 0 .5rem;
+}
+.pv-badge { position: static; }
+.pv-price { font-family: var(--mono); font-size: 1.15rem; margin: 0 0 1.4rem; }
+.pv-blurb { color: var(--muted); font-size: 1rem; margin: 0 0 2rem; max-width: 46ch; }
+
+.pv-block { margin-bottom: 1.6rem; }
+.pv-block .mono { margin: 0 0 .6rem; }
+.sizes { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0; }
+.sizes .size-btn { min-width: 54px; padding: .75rem .9rem; }
+.size-btn.is-on { background: var(--bone); color: var(--void); border-color: var(--bone); }
+
+.qty-lg { display: inline-flex; }
+.qty-lg button { width: 40px; height: 40px; }
+
+.pv-add { margin-bottom: 2rem; }
+
+.pv-specs { margin: 0 0 2rem; border-top: 1px solid var(--line-2); }
+.pv-specs > div {
+  display: flex; justify-content: space-between; gap: 1rem;
+  padding: .85rem 0; border-bottom: 1px solid var(--line-2);
+}
+.pv-specs dt { font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.pv-specs dd { margin: 0; font-size: .93rem; color: var(--bone-dim); text-align: right; }
+
+.pv-acc { border-bottom: 1px solid var(--line-2); }
+.pv-acc summary {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.05rem 0; cursor: pointer; list-style: none;
+}
+.pv-acc summary::-webkit-details-marker { display: none; }
+.pv-acc summary::after { content: "+"; font-family: var(--mono); color: var(--muted); font-size: 1rem; }
+.pv-acc[open] summary::after { content: "−"; }
+.pv-acc p { margin: 0 0 1.2rem; color: var(--muted); font-size: .93rem; max-width: 52ch; }
+
+.pv-note { margin-top: 2rem; color: var(--muted); }
+
+/* ---------------- Checkout ---------------- */
+
+.co-steps {
+  display: flex; gap: clamp(.5rem, 2vw, 1.5rem);
+  list-style: none; margin: 0;
+  padding: 1.2rem clamp(1.25rem, 4vw, 3.5rem);
+  border-bottom: 1px solid var(--line-2);
+  overflow-x: auto;
+}
+.co-step {
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .9rem; color: var(--muted); white-space: nowrap;
+}
+.co-step .mono {
+  display: grid; place-items: center;
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1px solid var(--line);
+  font-size: .68rem; letter-spacing: 0;
+}
+.co-step.is-on { color: var(--bone); }
+.co-step.is-on .mono { border-color: var(--bone); background: var(--bone); color: var(--void); }
+.co-step.is-done { color: var(--bone-dim); }
+.co-step.is-done .mono { border-color: var(--blood-lit); background: var(--blood-lit); color: #fff; }
+
+.co-wrap { display: grid; grid-template-columns: 1fr; }
+@media (min-width: 940px) { .co-wrap { grid-template-columns: 1.45fr .85fr; } }
+
+.co-main { padding: clamp(1.5rem, 4vw, 3rem); }
+.co-side {
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border-top: 1px solid var(--line-2);
+  background: var(--void-2);
+}
+@media (min-width: 940px) { .co-side { border-top: 0; border-left: 1px solid var(--line-2); } }
+
+.co-fields { display: grid; gap: 1rem; max-width: 560px; }
+.co-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.co-field { display: grid; gap: .45rem; }
+.co-field .mono { margin: 0; }
+.co-field input, .co-field select {
+  width: 100%; padding: .9rem 1rem;
+  background: var(--void); color: var(--bone);
+  border: 1px solid var(--line); border-radius: 3px;
+  font-size: .95rem;
+  transition: border-color .2s;
+}
+.co-field input:focus, .co-field select:focus { border-color: var(--bone); outline: none; }
+.co-field select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%23a8a49b' stroke-width='1.2' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; }
+
+.co-methods { display: grid; gap: .5rem; max-width: 560px; }
+.co-method {
+  display: grid; grid-template-columns: auto 1fr auto;
+  align-items: center; gap: .9rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--line); border-radius: 3px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.co-method:hover { border-color: var(--bone-dim); }
+.co-method.is-on { border-color: var(--bone); background: rgba(233,229,219,.04); }
+.co-method input { accent-color: var(--bone); width: 16px; height: 16px; }
+.co-method span { display: grid; gap: .15rem; }
+.co-method strong { font-weight: 500; font-size: .95rem; }
+.co-method em { font-style: normal; font-size: .82rem; color: var(--muted); }
+.co-method b { font-family: var(--mono); font-size: .8rem; font-weight: 400; }
+
+.co-warn {
+  max-width: 560px; margin: 0 0 1.5rem; padding: .8rem 1rem;
+  border: 1px solid var(--blood); border-radius: 3px;
+  background: rgba(122,15,22,.16);
+  color: var(--bone); line-height: 1.8;
+}
+
+.co-line { grid-template-columns: 62px 1fr auto auto; }
+.co-line .line-price { align-self: center; }
+
+.co-nav { display: flex; gap: .6rem; margin-top: 2rem; flex-wrap: wrap; }
+
+.co-sum-line {
+  display: flex; justify-content: space-between; gap: 1rem;
+  padding: .6rem 0; font-size: .9rem; color: var(--muted);
+  border-bottom: 1px solid var(--line-2);
+}
+.co-sum-line b { font-family: var(--mono); font-weight: 400; color: var(--bone-dim); }
+.co-sum-total { border-bottom: 0; margin-top: .5rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.co-sum-total span { color: var(--bone); }
+.co-sum-total b { color: var(--bone); font-family: var(--sans); font-size: 1.4rem; font-weight: 600; }
+
+.co-review { display: grid; gap: 1.5rem; max-width: 560px; }
+.co-block { padding-bottom: 1.2rem; border-bottom: 1px solid var(--line-2); }
+.co-block .mono { margin: 0 0 .5rem; }
+.co-block p { margin: 0 0 .5rem; color: var(--bone-dim); line-height: 1.7; }
+
+.co-done { max-width: 620px; padding: clamp(2rem, 6vw, 4rem) 0; }
+.co-done .lead { margin-top: 1.2rem; }
+
+/* ---------------- Reduced motion ---------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+  #grain, .cursor { display: none; }
+  .media-b { display: none; }
+}
+
+</style>
+
+<!-- Three.js for the rotating figure. Loaded as an ES module via import map. -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- Shared gradients for the garment flats. Defined once here because every
+     flat is an inline SVG, and SVG paint servers are document-scoped. -->
+<svg width="0" height="0" aria-hidden="true" style="position:absolute;pointer-events:none">
+  <defs>
+    <linearGradient id="bdCloth" x1="0.1" y1="0" x2="0.55" y2="1">
+      <stop offset="0%"   stop-color="#22222b" />
+      <stop offset="42%"  stop-color="#121218" />
+      <stop offset="78%"  stop-color="#0b0b0f" />
+      <stop offset="100%" stop-color="#191921" />
+    </linearGradient>
+    <linearGradient id="bdClothDeep" x1="0.1" y1="0" x2="0.5" y2="1">
+      <stop offset="0%"   stop-color="#15151c" />
+      <stop offset="100%" stop-color="#08080b" />
+    </linearGradient>
+  </defs>
+</svg>
+
+<canvas id="grain" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="cursor" id="cursor" aria-hidden="true"></div>
+
+<a class="skip" href="#shop">Skip to shop</a>
+
+<!-- ============ ANNOUNCEMENT ============ -->
+<div class="announce" aria-hidden="true">
+  <div class="announce-track">
+    <span>Complimentary shipping over $250</span><b>◆</b>
+    <span>Drop 004 — The Void Series</span><b>◆</b>
+    <span>Limited runs, no restock</span><b>◆</b>
+    <span>Complimentary shipping over $250</span><b>◆</b>
+    <span>Drop 004 — The Void Series</span><b>◆</b>
+    <span>Limited runs, no restock</span><b>◆</b>
+  </div>
+</div>
+
+<!-- ============ HEADER ============ -->
+<header class="hdr" id="header">
+  <button class="icon-btn burger" data-open="menu" aria-label="Open menu">
+    <span></span><span></span>
+  </button>
+
+  <a class="logo" href="#top" aria-label="BAD DESIGN home">
+    <span class="logo-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M3 21 12 3l9 18H3Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 21 12 14.5 15.5 21" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+    </span>
+    <span class="logo-word">BAD<em>DESIGN</em></span>
+  </a>
+
+  <nav class="nav" aria-label="Primary">
+    <div class="has-mega">
+      <button class="nav-link" data-mega aria-expanded="false">Shop</button>
+      <div class="mega" role="region" aria-label="Shop menu">
+        <div class="mega-grid">
+          <div class="mega-col">
+            <p class="mega-h mono">Categories</p>
+            <div id="megaCats"></div>
+          </div>
+          <div class="mega-col">
+            <p class="mega-h mono">Series</p>
+            <a href="#shop">Drop 004 — The Void Series</a>
+            <a href="#shop">Drop 003 — Monolith</a>
+            <a href="#shop">Drop 002 — Static</a>
+            <a href="#lookbook">Lookbook archive</a>
+          </div>
+          <div class="mega-col">
+            <p class="mega-h mono">Atelier</p>
+            <a href="#tech">Materials</a>
+            <a href="#tech">Construction</a>
+            <a href="#stores">Stockists</a>
+            <a href="#footer">Contact</a>
+          </div>
+          <div class="mega-feature">
+            <div class="mega-feature-img" data-macro></div>
+            <p class="mono">Drop 004</p>
+            <p class="mega-feature-title">The Void Series</p>
+            <a href="#shop">Shop the drop →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <a class="nav-link" href="#tech">Materials</a>
+    <a class="nav-link" href="#lookbook">Lookbook</a>
+    <a class="nav-link" href="#stores">Stockists</a>
+  </nav>
+
+  <div class="hdr-end">
+    <button class="icon-btn" data-open="search" aria-label="Search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+    <button class="icon-btn bag" data-open="cart" aria-label="Open bag">
+      <svg viewBox="0 0 24 24"><path d="M5 8h14l-1.2 12H6.2L5 8Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+      <span class="bag-count mono" data-cart-count>0</span>
+    </button>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ HERO ============ -->
+  <section class="hero">
+    <div class="hero-bg" data-macro></div>
+    <div class="hero-vig"></div>
+
+    <div class="hero-inner">
+      <p class="hero-kicker mono reveal"><span class="dot"></span>Drop 004 — The Void Series</p>
+
+      <h1 class="hero-title">
+        <span class="line reveal">BAD</span>
+        <span class="line reveal line-2">DESIGN</span>
+      </h1>
+
+      <p class="hero-sub reveal">
+        Oversized tailoring and technical outerwear.<br />
+        Built to outlast the trend cycle.
+      </p>
+
+      <div class="hero-cta reveal">
+        <a class="btn btn-solid" href="#shop">Shop Drop 004</a>
+        <a class="btn" href="#lookbook">View lookbook</a>
+      </div>
+    </div>
+
+    <div class="hero-drop reveal">
+      <p class="mono drop-label">Next release in</p>
+      <div class="countdown" id="countdown"></div>
+    </div>
+
+    <a class="scroll-cue" href="#shop" aria-label="Scroll to shop">
+      <span class="mono">Scroll</span>
+      <span class="cue-line" aria-hidden="true"></span>
+    </a>
+  </section>
+
+  <!-- ============ MANIFESTO MARQUEE ============ -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span class="mq">Not designed to fit in</span><span class="mq-mark">✳</span>
+      <span class="mq serif">Structure over style</span><span class="mq-mark">✳</span>
+      <span class="mq">Limited runs, no restock</span><span class="mq-mark">✳</span>
+      <span class="mq">Not designed to fit in</span><span class="mq-mark">✳</span>
+      <span class="mq serif">Structure over style</span><span class="mq-mark">✳</span>
+      <span class="mq">Limited runs, no restock</span><span class="mq-mark">✳</span>
+    </div>
+  </div>
+
+  <!-- ============ FEATURED SERIES ============ -->
+  <section class="series" id="series">
+    <a class="tile tile-wide reveal" href="#shop">
+      <div class="tile-img"><img src="img/campaign/void-01.jpg" alt="Figure in dark layered clothing on a street at night" loading="lazy" decoding="async" /></div>
+      <div class="tile-body">
+        <p class="mono">Series 004</p>
+        <h2>The Void Series</h2>
+        <p>Six pieces. Cut from the same bolt of 480 GSM loopback.</p>
+        <span class="tile-cta">Shop now →</span>
+      </div>
+    </a>
+
+    <a class="tile reveal" href="#shop">
+      <div class="tile-img"><img src="img/campaign/void-03.jpg" alt="Figure in long dark tailoring framed by a stone archway" loading="lazy" decoding="async" /></div>
+      <div class="tile-body">
+        <p class="mono">Series 003</p>
+        <h2>Monolith</h2>
+        <span class="tile-cta">Shop now →</span>
+      </div>
+    </a>
+
+    <a class="tile reveal" href="#lookbook">
+      <div class="tile-img"><img src="img/campaign/void-02.jpg" alt="Figure in red and black against a night sky" loading="lazy" decoding="async" /></div>
+      <div class="tile-body">
+        <p class="mono">Editorial</p>
+        <h2>Campaign 004</h2>
+        <span class="tile-cta">View →</span>
+      </div>
+    </a>
+  </section>
+
+  <!-- ============ SHOP ============ -->
+  <section class="shop" id="shop">
+    <header class="shop-head">
+      <div>
+        <p class="mono kicker">Catalogue</p>
+        <h2 class="h-sec">The collection</h2>
+      </div>
+      <div class="shop-tools">
+        <div class="filters" id="filters" role="group" aria-label="Filter by category"></div>
+        <label class="sort">
+          <span class="mono">Sort</span>
+          <select id="sort">
+            <option value="featured">Featured</option>
+            <option value="price-asc">Price — low to high</option>
+            <option value="price-desc">Price — high to low</option>
+            <option value="name">Name A–Z</option>
+          </select>
+        </label>
+      </div>
+    </header>
+
+    <p class="mono result-count" id="resultCount"></p>
+
+    <div class="grid" id="grid"></div>
+    <p class="empty mono" id="empty" hidden>No pieces match that.</p>
+  </section>
+
+  <!-- ============ MATERIALS / TECH ============ -->
+  <section class="tech" id="tech">
+    <div class="tech-grid">
+      <div class="tech-copy">
+        <p class="mono kicker">Atelier</p>
+        <h2 class="h-sec reveal">Materials,<br /><span class="serif">obsessed over.</span></h2>
+        <p class="lead reveal">
+          We buy fabric by the roll, not the metre. Every piece is cut from a
+          single lot so the dye lot matches across the whole run — and so the
+          next run is honestly a different garment.
+        </p>
+
+        <ul class="tech-list">
+          <li class="reveal">
+            <span class="tech-n mono">01</span>
+            <div><h3>Loopback, garment-dyed</h3>
+            <p>480 GSM brushed cotton, dyed after construction so the seams pull to the same depth as the panels.</p></div>
+          </li>
+          <li class="reveal">
+            <span class="tech-n mono">02</span>
+            <div><h3>Bonded, not stitched</h3>
+            <p>Outer shells are fully bonded. No thread breaks the face of the garment, and nothing lets water through the shoulder.</p></div>
+          </li>
+          <li class="reveal">
+            <span class="tech-n mono">03</span>
+            <div><h3>Runs end, they don't repeat</h3>
+            <p>Every drop is limited by the roll. When it's gone the pattern is archived, not re-cut.</p></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="tech-visuals">
+        <div class="tech-card reveal">
+          <div class="tech-img"><img src="img/campaign/look-03.jpg" alt="Close view of black jersey fabric under raking light" loading="lazy" decoding="async" /></div>
+          <p class="mono">480 GSM loopback</p>
+        </div>
+        <div class="tech-card tech-card-tall reveal">
+          <div class="tech-img"><img src="img/campaign/void-08.jpg" alt="Dark figure casting a long shadow across a wall" loading="lazy" decoding="async" /></div>
+          <p class="mono">Bonded shell</p>
+        </div>
+        <div class="tech-card reveal">
+          <div class="tech-img"><img src="img/campaign/look-04.jpg" alt="Knitwear texture photographed in low light" loading="lazy" decoding="async" /></div>
+          <p class="mono">12gg merino knit</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SPECIMEN — optical study ============ -->
+  <section class="specimen" id="specimen">
+    <div class="spec-inner">
+      <p class="mono kicker reveal">Specimen 01 — Optical study</p>
+      <h2 class="h-sec reveal">One surface,<br /><span class="serif">folded until it repeats.</span></h2>
+      <p class="lead reveal">
+        We put every fabric under the same raking light before it is signed off.
+        This is that study, rebuilt in a shader: one height field, mirror-folded,
+        lit from a single source, and filmed at a thickness that varies with the
+        surface itself. The dials are real — they drive the uniform. Nothing here
+        is a video.
+      </p>
+    </div>
+
+    <div class="spec-stage">
+      <canvas id="optics"></canvas>
+
+      <div id="opticsFallback" class="spec-fallback" hidden>
+        <p class="mono">Specimen unavailable</p>
+        <p>This browser can’t run WebGL, so the study is switched off. Everything else on the page still works.</p>
+      </div>
+
+      <div class="instrument">
+        <div class="inst-row">
+          <label class="mono" for="foldRange">Fold</label>
+          <input type="range" id="foldRange" min="4" max="12" step="1" value="8" />
+          <output class="mono val" id="foldVal" for="foldRange">8</output>
+        </div>
+        <div class="inst-row">
+          <label class="mono" for="warpRange">Warp</label>
+          <input type="range" id="warpRange" min="0.4" max="5" step="0.01" value="2.6" />
+          <output class="mono val" id="warpVal" for="warpRange">2.60</output>
+        </div>
+        <div class="inst-row">
+          <span class="mono">Film</span>
+          <output class="mono val"><span id="filmVal">—</span>&nbsp;nm</output>
+        </div>
+        <div class="inst-row">
+          <span class="mono">Rate</span>
+          <output class="mono val"><span id="fpsVal">—</span>&nbsp;fps</output>
+        </div>
+      </div>
+
+      <p class="spec-caption mono">Live GLSL · drag a dial · move the cursor</p>
+    </div>
+  </section>
+
+  <!-- ============ LOOKBOOK ============ -->
+  <section class="lookbook" id="lookbook">
+    <header class="sec-head">
+      <p class="mono kicker reveal">Editorial</p>
+      <h2 class="h-sec reveal">Campaign 004</h2>
+      <p class="sec-note reveal">Shot on location. No retouching beyond dust.</p>
+    </header>
+
+    <div class="look-grid">
+      <figure class="look look-tall reveal">
+        <div class="look-img">
+          <img src="img/campaign/look-01.jpg" loading="lazy" decoding="async"
+               alt="Model in an oversized dark cape, photographed in a dim interior" />
+        </div>
+        <figcaption class="mono">01 — Void Series, full look</figcaption>
+      </figure>
+      <figure class="look reveal">
+        <div class="look-img">
+          <img src="img/campaign/look-03.jpg" loading="lazy" decoding="async"
+               alt="Detail of a black roll-neck, raking light across the shoulder" />
+        </div>
+        <figcaption class="mono">02 — Gravity Hoodie, Onyx</figcaption>
+      </figure>
+      <figure class="look reveal">
+        <div class="look-img">
+          <img src="img/campaign/look-04.jpg" loading="lazy" decoding="async"
+               alt="Model seated in a dark room, knitwear under low light" />
+        </div>
+        <figcaption class="mono">03 — Abyss Knit, Onyx</figcaption>
+      </figure>
+      <figure class="look look-wide reveal">
+        <div class="look-img">
+          <img src="img/campaign/look-02.jpg" loading="lazy" decoding="async"
+               alt="Portrait of a model in black against a dark ground" />
+        </div>
+        <figcaption class="mono">04 — Campaign 004, Rotterdam</figcaption>
+      </figure>
+    </div>
+
+    <p class="credit mono reveal">
+      Editorial imagery from Unsplash contributors, used under the Unsplash
+      License. Not product photography — the catalogue pieces are technical flats.
+    </p>
+  </section>
+
+  <!-- ============ THE FIGURE — 360° ============ -->
+  <section class="figure" id="figure">
+    <div class="fig-copy">
+      <p class="mono kicker reveal">The figure</p>
+      <h2 class="h-sec reveal">Drop 004,<br /><span class="serif">in the round.</span></h2>
+      <p class="lead reveal">
+        Turn it. The silhouette is the whole argument — the shoulder line, the
+        sleeve weight, how far the trouser breaks over the boot. Every angle
+        is the same garment, cut once, from one roll.
+      </p>
+
+      <dl class="fig-specs">
+        <div class="reveal"><dt>Look</dt><dd>Gravity Hoodie · Monolith Cargo · Terminus Boot</dd></div>
+        <div class="reveal"><dt>Colourway</dt><dd>Onyx</dd></div>
+        <div class="reveal"><dt>Build</dt><dd>480 GSM loopback / 40D bonded nylon</dd></div>
+        <div class="reveal"><dt>Run</dt><dd>600 pieces, numbered</dd></div>
+      </dl>
+
+      <a class="btn reveal" href="#shop">Shop the look</a>
+      <p class="drag-hint mono">Drag the figure to rotate</p>
+    </div>
+
+    <div class="fig-stage">
+      <div id="stage" class="stage"></div>
+      <div id="stageFallback" class="stage-fallback" hidden>
+        <p class="mono">3D view unavailable</p>
+        <p>This browser can’t run WebGL, so the rotating figure is switched off. Everything else on the page still works.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FULL-BLEED STATEMENT ============ -->
+  <section class="statement">
+    <div class="statement-bg" data-macro></div>
+    <div class="statement-inner">
+      <p class="reveal serif-lg">
+        <em>Buy less.</em> Make it last.<br />Make it mean something.
+      </p>
+      <p class="mono reveal">— BAD DESIGN, Est. 2019</p>
+    </div>
+  </section>
+
+  <!-- ============ STOCKISTS ============ -->
+  <section class="stores" id="stores">
+    <p class="mono kicker reveal">Availability</p>
+    <h2 class="h-sec reveal">Stockists</h2>
+    <div class="stores-row mono" aria-label="Stockist cities">
+      <span>Tokyo</span><span>Seoul</span><span>Berlin</span><span>London</span>
+      <span>New York</span><span>Paris</span><span>Toronto</span><span>Sydney</span>
+    </div>
+    <p class="stores-note mono reveal">Online exclusive. Shipping worldwide from Rotterdam.</p>
+  </section>
+
+  <!-- ============ NEWSLETTER ============ -->
+  <section class="news">
+    <div class="news-inner">
+      <h2 class="h-sec reveal">Get the drop<br /><span class="serif">before it goes.</span></h2>
+      <p class="reveal">One message per release. Nothing else, ever.</p>
+      <form class="news-form reveal" id="newsletter">
+        <label class="sr-only" for="email">Email address</label>
+        <input type="email" id="email" name="email" placeholder="your@email.com" required />
+        <button type="submit" class="btn btn-solid">Subscribe</button>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer class="ftr" id="footer">
+  <div class="ftr-top">
+    <a class="logo logo-lg" href="#top">
+      <span class="logo-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M3 21 12 3l9 18H3Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 21 12 14.5 15.5 21" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+      </span>
+      <span class="logo-word">BAD<em>DESIGN</em></span>
+    </a>
+    <p class="ftr-statement serif">Not designed to fit in.</p>
+  </div>
+
+  <div class="ftr-cols">
+    <div>
+      <p class="mono ftr-h">Shop</p>
+      <a href="#shop">Tops</a><a href="#shop">Bottoms</a>
+      <a href="#shop">Outerwear</a><a href="#shop">Footwear</a>
+    </div>
+    <div>
+      <p class="mono ftr-h">Brand</p>
+      <a href="#tech">Materials</a><a href="#lookbook">Lookbook</a>
+      <a href="#stores">Stockists</a><a href="#shop">All pieces</a>
+    </div>
+    <div>
+      <p class="mono ftr-h">Support</p>
+      <button data-open="sizeguide">Size guide</button>
+      <a href="#footer">Shipping</a><a href="#footer">Returns</a><a href="#footer">Care</a>
+    </div>
+    <div>
+      <p class="mono ftr-h">Company</p>
+      <a href="#footer">About</a><a href="#footer">Sustainability</a>
+      <a href="#footer">Careers</a><a href="#footer">Press</a>
+    </div>
+  </div>
+
+  <div class="ftr-bottom">
+    <p class="mono">© <span id="year">2026</span> BAD DESIGN — Concept storefront</p>
+    <p class="mono demo-warn">Demo only. Not a real business. No orders are taken and no data is collected.</p>
+    <div class="ftr-legal mono">
+      <a href="#footer">Privacy</a><a href="#footer">Terms</a><a href="#footer">Cookies</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ OVERLAYS ============ -->
+
+<div class="scrim" id="scrim"></div>
+
+<!-- Cart drawer -->
+<aside class="drawer drawer-right" id="cart" hidden aria-label="Shopping bag">
+  <header class="drawer-head">
+    <h2 class="mono">Bag <span data-cart-count>0</span></h2>
+    <button class="icon-btn" data-close aria-label="Close bag">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+  </header>
+  <div class="drawer-body" id="cartBody"></div>
+  <footer class="drawer-foot" id="cartFoot"></footer>
+</aside>
+
+<!-- Search -->
+<aside class="drawer drawer-top" id="search" hidden aria-label="Search">
+  <div class="search-inner">
+    <div class="search-bar">
+      <label class="sr-only" for="searchInput">Search products</label>
+      <input type="search" id="searchInput" placeholder="Search pieces, fabrics, colours…" autocomplete="off" />
+      <button class="icon-btn" data-close aria-label="Close search">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6"/></svg>
+      </button>
+    </div>
+    <p class="mono muted" id="searchCount"></p>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</aside>
+
+<!-- Size sheet -->
+<aside class="sheet" id="size" hidden aria-label="Choose a size">
+  <header class="drawer-head">
+    <h2 class="mono">Select size</h2>
+    <button class="icon-btn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+  </header>
+  <div class="sheet-body">
+    <div class="sheet-media" id="sizeFlat"></div>
+    <p class="sheet-title" id="sizeTitle"></p>
+    <p class="mono muted">Fits oversized. Take your usual size for the intended silhouette.</p>
+    <div class="sizes" id="sizeBody"></div>
+    <button class="link-btn mono" data-open="sizeguide">Size guide</button>
+  </div>
+</aside>
+
+<!-- Size guide -->
+<aside class="sheet sheet-lg" id="sizeguide" hidden aria-label="Size guide">
+  <header class="drawer-head">
+    <h2 class="mono">Size guide</h2>
+    <button class="icon-btn" data-close aria-label="Close">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+  </header>
+  <div class="sheet-body">
+    <table class="size-table">
+      <thead><tr><th>Size</th><th>Chest</th><th>Length</th><th>Sleeve</th></tr></thead>
+      <tbody>
+        <tr><td>XS</td><td>54 cm</td><td>68 cm</td><td>61 cm</td></tr>
+        <tr><td>S</td><td>57 cm</td><td>70 cm</td><td>62 cm</td></tr>
+        <tr><td>M</td><td>60 cm</td><td>72 cm</td><td>63 cm</td></tr>
+        <tr><td>L</td><td>63 cm</td><td>74 cm</td><td>64 cm</td></tr>
+        <tr><td>XL</td><td>66 cm</td><td>76 cm</td><td>65 cm</td></tr>
+        <tr><td>XXL</td><td>69 cm</td><td>78 cm</td><td>66 cm</td></tr>
+      </tbody>
+    </table>
+    <p class="mono muted">Measurements are of the garment laid flat, doubled. All pieces are cut oversized by design.</p>
+  </div>
+</aside>
+
+<!-- Mobile menu -->
+<aside class="drawer drawer-left" id="menu" hidden aria-label="Menu">
+  <div class="mobile-menu">
+    <p class="mono kicker">Menu</p>
+    <a href="#shop" data-close>Shop all</a>
+    <a href="#shop" data-filter="tops" data-close>Tops</a>
+    <a href="#shop" data-filter="bottoms" data-close>Bottoms</a>
+    <a href="#shop" data-filter="outerwear" data-close>Outerwear</a>
+    <a href="#shop" data-filter="footwear" data-close>Footwear</a>
+    <hr />
+    <a href="#tech" data-close>Materials</a>
+    <a href="#lookbook" data-close>Lookbook</a>
+    <a href="#stores" data-close>Stockists</a>
+    <a href="#footer" data-close>Contact</a>
+  </div>
+</aside>
+
+<!-- Product detail -->
+<aside class="drawer drawer-full" id="product" hidden aria-label="Product detail">
+  <button class="icon-btn pv-close" data-close aria-label="Close product">
+    <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6"/></svg>
+  </button>
+
+  <div class="pv">
+    <div class="pv-media" id="pvMedia"></div>
+
+    <div class="pv-info">
+      <p class="mono kicker" id="pvCat"></p>
+      <div class="pv-head">
+        <h2 id="pvName"></h2>
+        <span class="badge pv-badge" id="pvBadge" hidden></span>
+      </div>
+      <p class="pv-price" id="pvPrice"></p>
+      <p class="pv-blurb" id="pvBlurb"></p>
+
+      <div class="pv-block">
+        <p class="mono">Select size</p>
+        <div class="sizes" id="pvSizes"></div>
+      </div>
+
+      <div class="pv-block">
+        <p class="mono">Quantity</p>
+        <div class="qty qty-lg">
+          <button data-pv-qty="-" aria-label="Decrease quantity">−</button>
+          <span id="pvQty">1</span>
+          <button data-pv-qty="+" aria-label="Increase quantity">+</button>
+        </div>
+      </div>
+
+      <button class="btn btn-solid btn-block pv-add" data-pv-add>Add to bag</button>
+
+      <dl class="pv-specs" id="pvSpecs"></dl>
+
+      <details class="pv-acc"><summary class="mono">Fabric</summary><p id="pvFabric"></p></details>
+      <details class="pv-acc"><summary class="mono">Origin</summary><p id="pvOrigin"></p></details>
+      <details class="pv-acc"><summary class="mono">Care</summary><p id="pvCare"></p></details>
+      <details class="pv-acc"><summary class="mono">Colours</summary><p id="pvColor"></p></details>
+
+      <p class="pv-note mono">Concept piece. No stock is held and no order can be placed.</p>
+    </div>
+  </div>
+</aside>
+
+<!-- Checkout -->
+<aside class="drawer drawer-full" id="checkout" hidden aria-label="Checkout">
+  <header class="drawer-head">
+    <h2 class="mono">Checkout</h2>
+    <button class="icon-btn" data-close aria-label="Close checkout">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6"/></svg>
+    </button>
+  </header>
+
+  <ol class="co-steps" id="coSteps"></ol>
+
+  <div class="co-wrap">
+    <div class="co-main">
+      <div class="co-body" id="coBody"></div>
+      <div class="co-nav">
+        <button class="btn" id="coBack" hidden>Back</button>
+        <button class="btn btn-solid" id="coNext">Continue</button>
+      </div>
+    </div>
+
+    <aside class="co-side">
+      <p class="mono kicker">Order summary</p>
+      <div id="coSummary"></div>
+    </aside>
+  </div>
+</aside>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+/* ===== garments.js (inlined) ===== */
+/* ============================================================
+   garments.js — technical flats for the BAD DESIGN catalogue.
+
+   Every product is drawn as a tech-pack flat: gradient-filled cloth,
+   thin bone strokes, seam and ribbing detail, plus topstitching and
+   bar tacks at the stress points. That is the language Stone Island
+   and Nike's spec sheets use, so the catalogue reads as deliberate
+   art direction rather than missing photography.
+
+   Fill comes from the gradients declared once in index.html
+   (#bdCloth, #bdClothDeep); strokes are themed from CSS.
+
+   To swap in real photography, see the note in README.md.
+   ============================================================ */
+
+(function (root) {
+  "use strict";
+
+  /* Shared classes
+     g-body = garment silhouette   g-seam  = seam / panel line
+     g-d    = interior panel       g-hem   = ribbing
+     g-stitch = topstitching       g-tack  = bar tack
+     g-hi   = highlight            g-acc   = hardware, laces, eyelets */
+
+  var OPEN = '<svg class="flat" viewBox="0 0 400 500" role="img" aria-hidden="true">';
+
+  /* ---------------- 01 · Oversized hoodie ---------------- */
+
+  var hoodie = OPEN +
+    '<g class="flat-g">' +
+      '<path class="g-body" d="M150,110 L250,110 L268,120 L276,196 L272,398 Q272,412 258,412 L142,412 Q128,412 128,398 L124,196 L132,120 Z"/>' +
+      '<path class="g-body" d="M132,120 L99,133 Q89,138 91,152 L112,302 L154,308 L154,152 Z"/>' +
+      '<path class="g-body" d="M268,120 L301,133 Q311,138 309,152 L288,302 L246,308 L246,152 Z"/>' +
+      /* hood */
+      '<path class="g-seam" d="M150,112 C150,70 174,44 200,44 C226,44 250,70 250,112 Z"/>' +
+      '<path class="g-seam" d="M168,112 C168,86 182,70 200,70 C218,70 232,86 232,112"/>' +
+      '<path class="g-stitch" d="M157,110 C157,75 178,51 200,51 C222,51 243,75 243,110"/>' +
+      '<path class="g-stitch" d="M171,110 C171,88 184,74 200,74 C216,74 229,88 229,110"/>' +
+      /* kangaroo pocket */
+      '<path class="g-d" d="M152,300 L248,300 L244,358 L156,358 Z"/>' +
+      '<path class="g-seam" d="M154,300 L246,300"/>' +
+      '<path class="g-stitch" d="M157,305 L243,305 L239,353 L161,353 Z"/>' +
+      /* topstitching on the main seams */
+      '<path class="g-stitch" d="M136,122 L264,122"/>' +
+      '<path class="g-stitch" d="M128,196 L276,196"/>' +
+      '<path class="g-stitch" d="M134,396 L266,396"/>' +
+      /* ribbing */
+      '<path class="g-hem" d="M128,398 L272,398 L272,414 L128,414 Z"/>' +
+      '<path class="g-hem" d="M112,296 L154,302 L154,318 L112,312 Z"/>' +
+      '<path class="g-hem" d="M288,296 L246,302 L246,318 L288,312 Z"/>' +
+      /* drawcords + bar tacks at the exit points */
+      '<path class="g-tack" d="M177,112 L189,112"/>' +
+      '<path class="g-tack" d="M211,112 L223,112"/>' +
+      '<path class="g-acc" d="M183,114 L183,170"/>' +
+      '<path class="g-acc" d="M217,114 L217,170"/>' +
+      '<circle class="g-acc" cx="183" cy="174" r="4"/>' +
+      '<circle class="g-acc" cx="217" cy="174" r="4"/>' +
+      /* sleeve seams + bar tacks at the underarm */
+      '<path class="g-stitch" d="M152,150 L154,300"/>' +
+      '<path class="g-stitch" d="M248,150 L246,300"/>' +
+      '<path class="g-tack" d="M140,140 L152,143"/>' +
+      '<path class="g-tack" d="M260,140 L248,143"/>' +
+      '<path class="g-hi" d="M136,130 Q130,240 134,388"/>' +
+    '</g></svg>';
+
+  /* ---------------- 02 · Cargo trouser ---------------- */
+
+  var cargo = OPEN +
+    '<g class="flat-g">' +
+      '<path class="g-body" d="M128,96 L272,96 L272,124 L128,124 Z"/>' +
+      '<path class="g-body" d="M128,124 L201,124 L199,424 L137,424 Z"/>' +
+      '<path class="g-body" d="M201,124 L272,124 L263,424 L203,424 Z"/>' +
+      /* bellowed cargo pockets */
+      '<path class="g-d" d="M136,224 L192,224 L190,300 L138,300 Z"/>' +
+      '<path class="g-d" d="M208,224 L264,224 L262,300 L210,300 Z"/>' +
+      '<path class="g-seam" d="M136,224 L192,224"/>' +
+      '<path class="g-seam" d="M208,224 L264,224"/>' +
+      '<path class="g-stitch" d="M141,229 L187,229 L185,295 L143,295 Z"/>' +
+      '<path class="g-stitch" d="M213,229 L259,229 L257,295 L215,295 Z"/>' +
+      /* pocket flaps */
+      '<path class="g-seam" d="M134,218 L194,218"/>' +
+      '<path class="g-seam" d="M206,218 L266,218"/>' +
+      /* knee darts — the detail that makes it read as cargo */
+      '<path class="g-seam" d="M145,352 L191,358"/>' +
+      '<path class="g-seam" d="M209,358 L255,352"/>' +
+      /* waistband, belt loops, topstitch */
+      '<path class="g-hem" d="M128,96 L272,96 L272,124 L128,124 Z"/>' +
+      '<path class="g-stitch" d="M130,101 L270,101 M130,119 L270,119"/>' +
+      '<path class="g-seam" d="M146,96 L146,124"/>' +
+      '<path class="g-seam" d="M254,96 L254,124"/>' +
+      '<path class="g-seam" d="M172,96 L172,124"/>' +
+      '<path class="g-seam" d="M228,96 L228,124"/>' +
+      '<path class="g-tack" d="M143,99 L149,99 M143,120 L149,120"/>' +
+      '<path class="g-tack" d="M251,99 L257,99 M251,120 L257,120"/>' +
+      /* drawcord at the hem */
+      '<path class="g-acc" d="M150,416 L150,430"/>' +
+      '<path class="g-acc" d="M188,416 L188,430"/>' +
+      /* centre + rise seam, topstitched */
+      '<path class="g-seam" d="M200,124 L200,424"/>' +
+      '<path class="g-seam" d="M158,124 L182,152"/>' +
+      '<path class="g-stitch" d="M204,126 L204,420"/>' +
+      /* stacked hem */
+      '<path class="g-hem" d="M137,410 L199,410 L199,428 L137,428 Z"/>' +
+      '<path class="g-hem" d="M203,410 L263,410 L263,428 L203,428 Z"/>' +
+      '<path class="g-hi" d="M134,132 L134,400"/>' +
+    '</g></svg>';
+
+  /* ---------------- 03 · Track jacket ---------------- */
+
+  var track = OPEN +
+    '<g class="flat-g">' +
+      '<path class="g-body" d="M152,122 L248,122 L266,132 L274,198 L270,386 Q270,400 256,400 L144,400 Q130,400 130,386 L126,198 L134,132 Z"/>' +
+      '<path class="g-body" d="M134,132 L100,145 Q90,150 92,164 L112,300 L152,306 L152,164 Z"/>' +
+      '<path class="g-body" d="M266,132 L300,145 Q310,150 308,164 L288,300 L248,306 L248,164 Z"/>' +
+      /* stand collar */
+      '<path class="g-seam" d="M152,124 C158,106 178,96 200,96 C222,96 242,106 248,124 Z"/>' +
+      '<path class="g-stitch" d="M156,122 C162,110 179,102 200,102 C221,102 238,110 244,122"/>' +
+      /* centre zip, teeth dashed */
+      '<path class="g-seam" d="M200,100 L200,396"/>' +
+      '<path class="g-acc" d="M200,100 L200,396" stroke-dasharray="1.5 4"/>' +
+      '<path class="g-tack" d="M194,104 L206,104 M194,392 L206,392"/>' +
+      '<path class="g-hi" d="M197,110 L197,390"/>' +
+      /* chest panel seams */
+      '<path class="g-d" d="M132,206 L196,206 L196,248 L130,248 Z"/>' +
+      '<path class="g-d" d="M204,206 L268,206 L270,248 L204,248 Z"/>' +
+      '<path class="g-stitch" d="M136,211 L192,211 M208,211 L264,211"/>' +
+      /* yoke + topstitch */
+      '<path class="g-seam" d="M126,198 L274,198"/>' +
+      '<path class="g-stitch" d="M132,124 L268,124"/>' +
+      '<path class="g-stitch" d="M128,202 L272,202"/>' +
+      '<path class="g-stitch" d="M134,384 L266,384"/>' +
+      '<path class="g-tack" d="M142,136 L154,139 M258,136 L246,139"/>' +
+      /* ribbing */
+      '<path class="g-hem" d="M130,386 L270,386 L270,404 L130,404 Z"/>' +
+      '<path class="g-hem" d="M112,294 L152,300 L152,316 L112,310 Z"/>' +
+      '<path class="g-hem" d="M288,294 L248,300 L248,316 L288,310 Z"/>' +
+      '<path class="g-hi" d="M138,140 Q132,240 136,376"/>' +
+    '</g></svg>';
+
+  /* ---------------- 04 · Boxy tee ---------------- */
+
+  var tee = OPEN +
+    '<g class="flat-g">' +
+      '<path class="g-body" d="M146,138 L254,138 L272,148 L280,214 L276,330 Q276,344 262,344 L138,344 Q124,344 124,330 L120,214 L128,148 Z"/>' +
+      '<path class="g-body" d="M128,148 L92,160 Q82,164 84,178 L102,250 L142,254 L142,182 Z"/>' +
+      '<path class="g-body" d="M272,148 L308,160 Q318,164 316,178 L298,250 L258,254 L258,182 Z"/>' +
+      /* taped rib collar */
+      '<path class="g-seam" d="M146,140 C152,124 172,116 200,116 C228,116 248,124 254,140 Z"/>' +
+      '<path class="g-seam" d="M166,140 C170,130 184,124 200,124 C216,124 230,130 234,140"/>' +
+      '<path class="g-stitch" d="M150,138 C156,127 174,120 200,120 C226,120 244,127 250,138"/>' +
+      '<path class="g-stitch" d="M169,138 C173,132 186,127 200,127 C214,127 227,132 231,138"/>' +
+      /* body + hem topstitching */
+      '<path class="g-seam" d="M120,214 L280,214"/>' +
+      '<path class="g-stitch" d="M124,218 L276,218"/>' +
+      '<path class="g-hem" d="M124,330 L276,330 L276,350 L124,350 Z"/>' +
+      '<path class="g-stitch" d="M126,333 L274,333"/>' +
+      /* sleeve seams + bar tacks at the underarm */
+      '<path class="g-seam" d="M120,214 L102,250"/>' +
+      '<path class="g-seam" d="M280,214 L298,250"/>' +
+      '<path class="g-stitch" d="M140,180 L142,252 M260,180 L258,252"/>' +
+      '<path class="g-tack" d="M136,158 L148,161 M264,158 L252,161"/>' +
+      '<path class="g-d" d="M124,258 L276,258 L276,290 L124,290 Z"/>' +
+      '<path class="g-stitch" d="M128,263 L272,263"/>' +
+      '<path class="g-hi" d="M134,156 Q128,230 132,322"/>' +
+    '</g></svg>';
+
+  /* ---------------- 05 · Knit crew ---------------- */
+
+  var knit = OPEN +
+    '<g class="flat-g">' +
+      '<path class="g-body" d="M150,130 L250,130 L268,140 L276,204 L272,382 Q272,396 258,396 L142,396 Q128,396 128,382 L124,204 L132,140 Z"/>' +
+      '<path class="g-body" d="M132,140 L98,153 Q88,158 90,172 L110,306 L150,312 L150,174 Z"/>' +
+      '<path class="g-body" d="M268,140 L302,153 Q312,158 310,172 L290,306 L250,312 L250,174 Z"/>' +
+      /* crew neck */
+      '<path class="g-seam" d="M150,132 C156,114 176,104 200,104 C224,104 244,114 250,132 Z"/>' +
+      '<path class="g-seam" d="M168,132 C172,122 184,116 200,116 C216,116 228,122 232,132"/>' +
+      '<path class="g-stitch" d="M154,130 C160,117 178,109 200,109 C222,109 240,117 246,130"/>' +
+      /* 12gg courses down the body */
+      '<path class="g-hem" d="M128,190 L272,190 M128,214 L272,214 M128,238 L272,238 M128,262 L272,262 M128,286 L272,286 M128,310 L272,310 M128,334 L272,334 M128,358 L272,358"/>' +
+      '<path class="g-hem" d="M110,196 L150,201 M110,222 L150,227 M110,248 L150,253 M110,274 L150,279 M110,300 L150,305"/>' +
+      '<path class="g-hem" d="M290,196 L250,201 M290,222 L250,227 M290,248 L250,253 M290,274 L250,279 M290,300 L250,305"/>' +
+      /* yoke seam where the knit joins */
+      '<path class="g-seam" d="M124,204 L276,204"/>' +
+      '<path class="g-stitch" d="M128,207 L272,207"/>' +
+      '<path class="g-tack" d="M138,148 L150,151 M262,148 L250,151"/>' +
+      /* ribbed collar, cuffs, hem */
+      '<path class="g-hem" d="M128,382 L272,382 L272,400 L128,400 Z"/>' +
+      '<path class="g-hem" d="M110,300 L150,306 L150,324 L110,318 Z"/>' +
+      '<path class="g-hem" d="M290,300 L250,306 L250,324 L290,318 Z"/>' +
+      '<path class="g-stitch" d="M130,384 L270,384"/>' +
+    '</g></svg>';
+
+  /* ---------------- 06 · Low-top sneaker (side profile) ---------------- */
+
+  var shoe = '<svg class="flat" viewBox="0 0 400 300" role="img" aria-hidden="true">' +
+    '<g class="flat-g">' +
+      /* outsole */
+      '<path class="g-body" d="M52,244 Q52,266 80,268 L324,268 Q352,266 354,246 L354,234 L52,234 Z"/>' +
+      '<path class="g-seam" d="M52,244 L354,244"/>' +
+      '<path class="g-hem" d="M70,258 L74,268 M96,258 L99,268 M124,258 L126,268 M152,258 L154,268 M182,258 L183,268 M212,258 L213,268 M242,258 L243,268 M272,258 L273,268 M302,258 L303,268 M330,258 L331,266"/>' +
+      /* upper */
+      '<path class="g-body" d="M74,234 L78,168 Q92,134 140,128 L246,122 Q300,126 320,158 L340,218 Q346,232 334,234 Z"/>' +
+      /* heel counter */
+      '<path class="g-d" d="M78,168 Q92,134 140,128 L136,234 L74,234 Z"/>' +
+      '<path class="g-stitch" d="M82,172 Q94,141 138,135"/>' +
+      /* toe cap */
+      '<path class="g-seam" d="M286,132 Q312,142 322,166 L338,224 L296,224 Z"/>' +
+      '<path class="g-stitch" d="M292,137 Q314,147 323,168 L334,218"/>' +
+      /* eyestay + tongue */
+      '<path class="g-seam" d="M152,130 L206,128 L246,180 L168,182 Z"/>' +
+      '<path class="g-stitch" d="M157,133 L203,131 L241,176 L171,178 Z"/>' +
+      '<path class="g-seam" d="M170,182 L244,180"/>' +
+      /* laces + eyelets */
+      '<path class="g-acc" d="M166,146 L206,152 M172,158 L212,164 M178,170 L218,176"/>' +
+      '<circle class="g-acc" cx="164" cy="144" r="3"/>' +
+      '<circle class="g-acc" cx="170" cy="156" r="3"/>' +
+      '<circle class="g-acc" cx="176" cy="168" r="3"/>' +
+      '<circle class="g-acc" cx="208" cy="150" r="3"/>' +
+      '<circle class="g-acc" cx="214" cy="162" r="3"/>' +
+      '<circle class="g-acc" cx="220" cy="174" r="3"/>' +
+      /* side panel + overlay stitching */
+      '<path class="g-d" d="M232,190 L300,186 L312,224 L240,228 Z"/>' +
+      '<path class="g-stitch" d="M236,194 L298,190 L309,220 L243,224 Z"/>' +
+      /* heel tab */
+      '<path class="g-seam" d="M80,150 L92,146 L92,168 L78,172 Z"/>' +
+      '<path class="g-tack" d="M84,156 L88,155 M84,164 L88,163"/>' +
+      /* foxing tape line + highlights */
+      '<path class="g-stitch" d="M56,250 L350,250"/>' +
+      '<path class="g-hi" d="M96,170 Q104,146 138,140"/>' +
+      '<path class="g-hi" d="M300,150 Q316,164 326,192"/>' +
+    '</g></svg>';
+
+  /* ---------------- material macro swatch ----------------
+     Woven texture built from a turbulence filter — used on the
+     editorial tiles and the product hover state. */
+
+  var macro = '<svg class="macro-svg" viewBox="0 0 600 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">' +
+    '<defs>' +
+      '<filter id="bd-weave">' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.9 0.02" numOctaves="4" seed="7" result="n"/>' +
+        '<feColorMatrix in="n" type="saturate" values="0" result="g"/>' +
+        '<feComponentTransfer in="g" result="c">' +
+          '<feFuncA type="linear" slope="0.55"/>' +
+        '</feComponentTransfer>' +
+      '</filter>' +
+      '<filter id="bd-weave2">' +
+        '<feTurbulence type="fractalNoise" baseFrequency="0.02 0.9" numOctaves="4" seed="19" result="n"/>' +
+        '<feColorMatrix in="n" type="saturate" values="0" result="g"/>' +
+        '<feComponentTransfer in="g" result="c">' +
+          '<feFuncA type="linear" slope="0.4"/>' +
+        '</feComponentTransfer>' +
+      '</filter>' +
+      '<linearGradient id="bd-fall" x1="0" y1="0" x2="0.6" y2="1">' +
+        '<stop offset="0%" stop-color="#3a3a40"/>' +
+        '<stop offset="45%" stop-color="#131316"/>' +
+        '<stop offset="100%" stop-color="#050506"/>' +
+      '</linearGradient>' +
+    '</defs>' +
+    '<rect width="600" height="800" fill="url(#bd-fall)"/>' +
+    '<rect width="600" height="800" filter="url(#bd-weave)" opacity="0.5"/>' +
+    '<rect width="600" height="800" filter="url(#bd-weave2)" opacity="0.35"/>' +
+    '<rect width="600" height="800" fill="url(#bd-fall)" opacity="0.35"/>' +
+  '</svg>';
+
+  root.BD_FLATS = {
+    hoodie: hoodie,
+    cargo:  cargo,
+    track:  track,
+    tee:    tee,
+    knit:   knit,
+    shoe:   shoe,
+    macro:  macro
+  };
+})(window);
+
+</script>
+<script>
+/* ===== atmos.js (inlined) ===== */
+/* ============================================================
+   atmos.js — atmosphere.
+
+   Film grain plus a slow specular sweep, drawn on one fixed canvas
+   behind everything. The grain texture is generated once into a
+   small offscreen buffer and then jittered each frame, which is
+   far cheaper than regenerating noise per pixel.
+
+   Respects prefers-reduced-motion: it just paints a static grain.
+   ============================================================ */
+
+(function () {
+  "use strict";
+
+  var canvas = document.getElementById("grain");
+  if (!canvas) return;
+
+  var ctx = canvas.getContext("2d");
+  if (!ctx) { canvas.remove(); return; }
+
+  var reduce = window.matchMedia &&
+               window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var W = 0, H = 0, dpr = 1;
+  var TILE = 220;
+  var buffer = document.createElement("canvas");
+  var bctx = buffer.getContext("2d");
+
+  /* Build one tile of monochrome noise once. */
+  function buildTile() {
+    buffer.width = TILE;
+    buffer.height = TILE;
+    var img = bctx.createImageData(TILE, TILE);
+    var d = img.data;
+    for (var i = 0; i < d.length; i += 4) {
+      var v = 128 + (Math.random() - 0.5) * 255;
+      d[i] = d[i + 1] = d[i + 2] = v;
+      d[i + 3] = 255;
+    }
+    bctx.putImageData(img, 0, 0);
+  }
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.clientWidth || window.innerWidth;
+    H = canvas.clientHeight || window.innerHeight;
+    canvas.width = Math.floor(W * dpr);
+    canvas.height = Math.floor(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  window.addEventListener("resize", resize, { passive: true });
+  resize();
+  buildTile();
+
+  var pat = ctx.createPattern(buffer, "repeat");
+  var running = true;
+
+  document.addEventListener("visibilitychange", function () {
+    running = !document.hidden;
+    if (running) requestAnimationFrame(frame);
+  });
+
+  function frame(now) {
+    if (!running) return;
+
+    var t = now / 1000;
+
+    /* ---- grain: tile the buffer at a jittered offset ---- */
+    ctx.save();
+    ctx.globalAlpha = reduce ? 0.045 : 0.035;
+    ctx.globalCompositeOperation = "overlay";
+    ctx.translate(-Math.random() * TILE, -Math.random() * TILE);
+    ctx.fillStyle = pat;
+    ctx.fillRect(0, 0, W + TILE * 2, H + TILE * 2);
+    ctx.restore();
+
+    /* ---- slow specular sweep across the page ---- */
+    if (!reduce) {
+      var x = W * (0.5 + Math.sin(t * 0.085) * 0.6);
+      var y = H * (0.25 + Math.cos(t * 0.06) * 0.35);
+      var r = Math.max(W, H) * 0.75;
+
+      var g = ctx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, "rgba(214, 206, 190, 0.05)");
+      g.addColorStop(0.5, "rgba(150, 150, 170, 0.018)");
+      g.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+})();
+
+</script>
+<script>
+/* ===== app.js (inlined) ===== */
+/* ============================================================
+   app.js — BAD DESIGN storefront.
+
+   Catalogue, cart, filtering, search, product view, checkout,
+   menus, countdown, toasts. No dependencies, no build step.
+
+   Images live in img/. Anything without a photograph falls back
+   to the SVG technical flat in garments.js.
+   ============================================================ */
+
+(function () {
+  "use strict";
+
+  /* ============================================================
+     1 · CATALOGUE
+     ============================================================ */
+
+  var FREE_SHIP = 250;
+  var TAX_RATE = 0.20;
+
+  var CATS = {
+    bags: "Bags", tops: "Tops", bottoms: "Bottoms",
+    outerwear: "Outerwear", footwear: "Footwear"
+  };
+
+  var CAT_LABEL = {
+    all: "Everything", bags: "Bags", tops: "Tops", bottoms: "Bottoms",
+    outerwear: "Outerwear", footwear: "Footwear"
+  };
+
+  var CLOTH_SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
+  var ONE_SIZE    = ["One size"];
+
+  var PRODUCTS = [
+    /* ---------------- BAGS ---------------- */
+    {
+      id: "bd-101", name: "Vespers Quilted Flap", cat: "bags", price: 2850,
+      img: "bag-01", alt: "Black quilted leather flap bag with a chain shoulder strap",
+      badge: "Icon", colorways: 2, color: "Noir / Bone",
+      sizes: ONE_SIZE,
+      fabric: "Quilted lambskin, hand-finished diamond stitch, palladium hardware",
+      origin: "Made in Florence",
+      blurb: "The one that started the label. Diamond-quilted lambskin over a rigid frame, closed with a single flat turn-lock and carried on an interlaced chain that runs leather through every link.",
+      specs: [["Body", "Quilted lambskin"], ["Hardware", "Palladium, brushed"], ["Strap", "Interlaced chain, 60cm"], ["Lining", "Suede, zipped pocket"]],
+      care: "Keep in the dust bag. Do not fill. Lambskin marks — that is the material, not a fault."
+    },
+    {
+      id: "bd-102", name: "Cinder Structured Top-Handle", cat: "bags", price: 1980,
+      img: "bag-04", alt: "Structured black leather handbag with a top handle",
+      badge: null, colorways: 2, color: "Noir / Oxblood",
+      sizes: ONE_SIZE,
+      fabric: "Box calf leather, hand-painted edges, brass hardware",
+      origin: "Made in Florence",
+      blurb: "Built on a wooden form so the corners stay sharp for a decade, not a season. The handle is rolled and stitched by hand; it will not sag.",
+      specs: [["Body", "Box calf"], ["Frame", "Reinforced wood"], ["Handle", "Rolled, hand-stitched"], ["Hardware", "Brushed brass"]],
+      care: "Wipe with a dry cloth. Store stuffed. Re-condition the leather twice a year."
+    },
+    {
+      id: "bd-103", name: "Reliquary Chain Pouch", cat: "bags", price: 1420,
+      img: "bag-03", alt: "Small black leather pouch on a fine chain",
+      badge: null, colorways: 3, color: "Noir / Bone / Oxblood",
+      sizes: ONE_SIZE,
+      fabric: "Smooth calfskin, fine curb chain, micro-suede lining",
+      origin: "Made in Milan",
+      blurb: "Small enough to disappear into a coat pocket, large enough for a phone and a card. The chain runs entirely in metal — no leather, no weight.",
+      specs: [["Body", "Smooth calfskin"], ["Chain", "Fine curb, all metal"], ["Capacity", "Phone, card, keys"], ["Closure", "Push-tab, concealed"]],
+      care: "Chain will patina. That is intended."
+    },
+    {
+      id: "bd-104", name: "Ossuary Crossbody Sling", cat: "bags", price: 1180,
+      img: "bag-05", alt: "Black leather crossbody bag worn on the shoulder",
+      badge: null, colorways: 2, color: "Noir / Slate",
+      sizes: ONE_SIZE,
+      fabric: "Grained leather, adjustable webbing strap, gunmetal zip",
+      origin: "Made in Portugal",
+      blurb: "The everyday one. Sits flat against the ribs so it reads as part of the silhouette rather than an accessory hanging off it.",
+      specs: [["Body", "Grained leather"], ["Strap", "Adjustable webbing"], ["Zip", "Gunmetal, YKK"], ["Fit", "Crossbody, rib height"]],
+      care: "Wipe clean. Webbing will not stretch."
+    },
+    {
+      id: "bd-105", name: "Marrow Belt Bag", cat: "bags", price: 890,
+      img: "bag-02", alt: "Black leather belt bag resting on dark fabric",
+      badge: "New", colorways: 2, color: "Noir / Bone",
+      sizes: ONE_SIZE,
+      fabric: "Nappa leather, magnetic flap, cotton webbing belt",
+      origin: "Made in Portugal",
+      blurb: "Worn at the hip or the sternum, depending on how the season has gone. Magnetic flap, no zip to fight with one-handed.",
+      specs: [["Body", "Nappa leather"], ["Flap", "Magnetic, silent"], ["Belt", "Cotton webbing, adjustable"], ["Capacity", "Phone, cards, keys"]],
+      care: "Nappa creases. Soften with hand heat, not an iron."
+    },
+
+    /* ---------------- TOPS ---------------- */
+    {
+      id: "bd-201", name: "Gravity Oversized Hoodie", cat: "tops", price: 340,
+      img: "hoodie", alt: "Figure in a dark hooded top photographed at night",
+      badge: "New", colorways: 3, color: "Onyx / Bone / Ash",
+      sizes: CLOTH_SIZES,
+      fabric: "480 GSM loopback cotton, garment-dyed and enzyme-washed",
+      origin: "Woven and knitted in Porto",
+      blurb: "Drop-shoulder box cut with a double-layer hood that holds its shape after the first wash. Heavier than it has any right to be.",
+      specs: [["Weight", "480 GSM"], ["Cut", "Oversized, drop shoulder"], ["Hood", "Double-layer, tonal"], ["Fit", "Size down for a regular fit"]],
+      care: "Cold wash inside out. Hang dry. Never tumble — the loopback will not forgive it."
+    },
+    {
+      id: "bd-202", name: "Null Boxy Tee", cat: "tops", price: 120,
+      img: "tee", alt: "Figure in a plain black boxy t-shirt",
+      badge: "Core", colorways: 4, color: "Onyx / Bone / Chalk / Slate",
+      sizes: CLOTH_SIZES,
+      fabric: "260 GSM heavyweight jersey, long-staple cotton",
+      origin: "Knitted in Portugal",
+      blurb: "The weight is the point. It stands on its own, softens with every wash, and the ribbed collar will not roll.",
+      specs: [["Weight", "260 GSM"], ["Fit", "Boxy, wide body"], ["Collar", "2×2 ribbed, taped"], ["Shoulder", "Dropped, extended"]],
+      care: "Cold wash, inside out, with like colours."
+    },
+    {
+      id: "bd-203", name: "Abyss Knit Crew", cat: "tops", price: 380,
+      img: "knit", alt: "Figure in a dark knitted crewneck photographed at dusk",
+      badge: null, colorways: 2, color: "Onyx / Bone",
+      sizes: CLOTH_SIZES,
+      fabric: "Extra-fine merino 60% / recycled nylon 40%, 12 gauge",
+      origin: "Spun and knitted in Italy",
+      blurb: "Twelve-gauge knit in a merino-nylon blend that keeps its structure while staying genuinely wearable through a European winter.",
+      specs: [["Gauge", "12gg"], ["Blend", "60% merino / 40% nylon"], ["Fit", "Relaxed, dropped shoulder"], ["Neck", "Ribbed, crew"]],
+      care: "Hand wash cold. Dry flat. Do not hang."
+    },
+    {
+      id: "bd-204", name: "Bloodline Rib Tank", cat: "tops", price: 95,
+      img: "tank", alt: "Figure in a dark ribbed tank top",
+      badge: "New", colorways: 2, color: "Onyx / Oxblood",
+      sizes: CLOTH_SIZES,
+      fabric: "220 GSM compact rib, cotton-modal, high elastane content",
+      origin: "Knitted in Portugal",
+      blurb: "Compact rib that holds against the body without gripping. Long enough to stay tucked under everything we make.",
+      specs: [["Weight", "220 GSM"], ["Rib", "2×1 compact"], ["Length", "Extended, hip-length"], ["Neck", "Bound, scoop"]],
+      care: "Cold wash. It will survive being worn to destruction."
+    },
+    {
+      id: "bd-205", name: "Nocturne Sheer Long-Sleeve", cat: "tops", price: 180,
+      img: "sheer", alt: "Figure in a sheer black long-sleeve top",
+      badge: null, colorways: 1, color: "Onyx",
+      sizes: CLOTH_SIZES,
+      fabric: "95% viscose modal, 5% elastane, single jersey",
+      origin: "Knitted in Italy",
+      blurb: "Worn alone or as the first layer under everything. Sheer enough to be a decision, opaque enough to wear in daylight.",
+      specs: [["Fabric", "Modal, single jersey"], ["Sheer", "Yes, by design"], ["Fit", "Slim through the body"], ["Sleeve", "Extended, thumb-split"]],
+      care: "Hand wash cold. Do not wring."
+    },
+
+    /* ---------------- BOTTOMS ---------------- */
+    {
+      id: "bd-301", name: "Monolith Cargo Trouser", cat: "bottoms", price: 290,
+      img: "cargo", alt: "Figure in wide dark cargo trousers photographed in an archway",
+      badge: "Core", colorways: 2, color: "Onyx / Slate",
+      sizes: CLOTH_SIZES,
+      fabric: "Bonded technical nylon, DWR finish, 40D ripstop",
+      origin: "Woven in Taipei, constructed in Portugal",
+      blurb: "Wide articulated leg, eight pockets, and a hem drawcord that cinches the silhouette at the ankle. The break stacks properly over a boot.",
+      specs: [["Fabric", "40D bonded nylon"], ["Pockets", "8, two bellowed thigh"], ["Hem", "Elastic plus drawcord"], ["Finish", "DWR, water-repellent"]],
+      care: "Cold wash. Do not iron the bonded panels."
+    },
+    {
+      id: "bd-302", name: "Vigil Wide Wool Trouser", cat: "bottoms", price: 460,
+      img: "trouser", alt: "Figure in wide tailored wool trousers",
+      badge: null, colorways: 2, color: "Onyx / Charcoal",
+      sizes: CLOTH_SIZES,
+      fabric: "Super 120s virgin wool, 340 GSM, unfinished",
+      origin: "Woven in Biella, made in Portugal",
+      blurb: "A full wide leg cut from a single length so the fall is unbroken. Unfinished hem — take it to your own tailor or wear it raw.",
+      specs: [["Cloth", "Super 120s wool, 340 GSM"], ["Cut", "Full wide leg"], ["Rise", "Mid-high"], ["Hem", "Unfinished, 42cm"]],
+      care: "Dry clean only. Press on the reverse with a cloth."
+    },
+    {
+      id: "bd-303", name: "Mass Heavyweight Short", cat: "bottoms", price: 110,
+      img: "short", alt: "Figure in dark heavyweight shorts",
+      badge: null, colorways: 3, color: "Onyx / Bone / Slate",
+      sizes: CLOTH_SIZES,
+      fabric: "420 GSM loopback cotton, double-stitched inseam",
+      origin: "Knitted in Portugal",
+      blurb: "Cut from the same roll as the Gravity hoodie, so the two wash the same. Falls just above the knee.",
+      specs: [["Weight", "420 GSM"], ["Cut", "Straight, mid-thigh"], ["Inseam", "Double-stitched"], ["Pockets", "Side seam, 2"]],
+      care: "Cold wash inside out."
+    },
+
+    /* ---------------- OUTERWEAR ---------------- */
+    {
+      id: "bd-401", name: "Obsidian Track Jacket", cat: "outerwear", price: 420,
+      img: "jacket", alt: "Figure in a dark track jacket and boots in a forest",
+      badge: "Limited", colorways: 2, color: "Onyx / Chalk",
+      sizes: CLOTH_SIZES,
+      fabric: "Bonded polyester shell, matte face, fully taped seams",
+      origin: "Assembled in Portugal",
+      blurb: "Fully bonded so no stitch breaks the face. Storm-tight placket, ribbed collar engineered to stand on its own.",
+      specs: [["Shell", "100% bonded polyester"], ["Seams", "Fully taped"], ["Zip", "YKK AquaGuard"], ["Cuff", "Ribbed, elastane"]],
+      care: "Cold wash, hang dry. Do not iron the face."
+    },
+    {
+      id: "bd-402", name: "Penance Belted Coat", cat: "outerwear", price: 1290,
+      img: "coat", alt: "Figure in a belted dark coat",
+      badge: "New", colorways: 2, color: "Onyx / Oxblood",
+      sizes: CLOTH_SIZES,
+      fabric: "Double-faced wool-cashmere, bonded seams, horn hardware",
+      origin: "Made in Italy",
+      blurb: "Double-faced cloth means no lining and no visible stitch line — the coat is two fabrics bonded face to face. The belt is cut from the same panel.",
+      specs: [["Cloth", "Wool-cashmere, double-faced"], ["Construction", "Bonded, unlined"], ["Hardware", "Horn"], ["Length", "Below the knee"]],
+      care: "Dry clean only. Brush after wear."
+    },
+
+    /* ---------------- FOOTWEAR ---------------- */
+    {
+      id: "bd-501", name: "Terminus Low", cat: "footwear", price: 520,
+      img: "shoe", alt: "Dark low-top sneaker against a shadowed ground",
+      badge: "Limited", colorways: 3, color: "Onyx / Bone / Slate",
+      sizes: ["39", "40", "41", "42", "43", "44", "45"],
+      fabric: "Full-grain leather upper, engineered mesh cage, EVA midsole",
+      origin: "Made in Italy",
+      blurb: "A panelled cage over a leather chassis on a cupsole — not a wedge. The profile holds through the whole season instead of collapsing in week six.",
+      specs: [["Upper", "Full-grain leather plus mesh"], ["Midsole", "Compression-moulded EVA"], ["Outsole", "Vibram rubber"], ["Last", "Terminus, wide toe box"]],
+      care: "Brush the mesh. Use shoe trees. Never a washing machine."
+    }
+  ];
+
+  /* ============================================================
+     2 · STATE + PERSISTENCE
+     ============================================================ */
+
+  var store = {
+    get: function (k, fb) {
+      try { var v = localStorage.getItem("bd_" + k); return v ? JSON.parse(v) : fb; }
+      catch (e) { return fb; }
+    },
+    set: function (k, v) {
+      try { localStorage.setItem("bd_" + k, JSON.stringify(v)); } catch (e) { /* private mode */ }
+    }
+  };
+
+  var state = {
+    cart: store.get("cart", []),
+    filter: "all",
+    sort: "featured",
+    query: ""
+  };
+
+  function money(n) {
+    return "$" + Math.round(n).toLocaleString("en-US");
+  }
+  function byId(id) {
+    return PRODUCTS.filter(function (p) { return p.id === id; })[0];
+  }
+  function cartCount() {
+    return state.cart.reduce(function (n, i) { return n + i.qty; }, 0);
+  }
+  function cartSubtotal() {
+    return state.cart.reduce(function (n, i) {
+      var p = byId(i.id); return p ? n + p.price * i.qty : n;
+    }, 0);
+  }
+  function saveCart() { store.set("cart", state.cart); renderCartCount(); }
+
+  function productImage(p, cls) {
+    var base = "img/product/" + p.img + ".jpg";
+    return '<img class="' + (cls || "") + '" src="' + base + '" alt="' + p.alt + '" ' +
+           'loading="lazy" decoding="async" ' +
+           'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'">' +
+           '<span class="img-fallback" style="display:none">' + flatSVG(p.flat || "tee") + '</span>';
+  }
+
+  function flatSVG(type) { return (window.BD_FLATS && BD_FLATS[type]) || ""; }
+
+  /* ============================================================
+     3 · CART OPS
+     ============================================================ */
+
+  function addToCart(id, size, qty) {
+    qty = qty || 1;
+    var line = state.cart.filter(function (i) { return i.id === id && i.size === size; })[0];
+    if (line) { line.qty += qty; } else { state.cart.push({ id: id, size: size, qty: qty }); }
+    saveCart();
+    renderCart();
+    var p = byId(id);
+    toast("Added to bag", p.name + " · " + size);
+  }
+
+  function setQty(idx, delta) {
+    state.cart[idx].qty += delta;
+    if (state.cart[idx].qty < 1) state.cart.splice(idx, 1);
+    saveCart();
+    renderCart();
+    if (checkoutOpen) renderCheckout();
+  }
+
+  function removeLine(idx) {
+    state.cart.splice(idx, 1);
+    saveCart();
+    renderCart();
+    if (checkoutOpen) renderCheckout();
+  }
+
+  /* ============================================================
+     4 · GRID
+     ============================================================ */
+
+  function visibleProducts(ignoreFilter) {
+    var list = PRODUCTS.slice();
+    if (!ignoreFilter && state.filter !== "all") {
+      list = list.filter(function (p) { return p.cat === state.filter; });
+    }
+    if (state.query) {
+      var q = state.query.toLowerCase();
+      list = list.filter(function (p) {
+        return (p.name + " " + p.fabric + " " + p.color + " " + p.cat + " " + p.blurb).toLowerCase().indexOf(q) > -1;
+      });
+    }
+    if (state.sort === "price-asc")  list.sort(function (a, b) { return a.price - b.price; });
+    if (state.sort === "price-desc") list.sort(function (a, b) { return b.price - a.price; });
+    if (state.sort === "name")       list.sort(function (a, b) { return a.name.localeCompare(b.name); });
+    return list;
+  }
+
+  function productCard(p, i) {
+    var el = document.createElement("article");
+    el.className = "card reveal";
+    el.style.transitionDelay = (i % 4) * 70 + "ms";
+    el.setAttribute("data-cat", p.cat);
+    el.innerHTML =
+      '<div class="card-media" data-open-product="' + p.id + '">' +
+        productImage(p, "card-img") +
+        (p.badge ? '<span class="badge">' + p.badge + '</span>' : '') +
+        '<span class="peek">View piece</span>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<div class="card-head">' +
+          '<h3>' + p.name + '</h3>' +
+          '<p class="price">' + money(p.price) + '</p>' +
+        '</div>' +
+        '<p class="card-blurb">' + p.blurb.slice(0, 96) + '…</p>' +
+        '<p class="card-cat mono">' + (CATS[p.cat] || p.cat) + '</p>' +
+        '<div class="card-foot">' +
+          '<span class="swatches">' + new Array(p.colorways + 1).join('<i></i>') + '</span>' +
+          '<button class="add" data-add="' + p.id + '">Add</button>' +
+        '</div>' +
+      '</div>';
+    return el;
+  }
+
+  function renderGrid() {
+    var grid = document.getElementById("grid");
+    if (!grid) return;
+    var list = visibleProducts();
+    grid.innerHTML = "";
+    list.forEach(function (p, i) { grid.appendChild(productCard(p, i)); });
+    var empty = document.getElementById("empty");
+    if (empty) empty.hidden = list.length > 0;
+    var count = document.getElementById("resultCount");
+    if (count) count.textContent = list.length + (list.length === 1 ? " piece" : " pieces");
+  }
+
+  /* ============================================================
+     5 · CART DRAWER
+     ============================================================ */
+
+  function renderCartCount() {
+    var n = cartCount();
+    document.querySelectorAll("[data-cart-count]").forEach(function (el) {
+      el.textContent = n;
+      el.classList.toggle("is-live", n > 0);
+    });
+  }
+
+  function renderCart() {
+    var body = document.getElementById("cartBody");
+    if (!body) return;
+
+    if (!state.cart.length) {
+      body.innerHTML =
+        '<div class="cart-empty">' +
+          '<p class="mono">BAG EMPTY</p>' +
+          '<p>Nothing in the bag yet.</p>' +
+          '<button class="btn" data-close>Continue shopping</button>' +
+        '</div>';
+      document.getElementById("cartFoot").hidden = true;
+      return;
+    }
+
+    var sub = cartSubtotal();
+    var remaining = Math.max(0, FREE_SHIP - sub);
+    var pct = Math.min(100, (sub / FREE_SHIP) * 100);
+
+    body.innerHTML =
+      '<div class="ship-bar">' +
+        '<p class="mono">' +
+          (remaining > 0 ? money(remaining) + " away from complimentary shipping"
+                         : "Complimentary shipping unlocked") +
+        '</p>' +
+        '<div class="ship-track"><span style="width:' + pct + '%"></span></div>' +
+      '</div>' +
+      state.cart.map(function (i, idx) {
+        var p = byId(i.id); if (!p) return "";
+        return '<div class="line">' +
+          '<div class="line-media">' + productImage(p, "line-img") + '</div>' +
+          '<div class="line-info">' +
+            '<p class="line-name">' + p.name + '</p>' +
+            '<p class="mono muted">' + i.size + ' · ' + p.color.split(" / ")[0] + '</p>' +
+            '<div class="qty">' +
+              '<button data-dec="' + idx + '" aria-label="Decrease quantity">−</button>' +
+              '<span>' + i.qty + '</span>' +
+              '<button data-inc="' + idx + '" aria-label="Increase quantity">+</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="line-end">' +
+            '<p class="line-price">' + money(p.price * i.qty) + '</p>' +
+            '<button class="line-rm" data-rm="' + idx + '">Remove</button>' +
+          '</div>' +
+        '</div>';
+      }).join("");
+
+    var foot = document.getElementById("cartFoot");
+    foot.hidden = false;
+    foot.innerHTML =
+      '<div class="totals"><span>Subtotal</span><strong>' + money(sub) + '</strong></div>' +
+      '<p class="mono muted">Taxes and duties calculated at checkout.</p>' +
+      '<button class="btn btn-solid btn-block" data-open-checkout>Checkout</button>' +
+      '<p class="demo-note">Concept storefront — demo only. No orders are taken and no payment is processed.</p>';
+  }
+
+  /* ============================================================
+     6 · PRODUCT VIEW
+     ============================================================ */
+
+  var pendingProduct = null;
+
+  function openProduct(id) {
+    var p = byId(id);
+    if (!p) return;
+
+    document.getElementById("pvName").textContent = p.name;
+    document.getElementById("pvPrice").textContent = money(p.price);
+    document.getElementById("pvMedia").innerHTML = productImage(p, "pv-img");
+    document.getElementById("pvBadge").textContent = p.badge || "";
+    document.getElementById("pvBadge").hidden = !p.badge;
+    document.getElementById("pvBlurb").textContent = p.blurb;
+    document.getElementById("pvFabric").textContent = p.fabric;
+    document.getElementById("pvOrigin").textContent = p.origin;
+    document.getElementById("pvCare").textContent = p.care;
+    document.getElementById("pvColor").textContent = p.color;
+    document.getElementById("pvSpecs").innerHTML = p.specs.map(function (s) {
+      return '<div><dt>' + s[0] + '</dt><dd>' + s[1] + '</dd></div>';
+    }).join("");
+    document.getElementById("pvSizes").innerHTML = p.sizes.map(function (s) {
+      return '<button class="size-btn" data-pv-size="' + s + '">' + s + '</button>';
+    }).join("");
+    document.getElementById("pvCat").textContent = CATS[p.cat] || p.cat;
+
+    pendingProduct = id;
+    openDrawer("product");
+    location.hash = "product/" + id;
+  }
+
+  /* ============================================================
+     7 · SIZE SHEET
+     ============================================================ */
+
+  function openSizeSheet(id) {
+    pendingProduct = id;
+    var p = byId(id);
+    document.getElementById("sizeTitle").textContent = p.name;
+    document.getElementById("sizeFlat").innerHTML = productImage(p, "size-img");
+    document.getElementById("sizeBody").innerHTML = p.sizes.map(function (s) {
+      return '<button class="size-btn" data-size="' + s + '">' + s + '</button>';
+    }).join("");
+    openDrawer("size");
+  }
+
+  /* ============================================================
+     8 · OVERLAYS
+     ============================================================ */
+
+  function openDrawer(which) {
+    closeDrawers(true);
+    var d = document.getElementById(which);
+    if (!d) return;
+    d.hidden = false;
+    requestAnimationFrame(function () { d.classList.add("is-open"); });
+    document.body.classList.add("no-scroll");
+    document.getElementById("scrim").classList.add("is-on");
+  }
+
+  function closeDrawers(keepHash) {
+    document.querySelectorAll(".drawer, .sheet").forEach(function (d) {
+      d.classList.remove("is-open");
+      var el = d;
+      setTimeout(function () { el.hidden = true; }, 340);
+    });
+    document.body.classList.remove("no-scroll");
+    var sc = document.getElementById("scrim");
+    if (sc) sc.classList.remove("is-on");
+    if (!keepHash && location.hash.indexOf("product/") === 0) {
+      history.replaceState(null, "", location.pathname);
+    }
+  }
+
+  /* ============================================================
+     9 · TOASTS
+     ============================================================ */
+
+  function toast(label, detail) {
+    var host = document.getElementById("toasts");
+    if (!host) return;
+    var t = document.createElement("div");
+    t.className = "toast";
+    t.innerHTML = '<p class="mono">' + label + '</p>' + (detail ? '<p class="muted">' + detail + '</p>' : "");
+    host.appendChild(t);
+    requestAnimationFrame(function () { t.classList.add("in"); });
+    setTimeout(function () {
+      t.classList.remove("in");
+      setTimeout(function () { t.remove(); }, 400);
+    }, 2800);
+  }
+
+  /* ============================================================
+     10 · SEARCH
+     ============================================================ */
+
+  function renderSearch() {
+    var host = document.getElementById("searchResults");
+    if (!host) return;
+    var list = visibleProducts(true);
+    host.innerHTML = list.length
+      ? list.slice(0, 10).map(function (p) {
+          return '<button class="s-result" data-open-product="' + p.id + '">' +
+            '<span class="s-thumb">' + productImage(p, "s-img") + '</span>' +
+            '<span class="s-name">' + p.name + '</span>' +
+            '<span class="s-price">' + money(p.price) + '</span>' +
+          '</button>';
+        }).join("")
+      : '<p class="mono muted">NO MATCHES</p>';
+    document.getElementById("searchCount").textContent =
+      list.length + (list.length === 1 ? " result" : " results");
+  }
+
+  /* ============================================================
+     11 · COUNTDOWN
+     ============================================================ */
+
+  function initCountdown() {
+    var host = document.getElementById("countdown");
+    if (!host) return;
+    var target = store.get("drop", null);
+    if (!target) { target = Date.now() + 7 * 864e5; store.set("drop", target); }
+    function tick() {
+      var diff = Math.max(0, target - Date.now());
+      var d = Math.floor(diff / 864e5);
+      var h = Math.floor(diff / 36e5) % 24;
+      var m = Math.floor(diff / 6e4) % 60;
+      var s = Math.floor(diff / 1e3) % 60;
+      var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+      host.innerHTML =
+        '<div><b>' + d + '</b><span>Days</span></div>' +
+        '<div><b>' + pad(h) + '</b><span>Hours</span></div>' +
+        '<div><b>' + pad(m) + '</b><span>Min</span></div>' +
+        '<div><b>' + pad(s) + '</b><span>Sec</span></div>';
+    }
+    tick();
+    setInterval(tick, 1000);
+  }
+
+  /* ============================================================
+     12 · CHECKOUT
+     ============================================================ */
+
+  var checkoutOpen = false;
+  var co = {
+    step: 1,
+    ship: { name: "", email: "", phone: "", addr: "", city: "", zip: "", country: "" },
+    shipMethod: "standard",
+    pay: { name: "", card: "", exp: "", cvc: "" }
+  };
+
+  var SHIP_METHODS = {
+    standard: { name: "Standard", note: "4–6 working days, tracked", price: 0 },
+    express:  { name: "Express",  note: "2 working days, tracked",    price: 35 },
+    courier:  { name: "Overnight",note: "Next working day, signed",   price: 90 }
+  };
+
+  var COUNTRY_L = {
+    "United Kingdom": "GB", "United States": "US", "Germany": "DE",
+    "France": "FR", "Netherlands": "NL", "Italy": "IT", "Japan": "JP",
+    "Canada": "CA", "Australia": "AU", "Sweden": "SE", "United Arab Emirates": "AE"
+  };
+
+  function shipCost() {
+    var sub = cartSubtotal();
+    var base = sub >= FREE_SHIP ? 0 : 20;
+    return base + SHIP_METHODS[co.shipMethod].price;
+  }
+
+  function orderTotals() {
+    var sub = cartSubtotal();
+    var ship = shipCost();
+    var tax = sub * TAX_RATE;
+    return { sub: sub, ship: ship, tax: tax, total: sub + ship + tax };
+  }
+
+  function renderCheckout() {
+    var body = document.getElementById("coBody");
+    if (!body) return;
+    var t = orderTotals();
+
+    var steps = ["Bag", "Shipping", "Payment", "Review"];
+    document.getElementById("coSteps").innerHTML = steps.map(function (s, i) {
+      var n = i + 1;
+      var cls = "co-step" + (n === co.step ? " is-on" : "") + (n < co.step ? " is-done" : "");
+      return '<li class="' + cls + '"><span class="mono">' + (n < co.step ? "✓" : n) + '</span>' + s + '</li>';
+    }).join("");
+
+    var html = "";
+
+    if (co.step === 1) {
+      html = state.cart.length ? state.cart.map(function (i, idx) {
+        var p = byId(i.id); if (!p) return "";
+        return '<div class="line co-line">' +
+          '<div class="line-media">' + productImage(p, "line-img") + '</div>' +
+          '<div class="line-info"><p class="line-name">' + p.name + '</p>' +
+          '<p class="mono muted">' + i.size + '</p></div>' +
+          '<div class="qty"><button data-dec="' + idx + '" aria-label="Decrease">−</button>' +
+          '<span>' + i.qty + '</span>' +
+          '<button data-inc="' + idx + '" aria-label="Increase">+</button></div>' +
+          '<p class="line-price">' + money(p.price * i.qty) + '</p>' +
+        '</div>';
+      }).join("") : '<p class="mono muted">Your bag is empty.</p>';
+
+    } else if (co.step === 2) {
+      html =
+        '<div class="co-fields">' +
+          field("Email", "ship.email", co.ship.email, "email") +
+          field("Full name", "ship.name", co.ship.name, "text") +
+          field("Phone", "ship.phone", co.ship.phone, "tel") +
+          field("Address", "ship.addr", co.ship.addr, "text") +
+          '<div class="co-row">' + field("City", "ship.city", co.ship.city, "text") +
+          field("Postcode", "ship.zip", co.ship.zip, "text") + '</div>' +
+          '<label class="co-field"><span class="mono">Country</span>' +
+            '<select data-co="ship.country">' + Object.keys(COUNTRY_L).map(function (c) {
+              return '<option' + (co.ship.country === c ? " selected" : "") + '>' + c + '</option>';
+            }).join("") + '</select></label>' +
+        '</div>' +
+        '<p class="mono kicker" style="margin-top:2rem">Delivery</p>' +
+        '<div class="co-methods">' + Object.keys(SHIP_METHODS).map(function (k) {
+          var m = SHIP_METHODS[k];
+          return '<label class="co-method' + (co.shipMethod === k ? " is-on" : "") + '">' +
+            '<input type="radio" name="shipm" value="' + k + '"' + (co.shipMethod === k ? " checked" : "") + ' />' +
+            '<span><strong>' + m.name + '</strong><em>' + m.note + '</em></span>' +
+            '<b>' + (m.price ? money(m.price) : "Free") + '</b>' +
+          '</label>';
+        }).join("") + '</div>';
+
+    } else if (co.step === 3) {
+      html =
+        '<p class="co-warn mono">Demo checkout — do not enter real card details. Nothing is transmitted or stored.</p>' +
+        '<div class="co-fields">' +
+          field("Name on card", "pay.name", co.pay.name, "text") +
+          field("Card number", "pay.card", co.pay.card, "text", "4242 4242 4242 4242") +
+          '<div class="co-row">' + field("Expiry", "pay.exp", co.pay.exp, "text", "MM / YY") +
+          field("CVC", "pay.cvc", co.pay.cvc, "text", "123") + '</div>' +
+        '</div>';
+
+    } else if (co.step === 4) {
+      html =
+        '<div class="co-review">' +
+          '<div class="co-block"><p class="mono">Ship to</p>' +
+            '<p>' + (co.ship.name || "—") + '<br />' + (co.ship.addr || "—") + '<br />' +
+            (co.ship.city || "—") + " " + (co.ship.zip || "") + "<br />" +
+            (co.ship.country || "—") + "</p>" +
+            '<button class="link-btn mono" data-co-goto="2">Edit</button></div>' +
+          '<div class="co-block"><p class="mono">Delivery</p>' +
+            '<p>' + SHIP_METHODS[co.shipMethod].name + ' — ' + SHIP_METHODS[co.shipMethod].note + '</p>' +
+            '<button class="link-btn mono" data-co-goto="2">Edit</button></div>' +
+          '<div class="co-block"><p class="mono">Payment</p>' +
+            '<p>' + (co.pay.name || "—") + '<br />Card ending ' +
+            (co.pay.card ? co.pay.card.replace(/\s/g, "").slice(-4) : "••••") + '</p>' +
+            '<button class="link-btn mono" data-co-goto="3">Edit</button></div>' +
+        '</div>';
+    }
+
+    body.innerHTML = html;
+
+    document.getElementById("coSummary").innerHTML = summaryMarkup(t);
+    document.getElementById("coBack").hidden = co.step === 1;
+    document.getElementById("coNext").textContent = co.step === 4 ? "Place order" : "Continue";
+  }
+
+  function field(label, key, val, type, ph) {
+    return '<label class="co-field"><span class="mono">' + label + '</span>' +
+      '<input type="' + (type || "text") + '" data-co="' + key + '" value="' +
+      String(val || "").replace(/"/g, "&quot;") + '" placeholder="' + (ph || "") + '" /></label>';
+  }
+
+  function summaryMarkup(t) {
+    return state.cart.map(function (i) {
+      var p = byId(i.id); if (!p) return "";
+      return '<div class="co-sum-line"><span>' + p.name + ' · ' + i.size + ' ×' + i.qty + '</span>' +
+             '<b>' + money(p.price * i.qty) + '</b></div>';
+    }).join("") +
+    '<div class="co-sum-line"><span>Subtotal</span><b>' + money(t.sub) + '</b></div>' +
+    '<div class="co-sum-line"><span>Shipping</span><b>' + (t.ship ? money(t.ship) : "Free") + '</b></div>' +
+    '<div class="co-sum-line"><span>Tax (20%)</span><b>' + money(t.tax) + '</b></div>' +
+    '<div class="co-sum-line co-sum-total"><span>Total</span><b>' + money(t.total) + '</b></div>';
+  }
+
+  function coValidate() {
+    if (co.step === 2) {
+      var need = ["email", "name", "phone", "addr", "city", "zip", "country"];
+      for (var i = 0; i < need.length; i++) {
+        var k = need[i];
+        if (!String(co.ship[k] || "").trim()) {
+          toast("Missing detail", "Fill every shipping field to continue.");
+          return false;
+        }
+      }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(co.ship.email)) {
+        toast("Check the email", "That does not look like an email address.");
+        return false;
+      }
+    }
+    if (co.step === 3) {
+      var need2 = ["name", "card", "exp", "cvc"];
+      for (var j = 0; j < need2.length; j++) {
+        if (!String(co.pay[need2[j]] || "").trim()) {
+          toast("Missing detail", "Fill every payment field to continue.");
+          return false;
+        }
+      }
+      if (co.pay.card.replace(/\s/g, "").length < 12) {
+        toast("Check the card", "Card number looks too short.");
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function openCheckout() {
+    if (!state.cart.length) { toast("Bag empty", "Add something before checking out."); return; }
+    checkoutOpen = true;
+    co.step = 1;
+    renderCheckout();
+    openDrawer("checkout");
+    location.hash = "checkout";
+  }
+
+  function placeOrder() {
+    var t = orderTotals();
+    var ref = "BD-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+    document.getElementById("coBody").innerHTML =
+      '<div class="co-done">' +
+        '<p class="mono kicker">Order ' + ref + '</p>' +
+        '<h3 class="h-sec">Received.</h3>' +
+        '<p class="lead">Nothing was charged and no order exists — this is a concept storefront. ' +
+        'Had it been real, ' + (co.ship.name || "you") + ' would get a confirmation at ' +
+        (co.ship.email || "your address") + ' within a minute.</p>' +
+        '<p class="mono muted" style="margin-top:2rem">Total would have been ' + money(t.total) + '</p>' +
+        '<button class="btn btn-solid" data-co-close style="margin-top:2rem">Back to the shop</button>' +
+      '</div>';
+    document.getElementById("coSummary").innerHTML = "";
+    document.getElementById("coBack").hidden = true;
+    document.getElementById("coNext").hidden = true;
+    state.cart = [];
+    saveCart();
+    renderCart();
+  }
+
+  /* ============================================================
+     13 · HEADER, MENU, CURSOR, REVEALS
+     ============================================================ */
+
+  function initHeader() {
+    var bar = document.getElementById("header");
+    var last = 0;
+    window.addEventListener("scroll", function () {
+      var y = window.scrollY;
+      bar.classList.toggle("is-stuck", y > 40);
+      bar.classList.toggle("is-hidden", y > 400 && y > last);
+      last = y;
+    }, { passive: true });
+  }
+
+  function initMega() {
+    var trigger = document.querySelector("[data-mega]");
+    if (!trigger) return;
+    var wrap = trigger.closest(".has-mega");
+    var panel = wrap.querySelector(".mega");
+    var open = function () { panel.classList.add("is-open"); };
+    var close = function () { panel.classList.remove("is-open"); };
+    trigger.addEventListener("pointerenter", open);
+    wrap.addEventListener("pointerenter", open);
+    wrap.addEventListener("pointerleave", close);
+    trigger.addEventListener("focus", open);
+    panel.addEventListener("focusin", open);
+    panel.addEventListener("focusout", function (e) {
+      if (!wrap.contains(e.relatedTarget)) close();
+    });
+  }
+
+  function initCursor() {
+    if (!(window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches)) return;
+    var cur = document.getElementById("cursor");
+    if (!cur) return;
+    var x = innerWidth / 2, y = innerHeight / 2, cx = x, cy = y, live = false;
+    addEventListener("pointermove", function (e) {
+      x = e.clientX; y = e.clientY;
+      if (!live) { live = true; requestAnimationFrame(follow); }
+      cur.classList.add("on");
+    }, { passive: true });
+    document.addEventListener("pointerleave", function () { cur.classList.remove("on"); });
+    document.addEventListener("pointerover", function (e) {
+      var hot = e.target.closest && e.target.closest("a, button, .card, .tile, .size-btn, .card-media");
+      cur.classList.toggle("hot", !!hot);
+    });
+    function follow() {
+      cx += (x - cx) * 0.2; cy += (y - cy) * 0.2;
+      cur.style.transform = "translate(" + cx + "px," + cy + "px)";
+      if (Math.abs(x - cx) > 0.4 || Math.abs(y - cy) > 0.4) requestAnimationFrame(follow);
+      else live = false;
+    }
+  }
+
+  function initReveals() {
+    var els = document.querySelectorAll(".reveal");
+    if (!("IntersectionObserver" in window)) {
+      els.forEach(function (e) { e.classList.add("in"); });
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return;
+        en.target.classList.add("in");
+        io.unobserve(en.target);
+      });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.06 });
+    els.forEach(function (e) { io.observe(e); });
+  }
+
+  function routeFromHash() {
+    var h = location.hash.replace("#", "");
+    if (h.indexOf("product/") === 0) openProduct(h.split("/")[1]);
+    else if (h === "checkout") openCheckout();
+  }
+
+  /* ============================================================
+     14 · EVENTS
+     ============================================================ */
+
+  function initEvents() {
+
+    document.addEventListener("click", function (e) {
+
+      var prod = e.target.closest("[data-open-product]");
+      if (prod) { openProduct(prod.getAttribute("data-open-product")); return; }
+
+      var add = e.target.closest("[data-add]");
+      if (add) { openSizeSheet(add.getAttribute("data-add")); return; }
+
+      var size = e.target.closest("[data-size]");
+      if (size && pendingProduct) {
+        var pid = pendingProduct, sz = size.getAttribute("data-size");
+        pendingProduct = null;
+        closeDrawers(true);
+        addToCart(pid, sz, 1);
+        openDrawer("cart");
+        return;
+      }
+
+      var pvSize = e.target.closest("[data-pv-size]");
+      if (pvSize && pendingProduct) {
+        document.querySelectorAll("[data-pv-size]").forEach(function (b) {
+          b.classList.toggle("is-on", b === pvSize);
+        });
+        addToCart(pendingProduct, pvSize.getAttribute("data-pv-size"), pvQty());
+        closeDrawers(true);
+        openDrawer("cart");
+        return;
+      }
+
+      var pvAdd = e.target.closest("[data-pv-add]");
+      if (pvAdd && pendingProduct) {
+        var chosen = document.querySelector("[data-pv-size].is-on");
+        if (!chosen) { toast("Pick a size", "Select a size before adding to the bag."); return; }
+        addToCart(pendingProduct, chosen.getAttribute("data-pv-size"), pvQty());
+        closeDrawers(true);
+        openDrawer("cart");
+        return;
+      }
+
+      var inc = e.target.closest("[data-inc]");
+      if (inc) { setQty(+inc.getAttribute("data-inc"), 1); return; }
+      var dec = e.target.closest("[data-dec]");
+      if (dec) { setQty(+dec.getAttribute("data-dec"), -1); return; }
+      var rm = e.target.closest("[data-rm]");
+      if (rm) { removeLine(+rm.getAttribute("data-rm")); return; }
+
+      var coOpen = e.target.closest("[data-open-checkout]");
+      if (coOpen) { closeDrawers(true); openCheckout(); return; }
+
+      var open = e.target.closest("[data-open]");
+      if (open) { openDrawer(open.getAttribute("data-open")); return; }
+
+      var close = e.target.closest("[data-close]");
+      if (close) { checkoutOpen = false; closeDrawers(); return; }
+
+      if (e.target.closest("[data-co-close]")) {
+        checkoutOpen = false;
+        closeDrawers();
+        document.getElementById("coNext").hidden = false;
+        return;
+      }
+
+      var coGoto = e.target.closest("[data-co-goto]");
+      if (coGoto) { co.step = +coGoto.getAttribute("data-co-goto"); renderCheckout(); return; }
+
+      if (e.target.id === "scrim") { checkoutOpen = false; closeDrawers(); return; }
+
+      if (!e.target.closest(".drawer, .sheet, #scrim, .mega")) {
+        var mega = document.querySelector(".mega.is-open");
+        if (mega) mega.classList.remove("is-open");
+      }
+    });
+
+    // Product view quantity
+    document.addEventListener("click", function (e) {
+      if (e.target.closest("[data-pv-qty]")) {
+        var el = document.getElementById("pvQty");
+        var n = Math.max(1, Math.min(9, (pvQty() || 1) + (e.target.closest("[data-pv-qty]").getAttribute("data-pv-qty") === "+" ? 1 : -1)));
+        el.textContent = n;
+      }
+    });
+
+    // Checkout field binding. The data-co key is the full path
+    // ("ship.email" / "pay.card") so the object is unambiguous.
+    document.addEventListener("input", function (e) {
+      var k = e.target.getAttribute && e.target.getAttribute("data-co");
+      if (!k) return;
+      var grp = k.indexOf("pay.") === 0 ? co.pay : co.ship;
+      grp[k.split(".")[1]] = e.target.value;
+    });
+
+    document.addEventListener("change", function (e) {
+      var k = e.target.getAttribute && e.target.getAttribute("data-co");
+      if (k && k.indexOf("ship.") === 0) { co.ship[k.split(".")[1]] = e.target.value; return; }
+      if (k && k.indexOf("pay.") === 0) { co.pay[k.split(".")[1]] = e.target.value; return; }
+      if (e.target.name === "shipm") {
+        co.shipMethod = e.target.value;
+        renderCheckout();
+      }
+    });
+
+    document.addEventListener("click", function (e) {
+      if (e.target.id === "coNext") {
+        if (co.step === 4) { placeOrder(); return; }
+        if (!coValidate()) return;
+        co.step++;
+        renderCheckout();
+        return;
+      }
+      if (e.target.id === "coBack") { co.step = Math.max(1, co.step - 1); renderCheckout(); }
+    });
+
+    // Filters
+    document.addEventListener("click", function (e) {
+      var chip = e.target.closest("[data-filter]");
+      if (!chip) return;
+      state.filter = chip.getAttribute("data-filter");
+      document.querySelectorAll("#filters [data-filter]").forEach(function (c) {
+        c.classList.toggle("is-on", c === chip);
+      });
+      renderGrid();
+      renderSearch();
+    });
+
+    var sort = document.getElementById("sort");
+    if (sort) sort.addEventListener("change", function () { state.sort = sort.value; renderGrid(); });
+
+    var input = document.getElementById("searchInput");
+    if (input) input.addEventListener("input", function () {
+      state.query = input.value.trim();
+      renderSearch();
+      renderGrid();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") {
+        checkoutOpen = false;
+        closeDrawers();
+        var mega = document.querySelector(".mega.is-open");
+        if (mega) mega.classList.remove("is-open");
+      }
+    });
+
+    var news = document.getElementById("newsletter");
+    if (news) news.addEventListener("submit", function (e) {
+      e.preventDefault();
+      toast("Subscribed", "Drop alerts are on for this demo.");
+      news.reset();
+    });
+
+    window.addEventListener("hashchange", routeFromHash);
+  }
+
+  function pvQty() {
+    var el = document.getElementById("pvQty");
+    return el ? parseInt(el.textContent, 10) || 1 : 1;
+  }
+
+  /* ============================================================
+     15 · BOOT
+     ============================================================ */
+
+  function boot() {
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    document.querySelectorAll("[data-macro]").forEach(function (el, i) {
+      var v = window.BD_FLATS ? BD_FLATS.macro : "";
+      el.innerHTML = v.replace(/id="bd-/g, 'id="bd' + i + '-');
+    });
+
+    var chips = document.getElementById("filters");
+    if (chips) {
+      chips.innerHTML = Object.keys(CAT_LABEL).map(function (k) {
+        return '<button class="chip' + (k === "all" ? " is-on" : "") + '" data-filter="' + k + '">' +
+               CAT_LABEL[k] + '</button>';
+      }).join("");
+    }
+
+    // Mega menu category links
+    var megaCats = document.getElementById("megaCats");
+    if (megaCats) {
+      megaCats.innerHTML = Object.keys(CATS).map(function (k) {
+        return '<a href="#shop" data-filter="' + k + '">' + CATS[k] + '</a>';
+      }).join("");
+    }
+
+    renderGrid();
+    renderCart();
+    renderCartCount();
+    renderSearch();
+    renderCheckout();
+    initCountdown();
+    initHeader();
+    initMega();
+    initCursor();
+    initReveals();
+    initEvents();
+    routeFromHash();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+
+</script>
+<script>
+/* ===== optics.js (inlined) ===== */
+/* ============================================================
+   optics.js — Specimen 01, Optical Study.
+
+   A kaleidoscopic height field lit as a surface, with thin-film
+   interference colouring. The shader polar-folds the plane into N
+   mirrors, domain-warps it with fractal noise, reads a height field,
+   derives a normal from finite differences, then shades it: diffuse
+   + a tight specular + iridescence driven by "film thickness", which
+   is mapped from height the way real thin-film optics works.
+
+   The two sliders are real uniforms. The readouts are real values,
+   including a measured frame rate.
+
+   Respects prefers-reduced-motion. Falls back to a static message.
+   ============================================================ */
+
+(function () {
+  "use strict";
+
+  var canvas = document.getElementById("optics");
+  var fallback = document.getElementById("opticsFallback");
+  if (!canvas || !fallback) return;
+
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    canvas.remove();
+    fallback.hidden = false;
+    return;
+  }
+
+  var gl = null;
+  try {
+    gl = canvas.getContext("webgl", { antialias: false, alpha: false, depth: false });
+  } catch (e) { gl = null; }
+
+  if (!gl) { canvas.remove(); fallback.hidden = false; return; }
+
+  /* ---------------- Shaders ---------------- */
+
+  var VERT = [
+    "attribute vec2 a_pos;",
+    "void main() { gl_Position = vec4(a_pos, 0.0, 1.0); }"
+  ].join("\n");
+
+  var FRAG = [
+    "precision highp float;",
+    "uniform vec2  u_res;",
+    "uniform float u_time;",
+    "uniform vec2  u_mouse;",
+    "uniform float u_folds;",
+    "uniform float u_warp;",
+    "uniform float u_pulse;",
+    "uniform float u_scroll;",
+
+    "const float TAU = 6.28318530718;",
+
+    "mat2 rot(float a) { float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }",
+
+    "vec2 hash22(vec2 p) {",
+    "  p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));",
+    "  return -1.0 + 2.0 * fract(sin(p) * 43758.5453);",
+    "}",
+
+    "float gnoise(vec2 p) {",
+    "  vec2 i = floor(p);",
+    "  vec2 f = fract(p);",
+    "  vec2 u = f * f * (3.0 - 2.0 * f);",
+    "  return mix(mix(dot(hash22(i + vec2(0.0,0.0)), f - vec2(0.0,0.0)),",
+    "                 dot(hash22(i + vec2(1.0,0.0)), f - vec2(1.0,0.0)), u.x),",
+    "             mix(dot(hash22(i + vec2(0.0,1.0)), f - vec2(0.0,1.0)),",
+    "                 dot(hash22(i + vec2(1.0,1.0)), f - vec2(1.0,1.0)), u.x), u.y);",
+    "}",
+
+    "float fbm(vec2 p) {",
+    "  float v = 0.0, a = 0.5;",
+    "  mat2 R = mat2(0.80, 0.60, -0.60, 0.80);",
+    "  for (int i = 0; i < 4; i++) { v += a * gnoise(p); p = R * p * 2.02; a *= 0.5; }",
+    "  return v;",
+    "}",
+
+    // Polar mirror into N wedges — the kaleidoscope.
+    "vec2 kaleido(vec2 p, float folds) {",
+    "  float r = length(p);",
+    "  float a = atan(p.y, p.x);",
+    "  float seg = TAU / folds;",
+    "  a = mod(a, seg);",
+    "  a = abs(a - seg * 0.5);",
+    "  return vec2(cos(a), sin(a)) * r;",
+    "}",
+
+    // Height field. One level of domain warping keeps it cheap enough to
+    // sample three times for the normal.
+    "float field(vec2 p, float warp) {",
+    "  vec2 q = vec2(fbm(p + vec2(0.0, 1.7)), fbm(p + vec2(3.1, 0.4)));",
+    "  return fbm(p + warp * q);",
+    "}",
+
+    "void main() {",
+    "  vec2 uv = (gl_FragCoord.xy * 2.0 - u_res) / min(u_res.x, u_res.y);",
+    "  float t = u_time * 0.06;",
+
+    // Cursor as a lens that bends the plane toward it.
+    "  vec2 m = u_mouse * 2.0 - 1.0;",
+    "  m.x *= u_res.x / u_res.y;",
+    "  vec2 away = uv - m + 1e-5;",
+    "  float md = length(away);",
+    "  uv += normalize(away) * smoothstep(0.70, 0.0, md) * 0.10;",
+
+    "  vec2 p = uv;",
+    "  p *= rot(t * 0.5 + u_scroll * 3.14159);",
+    "  p = kaleido(p, u_folds);",
+    "  p *= 1.6 + u_scroll * 0.9;",
+
+    "  float h  = field(p, u_warp);",
+    "  float e  = 0.014;",
+    "  float hx = field(p + vec2(e, 0.0), u_warp);",
+    "  float hy = field(p + vec2(0.0, e), u_warp);",
+    "  vec3 n = normalize(vec3((h - hx) / e, (h - hy) / e, 1.4));",
+
+    "  vec3 V = vec3(0.0, 0.0, 1.0);",
+    "  vec3 L = normalize(vec3(-0.45, 0.70, 0.80));",
+    "  float diff = max(dot(n, L), 0.0);",
+    "  float spec = pow(max(dot(reflect(-L, n), V), 0.0), 46.0);",
+
+    // Thin-film interference: thickness varies with height, so the
+    // colour bands ride along the contours instead of sitting flat.
+    "  float thick = (h * 0.5 + 0.5) * 2.6 + 0.55;",
+    "  vec3 irid = 0.5 + 0.5 * cos(TAU * (thick * vec3(1.0, 0.86, 0.72)",
+    "                                    + vec3(0.00, 0.14, 0.31)));",
+
+    // Keep the iridescence inside the brand palette: mostly bone and
+    // warm metal, only the band edges pick up colour.
+    "  irid = mix(vec3(0.92, 0.89, 0.83), irid, 0.62);",
+
+    "  vec3 col = vec3(0.012, 0.012, 0.016);",
+    "  col += irid * diff * 0.46;",
+    "  col += vec3(1.0, 0.97, 0.92) * spec * 0.95;",
+    "  col += irid * pow(diff, 7.0) * 0.10;",
+
+    // Halo under the cursor, and a flash on click.
+    "  col += vec3(1.0, 0.95, 0.88) * exp(-md * 4.0) * 0.11;",
+    "  col += vec3(1.0, 0.98, 0.94) * u_pulse * exp(-md * 5.0) * 0.16;",
+
+    "  col *= 1.0 - 0.58 * smoothstep(0.55, 1.95, length(uv));",
+
+    "  col = 1.0 - exp(-col * 1.35);",
+    "  col = pow(col, vec3(0.90));",
+    "  gl_FragColor = vec4(col, 1.0);",
+    "}"
+  ].join("\n");
+
+  /* ---------------- Compile ---------------- */
+
+  function compile(type, src) {
+    var sh = gl.createShader(type);
+    gl.shaderSource(sh, src);
+    gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+      console.warn("[optics.js]", gl.getShaderInfoLog(sh));
+      gl.deleteShader(sh);
+      return null;
+    }
+    return sh;
+  }
+
+  var vs = compile(gl.VERTEX_SHADER, VERT);
+  var fs = compile(gl.FRAGMENT_SHADER, FRAG);
+  if (!vs || !fs) { canvas.remove(); fallback.hidden = false; return; }
+
+  var prog = gl.createProgram();
+  gl.attachShader(prog, vs);
+  gl.attachShader(prog, fs);
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
+    console.warn("[optics.js]", gl.getProgramInfoLog(prog));
+    canvas.remove(); fallback.hidden = false; return;
+  }
+  gl.useProgram(prog);
+
+  var buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  var aPos = gl.getAttribLocation(prog, "a_pos");
+  gl.enableVertexAttribArray(aPos);
+  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+  var uRes    = gl.getUniformLocation(prog, "u_res");
+  var uTime   = gl.getUniformLocation(prog, "u_time");
+  var uMouse  = gl.getUniformLocation(prog, "u_mouse");
+  var uFolds  = gl.getUniformLocation(prog, "u_folds");
+  var uWarp   = gl.getUniformLocation(prog, "u_warp");
+  var uPulse  = gl.getUniformLocation(prog, "u_pulse");
+  var uScroll = gl.getUniformLocation(prog, "u_scroll");
+
+  /* ---------------- State ---------------- */
+
+  var state = { folds: 8, warp: 2.6 };
+  var mouse = { x: 0.5, y: 0.5 };
+  var smooth = { x: 0.5, y: 0.5 };
+  var pulse = 0;
+  var scroll01 = 0;
+
+  window.addEventListener("pointermove", function (e) {
+    var r = canvas.getBoundingClientRect();
+    if (e.clientY < r.top || e.clientY > r.bottom) return;
+    mouse.x = (e.clientX - r.left) / r.width;
+    mouse.y = 1 - (e.clientY - r.top) / r.height;
+  }, { passive: true });
+
+  window.addEventListener("pointerdown", function (e) {
+    var r = canvas.getBoundingClientRect();
+    if (e.clientY >= r.top && e.clientY <= r.bottom) pulse = 1;
+  }, { passive: true });
+
+  window.addEventListener("scroll", function () {
+    var r = canvas.getBoundingClientRect();
+    // 0 when the top edge enters the viewport, 1 when the bottom does.
+    var span = window.innerHeight + r.height;
+    scroll01 = Math.max(0, Math.min(1, (window.innerHeight - r.top) / span));
+  }, { passive: true });
+
+  /* ---------------- Controls ---------------- */
+
+  var foldIn = document.getElementById("foldRange");
+  var warpIn = document.getElementById("warpRange");
+  var foldOut = document.getElementById("foldVal");
+  var warpOut = document.getElementById("warpVal");
+  var filmOut = document.getElementById("filmVal");
+  var fpsOut = document.getElementById("fpsVal");
+
+  if (foldIn) foldIn.addEventListener("input", function () {
+    state.folds = +foldIn.value;
+    if (foldOut) foldOut.textContent = state.folds.toFixed(0);
+  });
+  if (warpIn) warpIn.addEventListener("input", function () {
+    state.warp = +warpIn.value;
+    if (warpOut) warpOut.textContent = state.warp.toFixed(2);
+  });
+
+  /* ---------------- Resize ---------------- */
+
+  // Render well below native and let CSS scale up — it is a soft,
+  // organic surface, so the resolution loss reads as depth of field.
+  var SCALE = 0.62;
+
+  function resize() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 1.75);
+    var w = Math.max(1, Math.floor(canvas.clientWidth  * dpr * SCALE));
+    var h = Math.max(1, Math.floor(canvas.clientHeight * dpr * SCALE));
+    if (canvas.width === w && canvas.height === h) return;
+    canvas.width = w;
+    canvas.height = h;
+    gl.viewport(0, 0, w, h);
+  }
+
+  window.addEventListener("resize", resize, { passive: true });
+  resize();
+
+  /* ---------------- Loop ---------------- */
+
+  var t0 = performance.now();
+  var running = !document.hidden, onScreen = false, raf = 0;
+
+  // Rolling frame-rate estimate, refreshed twice a second.
+  var frames = 0, fpsMark = performance.now(), fps = 0;
+
+  function start() {
+    if (raf) return;
+    t0 = performance.now();
+    fpsMark = performance.now();
+    frames = 0;
+    raf = requestAnimationFrame(frame);
+  }
+
+  function stop() {
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+  }
+
+  /* Single decision point. Browsers throttle or suspend both
+     IntersectionObserver and rAF while a tab is in the background, so
+     a page opened in a background tab can end up with a permanently
+     dead canvas. Every signal re-checks here rather than each handler
+     assuming the other one fired. */
+  function sync() {
+    running = !document.hidden;
+    if (running && onScreen) start(); else stop();
+  }
+
+  document.addEventListener("visibilitychange", sync);
+  window.addEventListener("pageshow", sync);
+  window.addEventListener("focus", sync);
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        onScreen = en.isIntersecting;
+        sync();
+      });
+    }, { threshold: 0.01 }).observe(canvas);
+  } else {
+    onScreen = true;
+    sync();
+  }
+
+  // Belt and braces: if the observer has not spoken up shortly after
+  // load, check whether the canvas is actually on screen.
+  setTimeout(function () {
+    if (!onScreen) {
+      var b = canvas.getBoundingClientRect();
+      onScreen = b.top < window.innerHeight && b.bottom > 0;
+      sync();
+    }
+  }, 600);
+
+  function frame(now) {
+    raf = 0;
+    if (!running || !onScreen) return;
+
+    var t = (now - t0) / 1000;
+
+    smooth.x += (mouse.x - smooth.x) * 0.06;
+    smooth.y += (mouse.y - smooth.y) * 0.06;
+    pulse *= 0.955;
+
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.uniform1f(uTime, t);
+    gl.uniform2f(uMouse, smooth.x, smooth.y);
+    gl.uniform1f(uFolds, state.folds);
+    gl.uniform1f(uWarp, state.warp);
+    gl.uniform1f(uPulse, pulse);
+    gl.uniform1f(uScroll, scroll01);
+
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    // Real FPS, sampled and displayed rather than invented.
+    frames++;
+    if (now - fpsMark >= 500) {
+      fps = Math.round((frames * 1000) / (now - fpsMark));
+      frames = 0;
+      fpsMark = now;
+      if (fpsOut) fpsOut.textContent = fps;
+
+      // Film thickness in nm — derived from the same value the shader
+      // uses, so the number means something.
+      if (filmOut) {
+        var thick = (((Math.sin(t * 0.6) * 0.5) + 0.5) * 2.6 + 0.55) * 420;
+        filmOut.textContent = Math.round(thick);
+      }
+    }
+  }
+
+  if (foldOut) foldOut.textContent = state.folds.toFixed(0);
+  if (warpOut) warpOut.textContent = state.warp.toFixed(2);
+
+  fallback.hidden = true;
+  raf = requestAnimationFrame(frame);
+})();
+
+</script>
+<script type="module">
+/* ===== lookbook3d.js (inlined) ===== */
+/* ============================================================
+   lookbook3d.js — the figure.
+
+   A stylised, faceless mannequin wearing the Drop 004 silhouette.
+
+   The earlier version stacked CylinderGeometry primitives, which is
+   why it read as a robot: every limb was a hard tube with a visible
+   seam where two tubes met. This rebuild uses LatheGeometry — a
+   hand-authored profile spun around the vertical axis — so each form
+   is a single continuous surface of revolution with smooth normals
+   and no joints. That is how display mannequins are actually
+   modelled, and it is the difference between "robot" and "atelier".
+
+   Proportions are 8.5 heads, the fashion-illustration canon.
+   Cloth carries a generated woven bump map so the light breaks up
+   across the surface instead of sliding over it.
+
+   A photoreal human is not achievable from code — that needs a
+   sculpted or scanned .glb. Drop one in and use the notes at the
+   bottom of this file.
+
+   Degrades to a plain message if WebGL or the module cannot load.
+   ============================================================ */
+
+import * as THREE from "three";
+
+const host = document.getElementById("stage");
+const fallback = document.getElementById("stageFallback");
+
+if (host && fallback) {
+
+const reduce = window.matchMedia &&
+               window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+} catch (e) { renderer = null; }
+
+if (!renderer) {
+  fallback.hidden = false;
+} else {
+  try { start(); } catch (e) { console.warn("[lookbook3d]", e); fallback.hidden = false; }
+}
+
+function start() {
+
+  /* ---------------- Renderer / scene / camera ---------------- */
+
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.35;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  host.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+
+  const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+  camera.position.set(0, 5.0, 17.6);
+  camera.lookAt(0, 4.9, 0);
+
+  /* ---------------- Lighting ----------------
+     Studio three-point. The rim behind is what makes it read as a
+     fashion photograph rather than a 3D preview. */
+
+  const key = new THREE.DirectionalLight(0xf5efe4, 2.6);
+  key.position.set(4.2, 9.5, 6);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.camera.near = 1;
+  key.shadow.camera.far = 32;
+  key.shadow.camera.left = -7;
+  key.shadow.camera.right = 7;
+  key.shadow.camera.top = 13;
+  key.shadow.camera.bottom = -2;
+  key.shadow.bias = -0.0015;
+  key.shadow.radius = 2;
+  scene.add(key);
+
+  const rim = new THREE.DirectionalLight(0xd6e2ff, 3.8);
+  rim.position.set(-6.5, 6.5, -7);
+  scene.add(rim);
+
+  const rim2 = new THREE.DirectionalLight(0xe0d6c2, 1.7);
+  rim2.position.set(7, 4.5, -5);
+  scene.add(rim2);
+
+  const fill = new THREE.DirectionalLight(0x8a8a9c, 0.55);
+  fill.position.set(-3, 2, 7);
+  scene.add(fill);
+
+  scene.add(new THREE.HemisphereLight(0x3c3c4e, 0x08080a, 0.9));
+
+  /* ---------------- Woven bump map ----------------
+     Generated rather than downloaded: a plain weave with a little
+     irregularity, used as a bumpMap so raking light catches the
+     texture instead of sliding off a perfectly smooth shell. */
+
+  function weaveTexture() {
+    const size = 256;
+    const c = document.createElement("canvas");
+    c.width = c.height = size;
+    const g = c.getContext("2d");
+
+    g.fillStyle = "#808080";
+    g.fillRect(0, 0, size, size);
+
+    // over-under weave: alternating warp and weft bands
+    const pitch = 8;
+    for (let y = 0; y < size; y += pitch) {
+      for (let x = 0; x < size; x += pitch) {
+        const even = ((x / pitch) + (y / pitch)) % 2 === 0;
+        g.fillStyle = even ? "#9a9a9a" : "#666666";
+        g.fillRect(x, y, pitch - 1, pitch - 1);
+        // thread highlight along the top edge of each cell
+        g.fillStyle = even ? "#b4b4b4" : "#7a7a7a";
+        g.fillRect(x, y, pitch - 1, 2);
+      }
+    }
+
+    // fine irregularity so it does not look like a checkerboard
+    const img = g.getImageData(0, 0, size, size);
+    const d = img.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const n = (Math.random() - 0.5) * 26;
+      d[i] = Math.max(0, Math.min(255, d[i] + n));
+      d[i + 1] = d[i]; d[i + 2] = d[i];
+    }
+    g.putImageData(img, 0, 0);
+
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+    tex.repeat.set(9, 9);
+    return tex;
+  }
+
+  const weave = weaveTexture();
+
+  /* ---------------- Materials ---------------- */
+
+  const cloth = new THREE.MeshStandardMaterial({
+    color: 0x27272f, roughness: 0.92, metalness: 0.0,
+    bumpMap: weave, bumpScale: 0.022
+  });
+  const clothDeep = new THREE.MeshStandardMaterial({
+    color: 0x17171d, roughness: 0.95, metalness: 0.0,
+    bumpMap: weave, bumpScale: 0.03
+  });
+  const knitMat = new THREE.MeshStandardMaterial({
+    color: 0x2c2c34, roughness: 0.97, metalness: 0.0,
+    bumpMap: weave, bumpScale: 0.05
+  });
+  const skin = new THREE.MeshStandardMaterial({
+    color: 0x4a4a55, roughness: 0.62, metalness: 0.04
+  });
+  const shoeMat = new THREE.MeshStandardMaterial({
+    color: 0x1c1c22, roughness: 0.58, metalness: 0.18
+  });
+  const trim = new THREE.MeshStandardMaterial({
+    color: 0x9e9a92, roughness: 0.42, metalness: 0.45
+  });
+
+  /* ---------------- Geometry helpers ---------------- */
+
+  /* Spin a profile around Y. profile = [[radius, y], ...] top to
+     bottom. Starting and ending at radius 0 closes the solid, so
+     there is no open seam and normals stay continuous. */
+  function lathe(profile, material, seg) {
+    const pts = profile.map(function (p) { return new THREE.Vector2(p[0], p[1]); });
+    const g = new THREE.LatheGeometry(pts, seg || 64);
+    g.computeVertexNormals();
+    const m = new THREE.Mesh(g, material);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    return m;
+  }
+
+  /* ---------------- The figure ----------------
+     8.5 heads tall. Total 10 units: head 9.0–10.0, shoulder 8.75,
+     chest 8.05, waist 7.15, hip 6.2, knee 3.6, ankle 0.8. */
+
+  const figure = new THREE.Group();
+
+  // Torso: one continuous shell, shoulders to hem. Slight forward
+  // flattening (scale.z) keeps it from reading as a barrel.
+  const torso = lathe([
+    [0.00, 8.98], [0.28, 8.94], [0.58, 8.86], [0.80, 8.74],
+    [0.94, 8.55], [1.00, 8.25], [1.03, 7.85], [1.02, 7.45],
+    [1.03, 7.10], [1.08, 6.72], [1.14, 6.35], [1.17, 6.05],
+    [1.16, 5.86], [1.08, 5.78], [0.60, 5.76], [0.00, 5.76]
+  ], cloth, 72);
+  torso.scale.z = 0.74;
+  figure.add(torso);
+
+  // Neck
+  figure.add(lathe([
+    [0.00, 9.30], [0.19, 9.22], [0.21, 8.95], [0.25, 8.80],
+    [0.40, 8.70], [0.00, 8.70]
+  ], skin, 40));
+
+  // Head: a lathe egg, slightly narrower than deep. Faceless on
+  // purpose — a mannequin, not a person.
+  const head = lathe([
+    [0.00, 10.00], [0.20, 9.96], [0.34, 9.84], [0.44, 9.62],
+    [0.48, 9.36], [0.47, 9.12], [0.40, 8.96], [0.26, 8.88],
+    [0.00, 8.86]
+  ], skin, 56);
+  head.scale.set(0.90, 1.0, 0.94);
+  head.position.set(0, 0.02, 0.04);
+  figure.add(head);
+
+  // Hood: bunched behind the neck, big enough to read from any angle.
+  const hood = new THREE.Mesh(new THREE.SphereGeometry(0.62, 48, 32), clothDeep);
+  hood.scale.set(1.34, 0.78, 0.86);
+  hood.position.set(0, 8.86, -0.34);
+  hood.castShadow = true;
+  figure.add(hood);
+
+  const hoodRim = new THREE.Mesh(new THREE.TorusGeometry(0.44, 0.055, 12, 48), cloth);
+  hoodRim.rotation.x = Math.PI / 2.35;
+  hoodRim.position.set(0, 8.72, -0.18);
+  hoodRim.scale.set(1.1, 1.0, 1.0);
+  hoodRim.castShadow = true;
+  figure.add(hoodRim);
+
+  // Sleeves: single tapered forms, angled out and very slightly
+  // forward. No separate cuff cylinder — the taper carries it.
+  [-1, 1].forEach(function (s) {
+    const arm = lathe([
+      [0.00, 0.00], [0.30, 0.03], [0.40, 0.20], [0.45, 0.70],
+      [0.46, 1.50], [0.43, 2.30], [0.38, 2.95], [0.34, 3.20],
+      [0.00, 3.22]
+    ], cloth, 44);
+    arm.scale.z = 0.88;
+    arm.position.set(s * 0.92, 8.60, 0.02);
+    arm.rotation.z = s * 0.135;
+    arm.rotation.x = -0.075;
+    figure.add(arm);
+
+    // Ribbed cuff, a short band at the sleeve end
+    const cuff = lathe([
+      [0.00, 0.00], [0.33, 0.01], [0.36, 0.10], [0.35, 0.26],
+      [0.32, 0.28], [0.00, 0.28]
+    ], clothDeep, 36);
+    cuff.scale.z = 0.88;
+    cuff.position.set(s * 1.20, 5.42, 0.14);
+    cuff.rotation.z = s * 0.135;
+    figure.add(cuff);
+  });
+
+  // Kangaroo pocket, shallow so it reads as a seam not a box
+  const pocket = lathe([
+    [0.00, 0.00], [0.62, 0.02], [0.70, 0.22], [0.66, 0.34],
+    [0.00, 0.34]
+  ], clothDeep, 44);
+  pocket.scale.set(1.0, 1.0, 0.34);
+  pocket.position.set(0, 6.02, 0.60);
+  figure.add(pocket);
+
+  // Hips into legs: one wide form, then two legs that overlap at
+  // the thigh and separate at the ankle, so it reads as a body.
+  const hips = lathe([
+    [0.00, 5.90], [0.62, 5.86], [0.86, 5.66], [0.94, 5.30],
+    [0.92, 4.95], [0.70, 4.80], [0.00, 4.78]
+  ], cloth, 64);
+  hips.scale.z = 0.80;
+  figure.add(hips);
+
+  [-1, 1].forEach(function (s) {
+    const leg = lathe([
+      [0.00, 0.00], [0.42, 0.03], [0.46, 0.35], [0.54, 1.10],
+      [0.62, 1.95], [0.68, 2.70], [0.71, 3.30], [0.72, 3.75],
+      [0.60, 3.92], [0.00, 3.96]
+    ], cloth, 52);
+    leg.scale.z = 0.88;
+    leg.position.set(s * 0.44, 1.30, 0);
+    figure.add(leg);
+
+    // Stacked hem at the ankle
+    const hem = lathe([
+      [0.00, 0.00], [0.46, 0.01], [0.50, 0.14], [0.49, 0.32],
+      [0.44, 0.34], [0.00, 0.34]
+    ], clothDeep, 40);
+    hem.scale.z = 0.88;
+    hem.position.set(s * 0.44, 0.98, 0);
+    figure.add(hem);
+
+    // Cargo pocket on the outer thigh
+    const cp = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.66, 0.50), clothDeep);
+    cp.position.set(s * 0.98, 3.10, 0);
+    cp.castShadow = true;
+    figure.add(cp);
+
+    // Boot: a rounded wedge, dark on purpose
+    const boot = lathe([
+      [0.00, 0.00], [0.40, 0.01], [0.46, 0.14], [0.46, 0.34],
+      [0.42, 0.46], [0.30, 0.52], [0.00, 0.54]
+    ], shoeMat, 40);
+    boot.scale.set(1.0, 1.0, 1.55);
+    boot.position.set(s * 0.44, 0.52, 0.16);
+    figure.add(boot);
+
+    const sole = new THREE.Mesh(new THREE.BoxGeometry(0.84, 0.13, 1.34), trim);
+    sole.position.set(s * 0.44, 0.065, 0.18);
+    sole.castShadow = true;
+    sole.receiveShadow = true;
+    figure.add(sole);
+  });
+
+  // Drawcords
+  [-1, 1].forEach(function (s) {
+    const cord = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.78, 8), trim);
+    cord.position.set(s * 0.17, 8.40, 0.52);
+    cord.rotation.z = s * 0.06;
+    figure.add(cord);
+  });
+
+  /* Contrapposto: shift the shoulder line and the hip line in
+     opposite directions. A perfectly symmetric figure reads as a
+     mannequin prop; a slight offset reads as a body. */
+  const upper = new THREE.Group();
+  figure.children.slice().forEach(function (m) { if (m.position.y > 5.7) upper.add(m); });
+  upper.rotation.z = -0.035;
+  figure.add(upper);
+
+  figure.position.x = 0.02;
+  scene.add(figure);
+
+  /* ---------------- Plinth ---------------- */
+
+  const plinth = new THREE.Mesh(
+    new THREE.CylinderGeometry(2.7, 2.82, 0.18, 72),
+    new THREE.MeshStandardMaterial({ color: 0x0b0b0e, roughness: 0.42, metalness: 0.4 })
+  );
+  plinth.position.y = 0.09;
+  plinth.receiveShadow = true;
+  scene.add(plinth);
+
+  const ring = new THREE.Mesh(
+    new THREE.TorusGeometry(2.7, 0.011, 8, 140),
+    new THREE.MeshBasicMaterial({ color: 0x5a5a64 })
+  );
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = 0.185;
+  scene.add(ring);
+
+  const shadowTex = (function () {
+    const c = document.createElement("canvas");
+    c.width = c.height = 256;
+    const g = c.getContext("2d");
+    const rad = g.createRadialGradient(128, 128, 0, 128, 128, 128);
+    rad.addColorStop(0, "rgba(0,0,0,0.78)");
+    rad.addColorStop(0.55, "rgba(0,0,0,0.30)");
+    rad.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = rad;
+    g.fillRect(0, 0, 256, 256);
+    return new THREE.CanvasTexture(c);
+  })();
+  const blob = new THREE.Mesh(
+    new THREE.PlaneGeometry(4.6, 4.6),
+    new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false })
+  );
+  blob.rotation.x = -Math.PI / 2;
+  blob.position.y = 0.19;
+  scene.add(blob);
+
+  fallback.hidden = true;
+  resize();
+
+  /* ---------------- Interaction ---------------- */
+
+  let rotY = 0, rotX = 0, targetY = 0, targetX = 0, vel = 0;
+  let dragging = false, lastX = 0, lastY = 0, idleTimer = 0;
+
+  const el = renderer.domElement;
+  el.style.cursor = "grab";
+  el.style.touchAction = "pan-y";
+
+  el.addEventListener("pointerdown", function (e) {
+    dragging = true; lastX = e.clientX; lastY = e.clientY; vel = 0;
+    el.style.cursor = "grabbing";
+    try { el.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+  });
+
+  el.addEventListener("pointermove", function (e) {
+    if (!dragging) return;
+    const dx = e.clientX - lastX, dy = e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+    targetY += dx * 0.011;
+    targetX = THREE.MathUtils.clamp(targetX + dy * 0.004, -0.26, 0.26);
+    vel = dx * 0.011;
+    idleTimer = 0;
+  });
+
+  function endDrag(e) {
+    if (!dragging) return;
+    dragging = false;
+    el.style.cursor = "grab";
+    if (e && e.pointerId !== undefined) {
+      try { el.releasePointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+    }
+  }
+  el.addEventListener("pointerup", endDrag);
+  el.addEventListener("pointercancel", endDrag);
+  el.addEventListener("pointerleave", endDrag);
+
+  /* ---------------- Loop ---------------- */
+
+  const clock = new THREE.Clock();
+
+  function frame() {
+    raf = requestAnimationFrame(frame);
+    if (!running || !visible) return;
+
+    const dt = Math.min(clock.getDelta(), 0.05);
+    idleTimer += dt;
+
+    if (dragging) {
+      rotY += (targetY - rotY) * 0.25;
+    } else {
+      targetY += vel;
+      vel *= 0.94;
+      rotY += (targetY - rotY) * 0.16;
+      if (!reduce && idleTimer > 1.8) targetY += 0.0026;
+    }
+
+    targetX += (0 - targetX) * 0.04;
+    rotY += (targetY - rotY) * 0.35;
+    rotX += (targetX - rotX) * 0.08;
+
+    figure.rotation.y = rotY;
+    figure.rotation.x = rotX;
+
+    // Barely-there breathing so it is not frozen
+    if (!reduce) {
+      const b = Math.sin(clock.elapsedTime * 0.8) * 0.008;
+      figure.position.y = b;
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  /* ---------------- Resize ---------------- */
+
+  function resize() {
+    const w = host.clientWidth, h = host.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.position.z = w < 700 ? 20.5 : 17.6;
+    camera.position.y = w < 700 ? 5.2 : 5.0;
+    camera.lookAt(0, 4.9, 0);
+    camera.updateProjectionMatrix();
+  }
+
+  window.addEventListener("resize", resize, { passive: true });
+
+  /* ---------------- Lifecycle ----------------
+     One sync() re-checked by every signal. Browsers suspend rAF and
+     IntersectionObserver in background tabs, so per-handler logic
+     leaves the canvas frozen when a page is opened in a new tab. */
+
+  let raf = 0, running = !document.hidden, visible = false;
+
+  function startLoop() {
+    if (raf) return;
+    clock.getDelta();
+    raf = requestAnimationFrame(frame);
+  }
+  function stopLoop() {
+    if (raf) cancelAnimationFrame(raf);
+    raf = 0;
+  }
+  function sync() {
+    running = !document.hidden;
+    if (running && visible) startLoop(); else stopLoop();
+  }
+
+  document.addEventListener("visibilitychange", sync);
+  window.addEventListener("pageshow", sync);
+  window.addEventListener("focus", sync);
+
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        visible = en.isIntersecting;
+        sync();
+      });
+    }, { threshold: 0.01 }).observe(host);
+  } else {
+    visible = true;
+    sync();
+  }
+
+  setTimeout(function () {
+    if (!visible) {
+      var b = host.getBoundingClientRect();
+      visible = b.top < window.innerHeight && b.bottom > 0;
+      sync();
+    }
+  }, 600);
+
+  window.__bd3d = { scene, camera, renderer, figure, THREE };
+}
+
+/* ------------------------------------------------------------
+   Optional upgrade path — a sculpted or scanned .glb.
+
+   Drop a model next to index.html as "figure.glb" and it replaces
+   the procedural figure. GLTFLoader lives in the three examples
+   bundle, so it needs one more import:
+
+     import { GLTFLoader } from
+       "https://unpkg.com/three@0.160.0/examples/jsm/loaders/GLTFLoader.js";
+
+   Then, inside start(), instead of the procedural build:
+
+     new GLTFLoader().load("figure.glb", function (gltf) {
+       const m = gltf.scene;
+       m.traverse(function (o) {
+         if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; }
+       });
+       // scale so the model stands ~10 units tall to match the
+       // plinth and the camera framing, then drop it in
+       m.scale.setScalar(10 / modelHeight(m));
+       figure.add(m);
+       scene.add(figure);
+     });
+
+   The loader import is left out so the page ships without loading
+   something it never uses.
+   ------------------------------------------------------------ */
+
+}
+
+</script>
+</body>
+</html>
