@@ -448,6 +448,12 @@
     if (empty) empty.hidden = list.length > 0;
     var count = document.getElementById("resultCount");
     if (count) count.textContent = list.length + (list.length === 1 ? " piece" : " pieces");
+    /* Fresh cards carry .reveal, which sits at opacity 0 until the scroll
+       observer reveals them. Without this call the observer still holds
+       references to the cards that were just replaced, so filtering to
+       Bags leaves five cards present and full height but at opacity 0 --
+       invisible, and taking their Add buttons with them. */
+    initReveals();
   }
 
   /* ============================================================
@@ -612,8 +618,13 @@
     document.body.classList.remove("no-scroll");
     var sc = document.getElementById("scrim");
     if (sc) sc.classList.remove("is-on");
-    if (!keepHash && location.hash.indexOf("product/") === 0) {
-      history.replaceState(null, "", location.pathname);
+    /* location.hash carries its own leading "#", so indexOf("product/")
+       returns 1 and the === 0 test below could never pass -- closing a
+       product left the URL on #product/<id>, so a refresh or a shared link
+       reopened the overlay. Compare against the stripped hash instead. */
+    var h = location.hash.replace("#", "");
+    if (!keepHash && (h.indexOf("product/") === 0 || h === "checkout")) {
+      history.replaceState(null, "", location.pathname + location.search);
     }
   }
 
@@ -946,26 +957,72 @@
     }
   }
 
+  /* One observer for the life of the page, re-armed each time new .reveal
+     elements are created. Creating a fresh observer per call leaked one
+     per render and left the old ones watching detached nodes. */
+  var revealObserver = null;
+
   function initReveals() {
-    var els = document.querySelectorAll(".reveal");
+    var els = document.querySelectorAll(".reveal:not(.in)");
+    if (!els.length) return;
+
     if (!("IntersectionObserver" in window)) {
       els.forEach(function (e) { e.classList.add("in"); });
       return;
     }
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (!en.isIntersecting) return;
-        en.target.classList.add("in");
-        io.unobserve(en.target);
-      });
-    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.06 });
-    els.forEach(function (e) { io.observe(e); });
+
+    if (!revealObserver) {
+      revealObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (!en.isIntersecting) return;
+          en.target.classList.add("in");
+          revealObserver.unobserve(en.target);
+        });
+      }, { rootMargin: "0px 0px -8% 0px", threshold: 0.06 });
+    }
+
+    els.forEach(function (e) {
+      /* Anything already on screen is revealed now rather than waiting for
+         a scroll that may never happen -- which is exactly the case after a
+         filter change, when the grid re-renders above the fold. */
+      var r = e.getBoundingClientRect();
+      var onScreen = r.top < window.innerHeight * 0.94 && r.bottom > 0;
+      if (onScreen) {
+        e.classList.add("in");
+      } else {
+        revealObserver.observe(e);
+      }
+    });
+  }
+
+  /* Section links. The browser's own scroll-to-fragment never fires on this
+     page: scroll-behavior: smooth on <html> swallows it, so Shop, Materials,
+     Lookbook and Stockists all changed the hash and left the viewport exactly
+     where it was -- #shop sits 2470px down and a click on it did nothing
+     visible. Driving the scroll by hand also lets the target clear the
+     sticky header, which the browser never accounted for. */
+  function scrollToId(id, smooth) {
+    var el = document.getElementById(id);
+    if (!el) return false;
+    var hdr = document.getElementById("header");
+    var pad = hdr ? hdr.getBoundingClientRect().height + 10 : 10;
+    var top = el.getBoundingClientRect().top + window.scrollY - pad;
+    window.scrollTo({
+      top: top > 0 ? top : 0,
+      behavior: smooth === false ? "auto" : "smooth"
+    });
+    return true;
   }
 
   function routeFromHash() {
     var h = location.hash.replace("#", "");
-    if (h.indexOf("product/") === 0) openProduct(h.split("/")[1]);
-    else if (h === "checkout") openCheckout();
+    if (h.indexOf("product/") === 0) { openProduct(h.split("/")[1]); return; }
+    if (h === "checkout") { openCheckout(); return; }
+    /* An empty hash means no overlay owns the screen -- it is what Back
+       arrives at after leaving a product. Ignoring it left the product open
+       over a URL that no longer described it, with no way to dismiss it. */
+    if (h === "") { checkoutOpen = false; closeDrawers(true); return; }
+    scrollToId(h);
   }
 
   /* ============================================================
@@ -1178,6 +1235,17 @@
     initReveals();
     initEvents();
     routeFromHash();
+
+    /* A deep link resolves before the images and webfonts below it have
+       settled, so the offset measured during boot is short by however much
+       the document grows afterwards and the target ends up off screen.
+       Re-measure once the page has genuinely finished loading. */
+    var deep = location.hash.replace("#", "");
+    if (deep && deep.indexOf("product/") !== 0 && deep !== "checkout") {
+      var reScroll = function () { scrollToId(deep, false); };
+      if (document.readyState === "complete") setTimeout(reScroll, 60);
+      else window.addEventListener("load", function () { setTimeout(reScroll, 60); });
+    }
   }
 
   if (document.readyState === "loading") {
