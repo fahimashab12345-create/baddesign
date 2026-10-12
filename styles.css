@@ -1,5 +1,5 @@
 ﻿/* ============================================================
-   BAD DESIGN â€” storefront styles
+   BAD DESIGN — storefront styles
 
    Palette is deliberately near-monochrome: void black, bone, and a
    single warm accent. Type is Clash Display for the voice, Satoshi
@@ -15,13 +15,13 @@
   --void-3:    #141418;
   --void-4:    #1c1c21;
 
-  --line:      rgba(233, 229, 219, 0.13);
-  --line-2:    rgba(233, 229, 219, 0.07);
+  --line:      rgba(233, 229, 219, 0.16);
+  --line-2:    rgba(233, 229, 219, 0.11);   /* was 0.07 — panels had no visible edge */
 
-  --bone:      #e9e5db;
-  --bone-dim:  #b3b0a8;
-  --muted:     #85827c;   /* lifted from #6d6b67 â€” the old value failed contrast on void */
-  --accent:    #d6cebe;
+  --bone:      #f2efe7;   /* 18:1 on void */
+  --bone-dim:  #cdc9bf;   /* 12:1 on void */
+  --muted:     #a8a49b;   /* 7.8:1 on void - passes AA for body text */
+  --accent:    #e0d8c6;
 
   --flat-fill:   #0a0a0c;
   --flat-stroke: rgba(233, 229, 219, 0.66);
@@ -38,19 +38,24 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* The void colour lives on <html>, not <body>. That lets the grain and
+   vignette sit at negative z-index — above the page background but BELOW
+   all content. Previously they were pinned at z-index 900/899, spraying
+   noise across every glyph on the site. */
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  background: var(--void);
 }
 
 body {
   margin: 0;
-  background: var(--void);
+  background: transparent;
   color: var(--bone);
   font-family: var(--sans);
   font-size: 17px;
   line-height: 1.65;
-  font-weight: 300;
+  font-weight: 400;   /* was 300 — a light weight is too thin on near-black */
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
@@ -109,19 +114,21 @@ button, input, select { font: inherit; color: inherit; }
 
 /* ---------------- Atmosphere ---------------- */
 
+/* Atmosphere now renders BEHIND the content (see the html/body note
+   above). It can be as strong as it likes without touching legibility. */
+.vignette {
+  position: fixed; inset: 0;
+  pointer-events: none;
+  z-index: -2;
+  background: radial-gradient(130% 95% at 50% 40%, transparent 38%, rgba(0,0,0,.6) 100%);
+}
+
 #grain {
   position: fixed; inset: 0;
   width: 100%; height: 100%;
   pointer-events: none;
-  z-index: 900;
-  opacity: .9;
-}
-
-.vignette {
-  position: fixed; inset: 0;
-  pointer-events: none;
-  z-index: 899;
-  background: radial-gradient(130% 95% at 50% 40%, transparent 40%, rgba(0,0,0,.55) 100%);
+  z-index: -1;
+  opacity: .75;
 }
 
 .cursor {
@@ -133,7 +140,8 @@ button, input, select { font: inherit; color: inherit; }
   pointer-events: none;
   z-index: 950;
   opacity: 0;
-  mix-blend-mode: difference;
+  /* No mix-blend-mode. "difference" inverted every colour the ring passed
+     over, which is exactly the kind of overlay that wrecks a layout. */
   transition: width .28s var(--ease), height .28s var(--ease),
               margin .28s var(--ease), opacity .3s, background .28s;
 }
@@ -232,7 +240,7 @@ button, input, select { font: inherit; color: inherit; }
   position: relative;
   background: none; border: 0; padding: .3rem 0; cursor: pointer;
   font-family: var(--mono);
-  font-size: .68rem;
+  font-size: .72rem;
   letter-spacing: .17em;
   text-transform: uppercase;
   color: var(--bone-dim);
@@ -268,7 +276,7 @@ button, input, select { font: inherit; color: inherit; }
   padding: 0 4px;
   border-radius: 999px;
   background: var(--bone); color: var(--void);
-  font-size: .64rem; letter-spacing: 0;
+  font-size: .72rem; letter-spacing: 0;
   font-weight: 700;
   opacity: 0; transform: scale(.5);
   transition: opacity .25s, transform .25s var(--ease);
@@ -312,7 +320,7 @@ button, input, select { font: inherit; color: inherit; }
   font-family: var(--sans); font-size: 1.3rem; font-weight: 600;
   margin: .3rem 0 .6rem;
 }
-.mega-feature a { font-family: var(--mono); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; }
+.mega-feature a { font-family: var(--mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; }
 .mega-feature a:hover { color: var(--accent); }
 
 /* ---------------- Hero ---------------- */
@@ -354,7 +362,7 @@ button, input, select { font: inherit; color: inherit; }
 }
 .hero-title .line { display: block; }
 
-/* "DESIGN" rendered as outline type â€” the classic streetwear move */
+/* "DESIGN" rendered as outline type — the classic streetwear move */
 .line-2 {
   color: transparent;
   -webkit-text-stroke: 2px var(--bone);
@@ -394,7 +402,7 @@ button, input, select { font: inherit; color: inherit; }
   line-height: 1; font-variant-numeric: tabular-nums;
   letter-spacing: -.01em;
 }
-.countdown span { display: block; margin-top: .35rem; font-family: var(--mono); font-size: .66rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.countdown span { display: block; margin-top: .35rem; font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 
 /* Vertical rail on the left edge so it never collides with the hero CTA */
 .scroll-cue {
@@ -497,7 +505,7 @@ button, input, select { font: inherit; color: inherit; }
 .tile-body > p:not(.mono) { color: var(--bone-dim); max-width: 42ch; margin: 0 0 1.2rem; font-size: .95rem; }
 .tile-cta {
   display: inline-block;
-  font-family: var(--mono); font-size: .68rem;
+  font-family: var(--mono); font-size: .72rem;
   letter-spacing: .16em; text-transform: uppercase;
   padding-bottom: .3rem;
   border-bottom: 1px solid var(--line);
@@ -585,7 +593,7 @@ button, input, select { font: inherit; color: inherit; }
   position: absolute; top: .8rem; left: .8rem; z-index: 2;
   padding: .3rem .65rem;
   background: var(--bone); color: var(--void);
-  font-family: var(--mono); font-size: .64rem;
+  font-family: var(--mono); font-size: .72rem;
   letter-spacing: .14em; text-transform: uppercase;
 }
 .peek {
@@ -596,7 +604,7 @@ button, input, select { font: inherit; color: inherit; }
   background: rgba(8,8,10,.75);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  font-family: var(--mono); font-size: .6rem;
+  font-family: var(--mono); font-size: .72rem;
   letter-spacing: .15em; text-transform: uppercase;
   opacity: 0;
   transition: opacity .35s var(--ease), transform .35s var(--ease);
@@ -609,7 +617,7 @@ button, input, select { font: inherit; color: inherit; }
   gap: 1rem;
 }
 /* Product names get read, not displayed. Clash Display is a display
-   face â€” wide, heavy, unusual letterforms â€” and it turns to mush at
+   face — wide, heavy, unusual letterforms — and it turns to mush at
    1rem. Satoshi in sentence case is what SSENSE and Net-a-Porter use
    for product titles, and for the same reason. */
 .card h3 {
@@ -623,7 +631,7 @@ button, input, select { font: inherit; color: inherit; }
 .card-blurb { margin: .6rem 0 .9rem; font-size: .94rem; color: var(--muted); line-height: 1.6; }
 
 .card-spec { display: flex; flex-wrap: wrap; gap: .3rem 1.4rem; margin: 0 0 1rem; }
-.card-spec dt { font-family: var(--mono); font-size: .68rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.card-spec dt { font-family: var(--mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .card-spec dd { margin: .15rem 0 0; font-size: .90rem; color: var(--bone-dim); }
 
 .card-foot {
@@ -857,7 +865,7 @@ button, input, select { font: inherit; color: inherit; }
   border-top: 1px solid var(--line-2);
 }
 .ftr-bottom p { margin: 0; }
-.demo-warn { color: #55534f; }
+.demo-warn { color: var(--muted); }
 .ftr-legal { display: flex; gap: 1.2rem; }
 .ftr-legal a:hover { color: var(--bone); }
 
@@ -943,7 +951,7 @@ button, input, select { font: inherit; color: inherit; }
 }
 .line-media { background: var(--void-3); border: 1px solid var(--line-2); aspect-ratio: 4/5; padding: 8%; }
 .line-name { margin: 0 0 .2rem; font-size: .9rem; font-weight: 500; }
-.line-info .mono { margin: 0; font-size: .68rem; }
+.line-info .mono { margin: 0; font-size: .72rem; }
 .qty { display: inline-flex; align-items: center; gap: .6rem; margin-top: .6rem; border: 1px solid var(--line-2); padding: .15rem .4rem; }
 .qty button { width: 22px; height: 22px; background: none; border: 0; cursor: pointer; color: var(--bone-dim); line-height: 1; }
 .qty button:hover { color: var(--bone); }
@@ -951,14 +959,14 @@ button, input, select { font: inherit; color: inherit; }
 
 .line-end { text-align: right; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; }
 .line-price { margin: 0; font-family: var(--mono); font-size: .8rem; }
-.line-rm { background: none; border: 0; padding: 0; cursor: pointer; font-family: var(--mono); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.line-rm { background: none; border: 0; padding: 0; cursor: pointer; font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
 .line-rm:hover { color: var(--bone); }
 
 .totals { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: .5rem; font-family: var(--mono); font-size: .78rem; }
 .totals strong { font-family: var(--sans); font-size: 1.35rem; font-weight: 600; }
 .drawer-foot .mono { margin: 0 0 1rem; display: block; }
 .drawer-foot .btn { margin-bottom: .8rem; }
-.demo-note { margin: 0; font-size: .68rem; color: #55534f; text-align: center; }
+.demo-note { margin: 0; font-size: .72rem; color: var(--muted); text-align: center; }
 
 /* Search */
 .search-inner { padding: 1.6rem var(--pad) 2.2rem; }
@@ -966,7 +974,7 @@ button, input, select { font: inherit; color: inherit; }
 .search-bar input {
   flex: 1; background: none; border: 0; outline: none;
   font-family: var(--sans); font-size: clamp(1.1rem, 2.6vw, 1.6rem);
-  font-weight: 300; letter-spacing: 0;
+  font-weight: 400; letter-spacing: 0;
 }
 .search-bar input::placeholder { color: var(--muted); text-transform: none; letter-spacing: 0; }
 .search-results { display: grid; gap: 0; margin-top: 1.2rem; max-height: 54vh; overflow-y: auto; }
@@ -999,7 +1007,7 @@ button, input, select { font: inherit; color: inherit; }
 
 .size-table { width: 100%; border-collapse: collapse; margin-bottom: 1.4rem; font-size: .9rem; }
 .size-table th, .size-table td { padding: .7rem .5rem; text-align: left; border-bottom: 1px solid var(--line-2); }
-.size-table th { font-family: var(--mono); font-size: .6rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
+.size-table th { font-family: var(--mono); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 400; }
 .size-table td:first-child { font-family: var(--mono); }
 
 /* Mobile menu */
